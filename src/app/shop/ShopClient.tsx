@@ -20,11 +20,10 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
       title: "Pack Débutant",
       baseAmount: 100,
       bonusAmount: 0,
-      color: "from-blue-600/40 to-indigo-600/10",
-      glow: "bg-blue-500/20",
-      border: "border-blue-500/40 hover:border-blue-400/80",
-      iconColor: "text-blue-400",
-      buttonBg: "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)]"
+      bgVar: "var(--feature-blue-bg)",
+      textVar: "var(--feature-blue-text)",
+      borderVar: "var(--feature-blue-border)",
+      buttonBg: "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] text-white"
     },
     {
       id: "pkg_500",
@@ -34,11 +33,10 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
       title: "Pack Épique",
       baseAmount: 450,
       bonusAmount: 50,
-      color: "from-purple-600/40 to-fuchsia-600/10",
-      glow: "bg-purple-500/30",
-      border: "border-purple-500/50 hover:border-purple-400",
-      iconColor: "text-purple-400",
-      buttonBg: "bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:shadow-[0_0_30px_rgba(168,85,247,0.7)]"
+      bgVar: "var(--feature-purple-bg)",
+      textVar: "var(--feature-purple-text)",
+      borderVar: "var(--feature-purple-border)",
+      buttonBg: "bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:shadow-[0_0_30px_rgba(168,85,247,0.7)] text-white"
     },
     {
       id: "pkg_1000",
@@ -48,10 +46,9 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
       title: "Pack Légendaire",
       baseAmount: 850,
       bonusAmount: 150,
-      color: "from-amber-500/40 to-orange-600/10",
-      glow: "bg-amber-500/20",
-      border: "border-amber-500/40 hover:border-amber-400/80",
-      iconColor: "text-amber-400",
+      bgVar: "var(--feature-amber-bg)",
+      textVar: "var(--feature-amber-text)",
+      borderVar: "var(--feature-amber-border)",
       buttonBg: "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:shadow-[0_0_25px_rgba(245,158,11,0.6)] text-black"
     }
   ];
@@ -127,12 +124,12 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
         <div className="flex justify-center md:justify-end mb-12">
           <div className="relative group cursor-default">
             <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-red)] rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-            <div className="relative flex items-center gap-4 bg-[#111118]/90 backdrop-blur-xl border border-white/10 px-8 py-4 rounded-2xl">
-              <span className="text-[var(--color-text-secondary)] font-medium uppercase tracking-widest text-sm">Votre Banque</span>
-              <div className="h-8 w-px bg-white/10"></div>
+            <div className="relative flex items-center gap-4 backdrop-blur-xl px-8 py-4 rounded-2xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+              <span className="font-medium uppercase tracking-widest text-sm" style={{ color: 'var(--muted-text)' }}>Votre Banque</span>
+              <div className="h-8 w-px" style={{ background: 'var(--card-border)' }}></div>
               <div className="flex items-center gap-3">
                 <img src="/Paracoin.png" alt="PARA Coins" className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] animate-pulse-glow" />
-                <span className="font-outfit font-black text-white text-3xl tracking-tight">{balance.toLocaleString()}</span>
+                <span className="font-outfit font-black text-3xl tracking-tight" style={{ color: 'var(--text-color)' }}>{balance.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -151,26 +148,27 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
         {packages.map((pkg, i) => (
           <div
             key={pkg.id}
-            className={`relative group bg-gradient-to-br ${pkg.color} bg-opacity-10 backdrop-blur-xl border ${pkg.border} rounded-[2rem] p-8 flex flex-col items-center text-center transition-all duration-500 hover:scale-[1.02] hover:-translate-y-4`}
+            className="relative group backdrop-blur-xl border rounded-[2rem] p-8 flex flex-col items-center text-center transition-all duration-500 hover:scale-[1.02] hover:-translate-y-4 shadow-xl"
+            style={{ background: 'var(--card-bg)', borderColor: pkg.borderVar }}
           >
             {/* Background Glow */}
-            <div className={`absolute inset-0 ${pkg.glow} blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-[2rem]`}></div>
+            <div className="absolute inset-0 blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-[2rem]" style={{ background: pkg.bgVar }}></div>
             {pkg.popular && (
               <div className="absolute -top-5 bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-sm font-black px-6 py-1.5 rounded-full uppercase tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.6)] animate-pulse-glow border border-white/20 z-10 flex items-center gap-2">
                 <Zap className="w-4 h-4 fill-white" />
-                Plus Populaire
+                Populaire
               </div>
             )}
-            <div className="text-[var(--color-text-secondary)] font-bold tracking-widest uppercase text-sm mb-6 relative z-10">
-              {pkg.title}
+            <div className="mb-6 mt-2">
+              <h3 className="text-xl font-bold uppercase tracking-widest" style={{ color: 'var(--muted-text)' }}>{pkg.title}</h3>
             </div>
 
-            <div className={`w-32 h-32 mb-4 relative flex items-center justify-center`}>
-              <div className={`absolute inset-0 ${pkg.glow} rounded-full blur-2xl opacity-50 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700`}></div>
+            <div className="w-32 h-32 mb-4 relative flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full blur-2xl opacity-50 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700" style={{ background: pkg.bgVar }}></div>
               <img
                 src="/Paracoin.png"
                 alt="PARA Coins"
-                className={`relative z-10 w-full h-full object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.6)] transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12`}
+                className="relative z-10 w-full h-full object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.6)] transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12"
               />
             </div>
             {pkg.bonusAmount > 0 && (
@@ -181,11 +179,11 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
             {pkg.bonusAmount === 0 && (
               <div className="h-8 mb-6"></div> // spacer
             )}
-            <h3 className="text-5xl font-outfit font-black text-white mb-2 flex items-baseline gap-2 relative z-10 drop-shadow-lg">
+            <h3 className="text-5xl font-outfit font-black mb-2 flex items-baseline gap-2 relative z-10 drop-shadow-lg" style={{ color: 'var(--text-color)' }}>
               {pkg.amount}
-              <span className={`text-lg font-bold ${pkg.iconColor} uppercase tracking-widest`}>Coins</span>
+              <span className="text-lg font-bold uppercase tracking-widest" style={{ color: pkg.textVar }}>Coins</span>
             </h3>
-            <p className="text-[var(--color-text-secondary)] mb-10 flex-1 relative z-10 font-medium px-4">
+            <p className="mb-10 flex-1 relative z-10 font-medium px-4" style={{ color: 'var(--muted-text)' }}>
               Idéal pour agrandir rapidement votre collection de Trading Cards.
             </p>
             <button
@@ -224,8 +222,8 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
           <ShieldCheck className="w-8 h-8 text-blue-400" />
         </div>
         <div>
-          <h4 className="text-xl font-outfit text-white font-bold mb-3">Paiement 100% Sécurisé</h4>
-          <p className="text-blue-200/70 leading-relaxed font-medium">
+          <h4 className="text-xl font-outfit font-bold mb-3" style={{ color: 'var(--text-color)' }}>Paiement 100% Sécurisé</h4>
+          <p className="leading-relaxed font-medium" style={{ color: 'var(--muted-text)' }}>
             Les PARA Coins sont une monnaie virtuelle exclusive au serveur PARANOIA, conçue pour l'ouverture de Boosters de Trading Cards.
             Aucun remboursement n'est possible après l'achat. Ce module est actuellement en phase de test (simulateur).
           </p>

@@ -3,6 +3,9 @@ import { Pool, types } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 
 // Fix for BigInt serialization
+if (typeof BigInt !== 'undefined' && !(BigInt.prototype as any).toJSON) {
+  (BigInt.prototype as any).toJSON = function () { return Number(this) }
+}
 types.setTypeParser(20, val => parseInt(val, 10))
 
 const globalForPrisma = globalThis as unknown as {
@@ -10,19 +13,21 @@ const globalForPrisma = globalThis as unknown as {
   pool: Pool | undefined
 }
 
-const connectionString = process.env.DATABASE_URL
+let connectionString = process.env.DATABASE_URL || ''
 
 if (!globalForPrisma.pool) {
-  const isRender = connectionString?.includes('render.com')
+  const isLocal = connectionString.includes('localhost') || connectionString.includes('127.0.0.1')
   globalForPrisma.pool = new Pool({ 
     connectionString,
-    ssl: isRender ? { rejectUnauthorized: false } : false,
+    ssl: isLocal ? false : { rejectUnauthorized: false },
     max: 10,
-    idleTimeoutMillis: 30000,
+    idleTimeoutMillis: 10000, // Reduced to prevent using connections closed by remote DB
     connectionTimeoutMillis: 10000,
+    allowExitOnIdle: true,
   })
 
   globalForPrisma.pool.on('error', (err) => {
+    // Suppress idle client errors so they don't crash the server
     console.error('Unexpected error on idle database client', err)
   })
 }

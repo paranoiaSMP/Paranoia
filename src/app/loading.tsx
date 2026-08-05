@@ -1,57 +1,52 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 export default function Loading() {
   return (
-    <div className="fixed inset-0 z-[999] bg-[#0a0510] flex flex-col items-center justify-center overflow-hidden">
-      {/* Background Deep Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-900/20 rounded-full blur-[150px] pointer-events-none animate-pulse-slow"></div>
-
-      {/* Cyberpunk Grid */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none mix-blend-overlay"></div>
+    <div className="fixed inset-0 z-[999] flex flex-col items-center justify-center overflow-hidden transition-colors duration-500" style={{ background: 'var(--bg-color)' }}>
+      {/* Background Ambient Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[120px] pointer-events-none opacity-30 animate-pulse-slow" style={{ background: 'var(--shape-color)' }}></div>
       
-      {/* Main Logo & Text container */}
-      <div className="relative flex flex-col items-center z-10">
-        
-        {/* Animated Paranoia Glitch Text */}
-        <div className="relative">
-          <h1 className="text-6xl md:text-8xl font-black font-outfit text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-500 to-indigo-500 tracking-widest uppercase drop-shadow-[0_0_30px_rgba(168,85,247,0.5)] z-20" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.1)' }}>
-            PARANOIA
-          </h1>
-          <h1 className="absolute inset-0 text-6xl md:text-8xl font-black font-outfit text-white tracking-widest uppercase opacity-50 z-10" style={{ transform: 'translateX(-4px)', animation: 'glitch-r 2s infinite linear alternate-reverse' }}>
-            PARANOIA
-          </h1>
-          <h1 className="absolute inset-0 text-6xl md:text-8xl font-black font-outfit text-fuchsia-500 tracking-widest uppercase opacity-50 z-10" style={{ transform: 'translateX(4px)', animation: 'glitch-b 3s infinite linear alternate' }}>
-            PARANOIA
-          </h1>
+      {/* Main Logo & Loader */}
+      <div className="relative z-10 flex flex-col items-center">
+        {/* Animated Rings */}
+        <div className="relative w-24 h-24 mb-8 flex items-center justify-center">
+          {/* Outer Ring */}
+          <div className="absolute inset-0 rounded-full border-t-2 border-r-2 animate-spin" style={{ borderColor: 'var(--logo-end)', animationDuration: '2s' }}></div>
+          
+          {/* Inner Ring */}
+          <div className="absolute inset-2 rounded-full border-b-2 border-l-2 animate-spin" style={{ borderColor: 'var(--logo-start)', animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
+          
+          {/* Core Logo Pulse */}
+          <div className="w-10 h-10 rounded-full animate-pulse flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--logo-start), var(--logo-end))', boxShadow: '0 0 20px var(--logo-end)' }}>
+            <div className="w-4 h-4 rounded-full bg-white"></div>
+          </div>
         </div>
 
-        {/* Loading Bar Container */}
-        <div className="mt-12 w-64 h-1.5 bg-white/5 rounded-full overflow-hidden relative shadow-[0_0_15px_rgba(0,0,0,0.5)]">
-          {/* Progress fill */}
-          <div className="h-full w-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-indigo-500 origin-left animate-[scale-x_2s_ease-in-out_infinite]"></div>
-          {/* Glare overlay */}
-          <div className="absolute inset-0 bg-white/20 w-1/4 blur-sm animate-[slide-right_1.5s_ease-in-out_infinite]"></div>
+        {/* Brand Text */}
+        <div className="overflow-hidden mb-2">
+          <motion.h1 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="text-3xl font-black font-outfit tracking-[0.2em] uppercase"
+            style={{ color: 'var(--text-color)' }}
+          >
+            Paranoia
+          </motion.h1>
         </div>
 
-        {/* Loading text */}
-        <div className="mt-6 flex items-center gap-3 text-purple-200/60 font-bold uppercase tracking-[0.4em] text-sm">
-          <span className="w-2 h-2 rounded-full bg-fuchsia-500 animate-ping"></span>
-          Initialisation
-          <span className="w-2 h-2 rounded-full bg-purple-500 animate-ping" style={{ animationDelay: '0.2s' }}></span>
+        {/* Loading Bar */}
+        <div className="w-48 h-1 rounded-full overflow-hidden mt-6 relative" style={{ background: 'var(--icon-border)' }}>
+          <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-transparent via-[var(--logo-end)] to-transparent w-full animate-[shimmer-bar_1.5s_infinite_linear]"></div>
         </div>
-
       </div>
 
-      {/* CSS additions for this loading screen */}
       <style jsx>{`
-        @keyframes scale-x {
-          0% { transform: scaleX(0); }
-          50% { transform: scaleX(1); }
-          100% { transform: scaleX(0); transform-origin: right; }
-        }
-        @keyframes slide-right {
+        @keyframes shimmer-bar {
           0% { transform: translateX(-100%); }
-          100% { transform: translateX(400%); }
+          100% { transform: translateX(100%); }
         }
       `}</style>
     </div>

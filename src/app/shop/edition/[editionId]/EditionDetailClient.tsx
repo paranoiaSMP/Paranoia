@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { PackageOpen, Sparkles, Loader2, ShoppingCart, Zap, LayoutGrid, Info } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import CardDisplay from "@/components/cards/CardDisplay";
+import CardDisplay from "@/features/binder/components/CardDisplay";
 
 export default function EditionDetailClient({ 
   edition, 

@@ -20,9 +20,19 @@
   --font-outfit: "Outfit", sans-serif;
 }
 
+
 @layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
   body {
-    @apply bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] font-inter antialiased min-h-screen selection:bg-[var(--color-accent-red)] selection:text-white;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    @apply font-inter antialiased min-h-screen selection:bg-[var(--color-accent-red)] selection:text-white;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-outfit tracking-tight;
@@ -499,3 +509,12 @@
   0% { opacity: 0.5; transform: scale(1); }
   100% { opacity: 0.8; transform: scale(1.05); }
 }
+@layer utilities {
+  .bg-noise {
+    background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+  }
+  .minecraft-border {
+    @apply border-4 border-zinc-800 border-t-zinc-600 border-l-zinc-600;
+  }
+}
+

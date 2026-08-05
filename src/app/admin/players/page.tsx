@@ -86,12 +86,12 @@ export default function AdminPlayersPage() {
 
   return (
     <div className="space-y-12">
-      <div className="flex items-center gap-4 border-b border-white/5 pb-6">
+      <div className="flex items-center gap-4 border-b border-[var(--card-border)] pb-6">
         <div className="p-3 bg-blue-500/20 rounded-2xl">
           <Users className="w-8 h-8 text-blue-400" />
         </div>
         <div>
-          <h2 className="text-3xl font-bold font-outfit text-white">Base de Joueurs</h2>
+          <h2 className="text-3xl font-bold font-outfit text-[var(--text-color)]">Base de Joueurs</h2>
           <p className="text-[var(--color-text-secondary)]">Gérez les joueurs enregistrés sur le serveur.</p>
         </div>
       </div>
@@ -99,18 +99,18 @@ export default function AdminPlayersPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
         {/* Form Column */}
         <div className="xl:col-span-1">
-          <div className="bg-black/20 p-8 rounded-3xl border border-white/5 sticky top-8">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <div className="bg-[var(--card-bg)] p-8 rounded-3xl border border-[var(--card-border)] sticky top-8">
+            <h3 className="text-xl font-bold text-[var(--text-color)] mb-6 flex items-center gap-2">
               <Plus className="w-5 h-5 text-blue-400" /> Ajouter un Joueur
             </h3>
             <form onSubmit={handleAddPlayer} className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-widest">Pseudo Minecraft</label>
+                <label className="block text-sm font-bold text-[var(--color-text-secondary)] mb-2 uppercase tracking-widest">Pseudo Minecraft</label>
                 <input
                   type="text"
                   value={newPlayerName}
                   onChange={(e) => setNewPlayerName(e.target.value)}
-                  className="w-full bg-[#0a0a0f] border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500 transition-all shadow-inner"
+                  className="w-full bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-xl px-4 py-3 text-[var(--text-color)] outline-none focus:border-blue-500 transition-all shadow-inner"
                   placeholder="Ex: Notch"
                   disabled={loading}
                 />
@@ -130,17 +130,17 @@ export default function AdminPlayersPage() {
 
         {/* List Column */}
         <div className="xl:col-span-2">
-          <div className="bg-black/20 p-8 rounded-3xl border border-white/5">
-            <h3 className="text-xl font-bold text-white mb-6">Joueurs Actuels ({players.length})</h3>
+          <div className="bg-[var(--card-bg)] p-8 rounded-3xl border border-[var(--card-border)]">
+            <h3 className="text-xl font-bold text-[var(--text-color)] mb-6">Joueurs Actuels ({players.length})</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {players.map(player => (
-                <div key={player.id} className="bg-[#111118] border border-white/5 rounded-2xl p-4 flex items-center justify-between group hover:border-blue-500/30 transition-all hover:bg-[#16161f]">
+                <div key={player.id} className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-2xl p-4 flex items-center justify-between group hover:border-blue-500/30 transition-all hover:bg-[#16161f]">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-black/40 rounded-xl flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-blue-500/20 transition-colors">
+                    <div className="w-12 h-12 bg-[var(--surface-bg)] rounded-xl flex items-center justify-center overflow-hidden border border-[var(--card-border)] group-hover:border-blue-500/20 transition-colors">
                       <img src={`https://vzge.me/bust/512/${player.minecraftName}.png`} alt={player.minecraftName} className="w-10 h-10 object-contain drop-shadow-md" />
                     </div>
                     <div>
-                        <span className="font-black text-white uppercase tracking-tight">{player.minecraftName}</span>
+                        <span className="font-black text-[var(--text-color)] uppercase tracking-tight">{player.minecraftName}</span>
                         <p className="text-[10px] text-[var(--color-text-secondary)] font-bold uppercase tracking-widest">{player.id.slice(0, 8)}</p>
                     </div>
                   </div>
@@ -153,7 +153,7 @@ export default function AdminPlayersPage() {
                 </div>
               ))}
               {players.length === 0 && !loading && (
-                <p className="text-[var(--color-text-secondary)] col-span-full py-12 text-center border border-dashed border-white/10 rounded-2xl italic">
+                <p className="text-[var(--color-text-secondary)] col-span-full py-12 text-center border border-dashed border-[var(--card-border)] rounded-2xl italic">
                   Aucun joueur enregistré. Utilisez le formulaire pour commencer.
                 </p>
               )}

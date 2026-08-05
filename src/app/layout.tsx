@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import ScrollToTop from "@/components/layout/ScrollToTop";
+import NavigationManager from "@/components/layout/NavigationManager";
 
 import { Providers } from "@/components/providers";
 
@@ -23,8 +21,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="dark">
-      <body className={`${inter.variable} ${outfit.variable} flex flex-col min-h-screen bg-[var(--color-bg-primary)]`}>
+    <html lang="fr">
+      <body className={`${inter.variable} ${outfit.variable} flex flex-col min-h-screen`}>
         <Providers>
           <Toaster
             position="bottom-right"
@@ -56,12 +54,9 @@ export default function RootLayout({
               },
             }}
           />
-          <Navbar />
-          <main className="flex-grow pt-20">
+          <NavigationManager>
             {children}
-          </main>
-          <Footer />
-          <ScrollToTop />
+          </NavigationManager>
         </Providers>
       </body>
     </html>

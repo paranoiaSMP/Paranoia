@@ -1,0 +1,501 @@
+:root {
+  --bg-color: #f7f6fa;
+  --text-color: #000000;
+  --navbar-bg: rgba(255, 255, 255, 0.22);
+  --navbar-border: rgba(157, 13, 242, 0.25);
+  --navbar-shadow: 0 10px 35px rgba(157, 13, 242, 0.18), 0 0 15px rgba(157, 13, 242, 0.1);
+  --nav-item-color: #334155;
+  --burger-color: #000000;
+  --logo-start: #7a0aad;
+  --logo-end: #d946ef;
+  --shape-color: rgba(157, 13, 242, 0.08);
+
+  /* Light mode content */
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --card-border: rgba(157, 13, 242, 0.15);
+  --content-bg: rgba(255, 255, 255, 0.4);
+  --surface-bg: #ffffff;
+  --surface-hover: #f8f5ff;
+  --muted-text: #475569;
+  --accent-purple: #9d0df2;
+  --accent-purple-soft: rgba(157, 13, 242, 0.1);
+  --accent-purple-medium: rgba(157, 13, 242, 0.2);
+  --tier-content-bg: rgba(0, 0, 0, 0.05);
+  --player-card-bg: #ffffff;
+  --player-card-border: rgba(157, 13, 242, 0.12);
+  --player-card-text: #000000;
+  --drop-zone-border: rgba(157, 13, 242, 0.2);
+  --drop-zone-bg: rgba(157, 13, 242, 0.03);
+
+  /* Feature specific colors adapted for light mode */
+  --feature-purple-bg: rgba(168, 85, 247, 0.1);
+  --feature-purple-text: #7e22ce;
+  --feature-purple-border: rgba(168, 85, 247, 0.3);
+  --feature-amber-bg: rgba(245, 158, 11, 0.1);
+  --feature-amber-text: #b45309;
+  --feature-amber-border: rgba(245, 158, 11, 0.3);
+  --feature-emerald-bg: rgba(16, 185, 129, 0.1);
+  --feature-emerald-text: #047857;
+  --feature-emerald-border: rgba(16, 185, 129, 0.3);
+  --feature-blue-bg: rgba(59, 130, 246, 0.1);
+  --feature-blue-text: #1d4ed8;
+  --feature-blue-border: rgba(59, 130, 246, 0.3);
+  
+  --icon-bg: rgba(0, 0, 0, 0.05);
+  --icon-border: rgba(0, 0, 0, 0.1);
+  --btn-secondary-bg: rgba(255, 255, 255, 0.8);
+  --btn-secondary-border: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --navbar-bg: rgba(10, 10, 16, 0.22);
+  --navbar-border: rgba(255, 255, 255, 0.08);
+  --navbar-shadow: 0 0 30px rgba(122, 10, 173, 0.4), 0 0 10px rgba(122, 10, 173, 0.2);
+  --nav-item-color: #94a3b8;
+  --burger-color: #ffffff;
+  --logo-start: #ffffff;
+  --logo-end: #7a0aad;
+  --shape-color: rgba(122, 10, 173, 0.25);
+
+  /* Dark mode content */
+  --card-bg: rgba(20, 20, 30, 0.7);
+  --card-border: rgba(255, 255, 255, 0.06);
+  --content-bg: rgba(0, 0, 0, 0.3);
+  --surface-bg: #111118;
+  --surface-hover: #1a1a25;
+  --muted-text: #94a3b8;
+  --accent-purple: #7a0aad;
+  --accent-purple-soft: rgba(122, 10, 173, 0.15);
+  --accent-purple-medium: rgba(122, 10, 173, 0.3);
+  --tier-content-bg: rgba(0, 0, 0, 0.3);
+  --player-card-bg: rgba(20, 20, 30, 0.8);
+  --player-card-border: rgba(255, 255, 255, 0.06);
+  --player-card-text: #ffffff;
+  --drop-zone-border: rgba(255, 255, 255, 0.08);
+  --drop-zone-bg: rgba(0, 0, 0, 0.2);
+
+  /* Feature specific colors adapted for dark mode */
+  --feature-purple-bg: rgba(168, 85, 247, 0.2);
+  --feature-purple-text: #c084fc;
+  --feature-purple-border: rgba(168, 85, 247, 0.3);
+  --feature-amber-bg: rgba(245, 158, 11, 0.2);
+  --feature-amber-text: #fbbf24;
+  --feature-amber-border: rgba(245, 158, 11, 0.3);
+  --feature-emerald-bg: rgba(16, 185, 129, 0.2);
+  --feature-emerald-text: #34d399;
+  --feature-emerald-border: rgba(16, 185, 129, 0.3);
+  --feature-blue-bg: rgba(59, 130, 246, 0.2);
+  --feature-blue-text: #60a5fa;
+  --feature-blue-border: rgba(59, 130, 246, 0.3);
+
+  --icon-bg: rgba(0, 0, 0, 0.3);
+  --icon-border: rgba(255, 255, 255, 0.1);
+  --btn-secondary-bg: rgba(255, 255, 255, 0.05);
+  --btn-secondary-border: rgba(255, 255, 255, 0.1);
+} 
+/* Reset handled by globals.css — do NOT add * or body resets here,
+   they override Tailwind @layer utilities */
+
+.navbar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 1120px;
+  height: 64px;
+  z-index: 1000;
+  border-radius: 50px; 
+  background: var(--navbar-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--navbar-border);
+  
+  /* On applique l'ombre et on ajoute une transition pour le changement de mode */
+  box-shadow: var(--navbar-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: background var(--bg-color) 0.3s, border 0.3s, box-shadow 0.3s ease;
+}
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 0 30px;
+}
+
+.nav-logo {
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  text-decoration: none;
+  letter-spacing: 1px;
+  background: linear-gradient(45deg, var(--logo-start), var(--logo-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: background 0.3s ease; 
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap: 28px;
+  flex: 1;
+}
+
+.nav-links .nav-link-first,
+.nav-links .theme-switch-container {
+  margin-left: auto;
+}
+
+.nav-item {
+  color: var(--nav-item-color);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+  position: relative; 
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;          
+  bottom: -4px;         
+  left: 0;
+  background-color: #7a0aad; 
+  transform: scaleX(0);
+  transform-origin: bottom center; 
+  transition: transform 0.3s ease; 
+}
+
+.nav-item:hover {
+  color: #8024aa;
+}
+
+.nav-item:hover::after {
+  transform: scaleX(1);
+}
+
+.nav-btn {
+  background: #b1b1b1;
+  color: #000000;
+  text-decoration: none;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+  background: #7a0aad;
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+.theme-switch-container {
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle-input {
+  display: none;
+}
+
+.theme-toggle-label {
+  width: 50px;
+  height: 26px;
+  background-color: #b1b1b1;
+  display: flex;
+  border-radius: 50px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5px;
+  position: relative;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.3s ease;
+}
+
+.theme-toggle-label::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50px;
+  background-color: #fff;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.theme-toggle-input:checked + .theme-toggle-label {
+  background-color: #7a0aad;
+}
+
+.theme-toggle-input:checked + .theme-toggle-label::after {
+  transform: translateX(24px);
+}
+
+.theme-toggle-label .sun { transition: opacity 0.2s; opacity: 1; }
+.theme-toggle-label .moon { transition: opacity 0.2s; opacity: 0.3; }
+
+.theme-toggle-input:checked + .theme-toggle-label .sun { opacity: 0.3; }
+.theme-toggle-input:checked + .theme-toggle-label .moon { opacity: 1; }
+
+.menu-toggle {
+  display: none;
+}
+
+.burger-icon {
+  display: none;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.burger-icon span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: var(--burger-color);
+  transition: all 0.3s ease;
+}
+
+@media screen and (max-width: 768px) {
+  .burger-icon {
+    display: flex;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 75px;
+    left: 0;
+    flex-direction: column;
+    width: 100%;
+    padding: 24px 0;
+    gap: 20px;
+    border-radius: 24px;
+    background: rgba(235, 235, 235, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+  }
+
+  .nav-links .nav-link-first,
+  .nav-links .theme-switch-container {
+    margin-left: 0;
+  }
+
+  .menu-toggle:checked ~ .nav-links {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .nav-btn {
+    width: 80%;
+    text-align: center;
+  }
+
+  .menu-toggle:checked ~ .burger-icon span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .menu-toggle:checked ~ .burger-icon span:nth-child(2) { opacity: 0; }
+  .menu-toggle:checked ~ .burger-icon span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+}
+
+/* ==========================================================================
+   HERO SECTION (PAGE D'ACCUEIL)
+   ========================================================================== */
+
+.hero-section {
+  min-height: 100vh;   /* Force la section à faire exactement 100% de la hauteur de l'écran */
+  display: flex;
+  align-items: center; /* Centre verticalement tout le bloc conteneur */
+  justify-content: center; /* Centre horizontalement */
+  text-align: center;
+  padding: 0 40px;
+  position: relative;
+  z-index: 1;
+  margin-top: -128px;  /* Annule le padding-top du body pour tricher et se caler sur le vrai centre de l'écran */
+}
+.hero-container {
+  max-width: 800px;
+  animation: fadeInUp 0.8s ease-out;
+}
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+}
+
+.hero-highlight {
+  background: linear-gradient(45deg, var(--logo-start), var(--logo-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: var(--nav-item-color);
+  line-height: 1.6;
+  margin-bottom: 40px;
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: color 0.3s ease;
+}
+
+/* ==========================================================================
+   BOUTONS DE L'ACCUEIL
+   ========================================================================== */
+
+
+.hero-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: #7a0aad;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 0 20px rgba(122, 10, 173, 0.4);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-primary:hover {
+  background: #9213cc;
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(122, 10, 173, 0.6);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 1px solid var(--navbar-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  display: inline-block;
+  stroke-width: 2; /* Épaisseur du trait de l'icône */
+}
+
+.lucide-icon {
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   ANIMATIONS & RESPONSIVE
+   ========================================================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .hero-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+  }
+  
+  .btn-primary, .btn-secondary {
+    width: 85%;
+    justify-content: center; 
+  }
+}
+/* ==========================================================================
+   FORMES D'ARRIÈRE-PLAN (GLOWING SHAPES)
+   ========================================================================== */
+
+.bg-shape {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px); /* Crée l'effet de halo lumineux hyper diffus */
+  z-index: 0;          /* Reste derrière la navbar et le contenu */
+  pointer-events: none; /* Empêche les formes de bloquer les clics */
+  background-color: var(--shape-color);
+  transition: background-color 0.5s ease;
+}
+
+/* Première forme : En haut à gauche */
+.shape-1 {
+  width: 400px;
+  height: 400px;
+  top: -100px;
+  left: -50px;
+}
+
+/* Deuxième forme : Au milieu à droite, un peu plus grosse */
+.shape-2 {
+  width: 550px;
+  height: 550px;
+  top: 30vh;
+  right: -150px;
+}
+
+.panel-matte {
+  background: var(--navbar-bg);
+  border: 1px solid var(--navbar-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+

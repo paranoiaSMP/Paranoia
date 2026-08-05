@@ -1,0 +1,1 @@
+1. Pouvoir @ une voc lorsque un user Va dans une voc Il a un role Temp Ex: Amine Rejoin la voc General 1 Il a le role General 1 aussi Le role peut etre Ping

@@ -1,20 +1,34 @@
-import { prisma } from "@/lib/db";
-import HomePageClient from "@/components/home/HomePageClient";
+"use client";
 
-export const revalidate = 60;
+import React, { useEffect, useState } from 'react';
+import HeroSection from '@/features/home/components/HeroSection';
+import FeaturesSection from '@/features/home/components/FeaturesSection';
+import CardsSystemSection from '@/features/home/components/CardsSystemSection';
+import CTASection from '@/features/home/components/CTASection';
+import BackgroundEffects from '@/features/home/components/BackgroundEffects';
 
-export default async function Home() {
-  const [usersCount, topicsCount, cardsCount] = await Promise.all([
-    prisma.user.count({ where: { isMcVerified: true } }).catch(() => 0),
-    prisma.topic.count().catch(() => 0),
-    prisma.userCard.count().catch(() => 0)
-  ]);
+export default function Page() {
+  const [mounted, setMounted] = useState(false);
 
-  const stats = {
-    users: usersCount > 0 ? usersCount : "???",
-    topics: topicsCount > 0 ? topicsCount : "∞",
-    cards: cardsCount > 0 ? cardsCount : "0"
-  };
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  return <HomePageClient stats={stats} />;
+  if (!mounted) return null;
+
+  return (
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Subtle organic noise overlay + Floating effects for the entire page */}
+      <div className="fixed inset-0 bg-noise opacity-30 pointer-events-none mix-blend-overlay z-0"></div>
+      <BackgroundEffects />
+      
+      {/* Page Content */}
+      <div className="relative z-10">
+        <HeroSection />
+        <FeaturesSection />
+        <CardsSystemSection />
+        <CTASection />
+      </div>
+    </div>
+  );
 }

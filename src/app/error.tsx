@@ -25,13 +25,13 @@ export default function Error({
           <AlertTriangle className="w-12 h-12 text-red-500 animate-pulse" />
         </div>
 
-        <h1 className="text-6xl md:text-7xl font-outfit font-black text-white mb-4 tracking-tighter drop-shadow-2xl">
+        <h1 className="text-6xl md:text-7xl font-outfit font-black text-[var(--text-color)] mb-4 tracking-tighter drop-shadow-2xl">
           Oops
         </h1>
 
         <div className="h-1 w-24 bg-gradient-to-r from-red-500 to-orange-500 mx-auto mb-8 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.5)]"></div>
 
-        <h2 className="text-2xl md:text-3xl font-outfit font-bold text-white mb-4 uppercase tracking-widest">
+        <h2 className="text-2xl md:text-3xl font-outfit font-bold text-[var(--text-color)] mb-4 uppercase tracking-widest">
           Une erreur est survenue
         </h2>
 
@@ -42,14 +42,14 @@ export default function Error({
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={() => reset()}
-            className="inline-flex items-center gap-3 bg-white text-black font-black px-8 py-4 rounded-2xl transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] uppercase tracking-wider group"
+            className="inline-flex items-center gap-3 bg-[var(--text-color)] text-[var(--bg-color)] font-black px-8 py-4 rounded-2xl transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] uppercase tracking-wider group"
           >
             <RotateCcw className="w-5 h-5 transition-transform group-hover:-rotate-180 duration-500" />
             Réessayer
           </button>
           <Link
             href="/"
-            className="inline-flex items-center gap-3 bg-white/5 border border-white/10 text-white font-bold px-8 py-4 rounded-2xl transition-all hover:bg-white/10 uppercase tracking-wider"
+            className="inline-flex items-center gap-3 bg-[var(--text-color)]/5 border border-[var(--text-color)]/10 text-[var(--text-color)] font-bold px-8 py-4 rounded-2xl transition-all hover:bg-[var(--text-color)]/10 uppercase tracking-wider"
           >
             <Home className="w-5 h-5" />
             Accueil
