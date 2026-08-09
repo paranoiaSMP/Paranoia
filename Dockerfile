@@ -8,6 +8,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY package.json package-lock.json* ./
+COPY prisma ./prisma
 RUN npm ci
 
 # 2. Rebuild the source code only when needed
