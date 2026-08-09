@@ -8,18 +8,7 @@ export default withAuth(
     const isComingSoonPage = req.nextUrl.pathname === "/coming-soon";
     const isAdmin = token && token.role === "ADMIN";
 
-    // Enforce "Coming Soon" for everyone except ADMINs
-    if (!isAdmin) {
-      if (!isComingSoonPage) {
-        return NextResponse.redirect(new URL("/coming-soon", req.url));
-      }
-      return; // Let non-admins stay on the coming-soon page
-    }
-
-    // Admins bypass coming-soon and go to home
-    if (isComingSoonPage && isAdmin) {
-       return NextResponse.redirect(new URL("/", req.url));
-    }
+    // Site is open, no coming soon redirects anymore
 
     if (token && !token.minecraftName && !isSetupPage) {
       return NextResponse.redirect(new URL("/setup", req.url));
