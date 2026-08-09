@@ -18,8 +18,39 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const metadata: Metadata = {
-  title: "PARANOIA | Serveur SMP Minecraft Privé",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://votre-domaine.fr'),
+  title: {
+    default: "PARANOIA SMP | Serveur Survie Privé",
+    template: "%s | PARANOIA SMP"
+  },
   description: "Rejoignez l'élite sur PARANOIA. Serveur Survie Multijoueur Minecraft Privé. Forum, Tier List, Trading Cards et Candidatures.",
+  keywords: ["Minecraft", "SMP", "Serveur privé", "Survie", "Multi-joueur", "Paranoia", "Trading Cards", "TCG"],
+  openGraph: {
+    title: "PARANOIA SMP",
+    description: "Le Serveur Survie Multijoueur Minecraft Privé par excellence.",
+    url: '/',
+    siteName: 'Paranoia SMP',
+    images: [
+      {
+        url: '/Paranoia_logo.png', // Fallback to the logo for now
+        width: 800,
+        height: 600,
+      },
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default async function RootLayout({
