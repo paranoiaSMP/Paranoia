@@ -41,19 +41,9 @@ export default async function RootLayout({
     console.error("Failed to fetch maintenance mode state:", e);
   }
 
-  if (isMaintenance && !isAdmin) {
-    return (
-      <html lang="fr">
-        <body className={`${inter.variable} ${outfit.variable} flex flex-col min-h-screen bg-[var(--background)]`}>
-          <ComingSoon />
-        </body>
-      </html>
-    );
-  }
-
   return (
     <html lang="fr">
-      <body className={`${inter.variable} ${outfit.variable} flex flex-col min-h-screen`}>
+      <body className={`${inter.variable} ${outfit.variable} flex flex-col min-h-screen bg-[var(--background)]`}>
         <Providers>
           <Toaster
             position="bottom-right"
