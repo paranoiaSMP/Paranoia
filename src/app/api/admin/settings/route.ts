@@ -1,51 +1,54 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from "next-auth";
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const key = searchParams.get("key");
-    
-    if (!key) {
-      return new NextResponse("Missing key", { status: 400 });
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any).role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const setting = await prisma.systemSetting.findUnique({
-      where: { key }
-    });
+    const { searchParams } = new URL(req.url);
+    const key = searchParams.get("key");
 
-    return NextResponse.json(setting ? JSON.parse(setting.value) : null);
+    if (key) {
+      const setting = await prisma.systemSetting.findUnique({ where: { key } });
+      return NextResponse.json({ value: setting?.value || null });
+    }
+
+    const settings = await prisma.systemSetting.findMany();
+    return NextResponse.json(settings);
   } catch (error) {
-    console.error("[SETTINGS_GET]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error("GET /api/admin/settings Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const admin = session?.user as any;
-    if (!session || !admin || admin.role !== "ADMIN") {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!session || (session.user as any).role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { key, value } = await req.json();
+    const body = await req.json();
+    const { key, value } = body;
 
     if (!key || value === undefined) {
-      return new NextResponse("Missing parameters", { status: 400 });
+      return NextResponse.json({ error: "Missing key or value" }, { status: 400 });
     }
 
     const setting = await prisma.systemSetting.upsert({
       where: { key },
-      update: { value: JSON.stringify(value) },
-      create: { key, value: JSON.stringify(value) }
+      update: { value: String(value) },
+      create: { key, value: String(value) },
     });
 
-    return NextResponse.json({ success: true, setting });
+    return NextResponse.json(setting);
   } catch (error) {
-    console.error("[SETTINGS_POST]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error("POST /api/admin/settings Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

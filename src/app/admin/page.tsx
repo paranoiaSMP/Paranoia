@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
           ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Quick Access Links */}
           <div className="bg-[var(--card-bg)] p-8 rounded-[2.5rem] border border-[var(--card-border)] space-y-6">
               <h3 className="text-xl font-bold text-[var(--text-color)] flex items-center gap-3">
@@ -106,7 +106,87 @@ export default function AdminDashboardPage() {
                   ))}
               </div>
           </div>
+
+          {/* System Settings */}
+          <div className="bg-[var(--card-bg)] p-8 rounded-[2.5rem] border border-[var(--card-border)] space-y-6">
+              <h3 className="text-xl font-bold text-[var(--text-color)] flex items-center gap-3">
+                  <Server className="w-5 h-5 text-orange-400" /> Paramètres Système
+              </h3>
+              <div className="space-y-4">
+                  <MaintenanceToggle />
+              </div>
+          </div>
       </div>
+    </div>
+  );
+}
+
+function MaintenanceToggle() {
+  const [isMaintenance, setIsMaintenance] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/settings?key=maintenance_mode")
+      .then(res => res.json())
+      .then(data => setIsMaintenance(data.value === "true"))
+      .catch(console.error);
+  }, []);
+
+  async function toggleMaintenance() {
+    if (isMaintenance === null) return;
+    const newValue = !isMaintenance;
+    
+    if (newValue && !confirm("Êtes-vous sûr de vouloir fermer le site au public ? Seuls les admins y auront accès.")) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "maintenance_mode", value: String(newValue) })
+      });
+      setIsMaintenance(newValue);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (isMaintenance === null) return <div className="animate-pulse h-16 bg-[var(--surface-bg)] rounded-2xl"></div>;
+
+  return (
+    <div className="flex items-center justify-between p-4 rounded-2xl bg-[var(--surface-bg)] border border-[var(--card-border)]">
+      <div>
+        <p className="font-bold text-[var(--text-color)] flex items-center gap-2">
+          Mode Coming Soon
+          {isMaintenance ? (
+            <span className="px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 text-[10px] uppercase font-black tracking-wider">Actif</span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] uppercase font-black tracking-wider">Inactif</span>
+          )}
+        </p>
+        <p className="text-xs text-gray-500 mt-1">Ferme le site aux visiteurs et affiche une page d'attente.</p>
+      </div>
+      <button 
+        onClick={toggleMaintenance}
+        disabled={loading}
+        className={cn(
+          "relative inline-flex h-7 w-14 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75",
+          isMaintenance ? "bg-orange-500" : "bg-[var(--icon-bg)]",
+          loading && "opacity-50 cursor-not-allowed"
+        )}
+      >
+        <span className="sr-only">Activer mode maintenance</span>
+        <span
+          className={cn(
+            "pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out",
+            isMaintenance ? "translate-x-7" : "translate-x-0"
+          )}
+        />
+      </button>
     </div>
   );
 }

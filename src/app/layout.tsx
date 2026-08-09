@@ -7,6 +7,11 @@ import { Providers } from "@/components/providers";
 
 import { Toaster } from 'react-hot-toast';
 
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import ComingSoon from "@/components/layout/ComingSoon";
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
@@ -15,11 +20,35 @@ export const metadata: Metadata = {
   description: "Rejoignez l'élite sur PARANOIA. Serveur Survie Multijoueur Minecraft Privé. Forum, Tier List, Trading Cards et Candidatures.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Check maintenance mode
+  let isMaintenance = false;
+  let isAdmin = false;
+
+  try {
+    const session = await getServerSession(authOptions);
+    isAdmin = (session?.user as any)?.role === "ADMIN";
+    
+    const maintenanceSetting = await prisma.systemSetting.findUnique({ where: { key: "maintenance_mode" } });
+    isMaintenance = maintenanceSetting?.value === "true";
+  } catch (e) {
+    console.error("Failed to fetch maintenance mode state:", e);
+  }
+
+  if (isMaintenance && !isAdmin) {
+    return (
+      <html lang="fr">
+        <body className={`${inter.variable} ${outfit.variable} flex flex-col min-h-screen bg-[var(--background)]`}>
+          <ComingSoon />
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="fr">
       <body className={`${inter.variable} ${outfit.variable} flex flex-col min-h-screen`}>
