@@ -51,10 +51,13 @@ export const authOptions: NextAuthOptions = {
 
           const newName = discordProfile.global_name || discordProfile.username || user.name;
           
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { name: newName, image: imageUrl }
-          });
+          const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+          if (dbUser) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { name: newName, image: imageUrl }
+            });
+          }
           user.name = newName;
           user.image = imageUrl;
         } catch (e) {
