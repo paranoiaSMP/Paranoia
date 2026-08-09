@@ -46,6 +46,11 @@ export async function POST(req: NextRequest) {
       create: { key, value: String(value) },
     });
 
+    if (key === "maintenance_mode") {
+      const { revalidatePath } = require("next/cache");
+      revalidatePath("/", "layout");
+    }
+
     return NextResponse.json(setting);
   } catch (error) {
     console.error("POST /api/admin/settings Error:", error);
