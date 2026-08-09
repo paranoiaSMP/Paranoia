@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: paranoia_web
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
+    
+  # (Optionnel) Bot Discord : 
+  # Si vous souhaitez un jour héberger le bot dans le même Docker Compose,
+  # vous pourrez décommenter cette section et utiliser une image Node classique
+  # avec la commande "npm run bot".
+  # bot:
+  #   image: node:20-alpine
+  #   container_name: paranoia_bot
+  #   working_dir: /app
+  #   volumes:
+  #     - ./:/app
+  #   command: sh -c "npm install && npm run bot"
+  #   env_file:
+  #     - .env
+  #   restart: unless-stopped
