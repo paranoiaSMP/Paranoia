@@ -12,6 +12,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import ComingSoon from "@/components/layout/ComingSoon";
 
+export const dynamic = "force-dynamic";
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
