@@ -29,6 +29,19 @@ services:
       timeout: 5s
       retries: 5
 
+  db-migrator:
+    image: node:22-alpine
+    container_name: paranoia_migrator
+    volumes:
+      - ./:/app
+    working_dir: /app
+    env_file:
+      - .env
+    command: sh -c "npm install && npx prisma db push"
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   paranoia_pgdata:
 
