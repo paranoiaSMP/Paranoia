@@ -10,7 +10,28 @@ services:
       - "3000:3000"
     env_file:
       - .env
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
+    
+  db:
+    image: postgres:15-alpine
+    container_name: paranoia_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - paranoia_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-paranoia} -d $${POSTGRES_DB:-paranoia_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  paranoia_pgdata:
+
     
   # (Optionnel) Bot Discord : 
   # Si vous souhaitez un jour héberger le bot dans le même Docker Compose,
