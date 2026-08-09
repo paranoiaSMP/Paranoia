@@ -16,10 +16,9 @@ const globalForPrisma = globalThis as unknown as {
 let connectionString = process.env.DATABASE_URL || ''
 
 if (!globalForPrisma.pool) {
-  const isLocal = connectionString.includes('localhost') || connectionString.includes('127.0.0.1')
   globalForPrisma.pool = new Pool({ 
     connectionString,
-    ssl: isLocal ? false : { rejectUnauthorized: false },
+    ssl: false,
     max: 10,
     idleTimeoutMillis: 10000, // Reduced to prevent using connections closed by remote DB
     connectionTimeoutMillis: 10000,
