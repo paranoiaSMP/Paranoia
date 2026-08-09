@@ -54,6 +54,9 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
   ];
 
   const handleBuy = async (pkgId: string, amount: number) => {
+    toast("La boutique est temporairement fermée pour maintenance.", { icon: '🔒' });
+    return;
+
     if (!isLoggedIn) {
       toast("Vous devez être connecté pour faire un achat.", { icon: '⚠️' });
       return;
