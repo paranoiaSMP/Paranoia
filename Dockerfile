@@ -9,6 +9,7 @@ WORKDIR /app
 # Install dependencies
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma
+COPY prisma.config.ts ./
 RUN npm ci
 
 # 2. Rebuild the source code only when needed
@@ -46,6 +47,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./
 
 # Note: The standalone output already includes the Prisma client dependencies used by the server!
 
