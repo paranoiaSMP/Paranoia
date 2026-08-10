@@ -13,6 +13,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - ./public/uploads:/app/public/uploads
     restart: unless-stopped
     
   db:
