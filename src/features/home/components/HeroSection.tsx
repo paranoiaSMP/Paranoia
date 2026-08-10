@@ -33,11 +33,11 @@ export default function HeroSection() {
         animate="visible"
         className="max-w-4xl mx-auto relative z-10"
       >
-        <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl lg:text-8xl font-outfit font-black mb-6 tracking-tight" style={{ color: 'var(--text-color)' }}>
+        <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-outfit font-black mb-6 tracking-tight" style={{ color: 'var(--text-color)' }}>
           Bienvenue sur le <span style={{ color: 'var(--logo-end)' }}>Paranoia SMP</span>
         </motion.h1>
         
-        <motion.p variants={itemVariants} className="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-inter font-medium" style={{ color: 'var(--nav-item-color)' }}>
+        <motion.p variants={itemVariants} className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-inter font-medium" style={{ color: 'var(--nav-item-color)' }}>
           Venez découvrir l'univers du Paranoia SMP. 
           Faites vous des Amis ou collectionnez des boosters.
         </motion.p>

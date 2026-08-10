@@ -15,13 +15,13 @@ export default function CardsSystemSection() {
             <Sparkles className="w-3 h-3" /> Exclusivité Paranoia
           </div>
           
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-outfit font-black mb-6 leading-tight" style={{ color: 'var(--text-color)' }}>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-outfit font-black mb-6 leading-tight" style={{ color: 'var(--text-color)' }}>
             Collectionne.<br/>
             Échange.<br/>
             <span style={{ color: 'var(--logo-end)' }}>Domine.</span>
           </h2>
           
-          <p className="text-lg md:text-xl mb-8 font-inter max-w-xl leading-relaxed" style={{ color: 'var(--nav-item-color)' }}>
+          <p className="text-base sm:text-lg md:text-xl mb-8 font-inter max-w-xl leading-relaxed" style={{ color: 'var(--nav-item-color)' }}>
             Découvrez un système de cartes à collectionner intégré directement dans le jeu. Ouvrez des boosters, obtenez des cartes de différentes raretés et profitez d'avantages uniques.
           </p>
           
@@ -69,15 +69,15 @@ export default function CardsSystemSection() {
           <motion.div 
             animate={{ y: [-10, 10, -10], rotateZ: [-2, 2, -2] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute z-20 drop-shadow-2xl"
+            className="absolute z-20 drop-shadow-2xl w-[200px] lg:w-[280px]"
           >
             <Image 
               src="/LegendaireB.png" 
               alt="Booster Légendaire" 
               width={280} 
               height={380} 
-              className="object-contain"
-              sizes="(max-width: 768px) 100vw, 280px"
+              className="object-contain w-full h-auto"
+              sizes="(max-width: 768px) 200px, 280px"
             />
           </motion.div>
           
@@ -85,15 +85,15 @@ export default function CardsSystemSection() {
           <motion.div 
             animate={{ y: [10, -10, 10], rotateZ: [5, 1, 5] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute z-10 -ml-40 -mt-20 opacity-90 drop-shadow-xl"
+            className="absolute z-10 -ml-24 lg:-ml-40 -mt-10 lg:-mt-20 opacity-90 drop-shadow-xl w-[140px] lg:w-[200px]"
           >
             <Image 
               src="/StandardB.png" 
               alt="Booster Standard" 
               width={200} 
               height={280} 
-              className="object-contain filter blur-[1px]"
-              sizes="(max-width: 768px) 100vw, 200px"
+              className="object-contain filter blur-[1px] w-full h-auto"
+              sizes="(max-width: 768px) 140px, 200px"
             />
           </motion.div>
           
@@ -101,15 +101,15 @@ export default function CardsSystemSection() {
           <motion.div 
             animate={{ y: [-5, 15, -5], rotateZ: [-6, -2, -6] }}
             transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute z-30 ml-48 mt-32 opacity-95 drop-shadow-2xl"
+            className="absolute z-30 ml-28 lg:ml-48 mt-16 lg:mt-32 opacity-95 drop-shadow-2xl w-[160px] lg:w-[220px]"
           >
             <Image 
               src="/MythiqueB.png" 
               alt="Booster Mythique" 
               width={220} 
               height={300} 
-              className="object-contain"
-              sizes="(max-width: 768px) 100vw, 220px"
+              className="object-contain w-full h-auto"
+              sizes="(max-width: 768px) 160px, 220px"
             />
           </motion.div>
         </div>

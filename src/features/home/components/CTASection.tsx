@@ -23,11 +23,11 @@ export default function CTASection() {
             <Sparkles className="w-3.5 h-3.5" /> En cours de développement - v1.0
           </div>
           
-          <h2 className="text-4xl md:text-6xl font-outfit font-black mb-6" style={{ color: 'var(--text-color)' }}>
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-outfit font-black mb-6" style={{ color: 'var(--text-color)' }}>
             PARANOIA <span style={{ color: 'var(--logo-end)' }}>Launcher</span>
           </h2>
           
-          <p className="text-lg mb-8 font-inter max-w-md leading-relaxed" style={{ color: 'var(--nav-item-color)' }}>
+          <p className="text-base sm:text-lg mb-8 font-inter max-w-md leading-relaxed" style={{ color: 'var(--nav-item-color)' }}>
             Profitez d'une expérience de jeu fluide et sans compromis. Notre launcher personnalisé vous permet de rejoindre le serveur instantanément avec des performances maximales, sans aucune configuration préalable.
           </p>
           
@@ -79,10 +79,10 @@ export default function CTASection() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full blur-[80px] opacity-30 bg-[var(--color-accent-purple,#9d0df2)] pointer-events-none"></div>
           <div className="absolute inset-0 bg-noise opacity-30 pointer-events-none"></div>
           
-          <div className="relative flex-1 flex items-center justify-center p-8">
+          <div className="relative flex-1 flex items-center justify-center p-4 sm:p-8">
             <motion.div 
               whileHover={{ scale: 1.02 }}
-              className="relative z-10 w-full max-w-[280px] rounded-2xl p-6 flex flex-col items-center justify-between border-2 shadow-2xl backdrop-blur-xl bg-[#14141c]/90 text-white border-purple-500/30 overflow-hidden"
+              className="relative z-10 w-full max-w-[280px] rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-between border-2 shadow-2xl backdrop-blur-xl bg-[#14141c]/90 text-white border-purple-500/30 overflow-hidden"
             >
               {/* Top Bar Decoration */}
               <div className="w-full flex items-center justify-between pb-3 mb-4 border-b border-purple-500/20 text-xs text-purple-300 font-mono">

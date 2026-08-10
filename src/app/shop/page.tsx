@@ -37,8 +37,8 @@ export default async function ShopPage() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 rounded-full blur-[150px] opacity-10 pointer-events-none"
         style={{ background: 'var(--accent-purple)' }}></div>
 
-      <div className="text-center mb-20 relative z-10">
-        <h1 className="text-5xl md:text-7xl font-outfit font-black mb-6 drop-shadow-2xl" style={{ color: 'var(--text-color)' }}>
+      <div className="text-center mb-20 relative z-10 px-4">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-outfit font-black mb-6 drop-shadow-2xl" style={{ color: 'var(--text-color)' }}>
           Boutique <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 to-purple-600">PARANOIA</span>
         </h1>
         <p className="text-xl max-w-2xl mx-auto font-medium" style={{ color: 'var(--muted-text)' }}>

@@ -76,7 +76,7 @@ export default async function CardsPage() {
       {/* Background Noise & Grid */}
       <div className="absolute inset-0 bg-noise opacity-20 mix-blend-overlay pointer-events-none -z-10"></div>
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-16 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 md:py-16 relative">
         <PackOpenerClient
           initialInventory={inventory}
           initialBoxes={userBoxes}
