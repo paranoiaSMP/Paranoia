@@ -1,0 +1,3 @@
+paranoiastudio.fr, www.paranoiastudio.fr {
+    reverse_proxy web:3000
+}

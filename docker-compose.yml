@@ -1,13 +1,16 @@
 version: '3.8'
 
+volumes:
+  paranoia_pgdata:
+  caddy_data:
+  caddy_config:
+
 services:
   web:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: paranoia_web
-    ports:
-      - "3000:3000"
     env_file:
       - .env
     depends_on:
@@ -44,10 +47,19 @@ services:
       db:
         condition: service_healthy
 
-volumes:
-  paranoia_pgdata:
-
-    
+  caddy:
+    image: caddy:2-alpine
+    container_name: paranoia_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
   # (Optionnel) Bot Discord : 
   # Si vous souhaitez un jour héberger le bot dans le même Docker Compose,
   # vous pourrez décommenter cette section et utiliser une image Node classique
