@@ -23,9 +23,9 @@ export default function HeroSection() {
   return (
     <section className="relative z-10 flex flex-col items-center justify-center min-h-[90vh] text-center px-4 pt-20 overflow-hidden">
       {/* Ambient background glowing orbs */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-[#7a0aad]/30 to-[#d946ef]/20 rounded-full blur-[120px] pointer-events-none -z-10 animate-pulse-slow"></div>
-      <div className="absolute top-2/3 left-1/4 w-[400px] h-[400px] bg-[#9d0df2]/15 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-      <div className="absolute top-1/3 right-1/4 w-[350px] h-[350px] bg-fuchsia-600/15 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-gradient-to-tr from-[#7a0aad]/20 to-[#d946ef]/15 rounded-full blur-3xl pointer-events-none -z-10"></div>
+      <div className="absolute top-2/3 left-1/4 w-[300px] h-[300px] bg-[#9d0df2]/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+      <div className="absolute top-1/3 right-1/4 w-[250px] h-[250px] bg-fuchsia-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
 
       <motion.div
         variants={containerVariants}

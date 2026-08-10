@@ -33,7 +33,6 @@ export default function Navbar() {
               alt="Paranoia SMP Logo" 
               fill 
               priority={true}
-              unoptimized={true} 
               className="object-contain drop-shadow-[0_0_8px_rgba(179,102,255,0.4)]"
             />
           </div>

@@ -76,8 +76,8 @@ export default function CardsSystemSection() {
               alt="Booster Légendaire" 
               width={280} 
               height={380} 
-              unoptimized={true}
               className="object-contain"
+              sizes="(max-width: 768px) 100vw, 280px"
             />
           </motion.div>
           
@@ -92,8 +92,8 @@ export default function CardsSystemSection() {
               alt="Booster Standard" 
               width={200} 
               height={280} 
-              unoptimized={true}
               className="object-contain filter blur-[1px]"
+              sizes="(max-width: 768px) 100vw, 200px"
             />
           </motion.div>
           
@@ -108,8 +108,8 @@ export default function CardsSystemSection() {
               alt="Booster Mythique" 
               width={220} 
               height={300} 
-              unoptimized={true}
               className="object-contain"
+              sizes="(max-width: 768px) 100vw, 220px"
             />
           </motion.div>
         </div>
