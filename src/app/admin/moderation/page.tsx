@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ShieldAlert, Trash2, Users, Sparkles, Loader2, PackageOpen, Zap, Info, X } from "lucide-react";
+import { ShieldAlert, Trash2, Users, Sparkles, Loader2, PackageOpen, Zap, Info, X, UserX } from "lucide-react";
 import toast from 'react-hot-toast';
 import { cn } from "@/lib/utils";
 
@@ -95,6 +95,27 @@ export default function AdminModerationPage() {
       }
     } catch (err) { toast.error("Erreur"); }
     finally { setIsUpdatingEconomy(false); }
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    const confirmed = window.confirm(`⚠️ ATTENTION : Vous êtes sur le point de supprimer définitivement le compte de "${userName}".\n\nCela supprimera :\n- Son compte Discord lié\n- Toutes ses cartes\n- Tous ses boosters\n- Tous ses ParaCoins\n\nCette action est IRRÉVERSIBLE. Confirmer ?`);
+    if (!confirmed) return;
+
+    const doubleConfirm = window.confirm(`Dernière confirmation : Supprimer "${userName}" pour toujours ?`);
+    if (!doubleConfirm) return;
+
+    try {
+      const res = await fetch(`/api/admin/users?userId=${userId}`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success(`Compte de ${userName} supprimé définitivement.`);
+        fetchData();
+      } else {
+        const msg = await res.text();
+        toast.error(msg);
+      }
+    } catch (e) {
+      toast.error("Erreur lors de la suppression");
+    }
   };
 
   return (
@@ -214,7 +235,12 @@ export default function AdminModerationPage() {
                                 </select>
                             </td>
                             <td className="px-8 py-5 text-right">
-                                <button onClick={() => setSelectedUserEconomy(user)} className="bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-[var(--text-color)] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Économie</button>
+                                <div className="flex items-center justify-end gap-2">
+                                  <button onClick={() => setSelectedUserEconomy(user)} className="bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-[var(--text-color)] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Économie</button>
+                                  <button onClick={() => handleDeleteUser(user.id, user.name || user.minecraftName || 'Anonyme')} className="bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white p-2 rounded-xl transition-all group" title="Supprimer le compte">
+                                    <UserX className="w-4 h-4" />
+                                  </button>
+                                </div>
                             </td>
                         </tr>
                     ))}

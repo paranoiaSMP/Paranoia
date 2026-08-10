@@ -71,3 +71,37 @@ export async function PUT(req: Request) {
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || session.user.role !== "ADMIN") {
+    return new NextResponse("Seul un ADMIN peut supprimer des comptes", { status: 401 });
+  }
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
+
+    if (!userId) {
+      return new NextResponse("userId requis", { status: 400 });
+    }
+
+    if (userId === session.user.id) {
+      return new NextResponse("Vous ne pouvez pas supprimer votre propre compte", { status: 400 });
+    }
+
+    // Delete all related data first, then the user
+    await prisma.$transaction([
+      prisma.cardOwnership.deleteMany({ where: { userId } }),
+      prisma.userBox.deleteMany({ where: { userId } }),
+      prisma.session.deleteMany({ where: { userId } }),
+      prisma.account.deleteMany({ where: { userId } }),
+      prisma.user.delete({ where: { id: userId } }),
+    ]);
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Failed to delete user", error);
+    return new NextResponse("Erreur lors de la suppression", { status: 500 });
+  }
+}
