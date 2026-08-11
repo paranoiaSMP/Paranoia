@@ -373,10 +373,14 @@
 
   /* Navbar background fallback and opacity for mobile */
   .navbar::before {
-    background: rgba(10, 10, 15, 0.92) !important;
+    background: rgba(25, 25, 35, 0.95) !important;
+    border: 1px solid rgba(157, 13, 242, 0.3) !important;
+    box-shadow: 0 0 15px rgba(157, 13, 242, 0.15) !important;
   }
   [data-theme="light"] .navbar::before {
-    background: rgba(247, 246, 250, 0.92) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(157, 13, 242, 0.3) !important;
+    box-shadow: 0 0 15px rgba(157, 13, 242, 0.15) !important;
   }
 }
 
