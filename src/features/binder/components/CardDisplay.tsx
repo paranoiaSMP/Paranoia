@@ -344,16 +344,32 @@ export default function CardDisplay({
                   {(!card.layer2Url && card.imageUrl) && <img src={card.imageUrl} alt="Fallback" loading="lazy" className="absolute bottom-0 w-full object-contain pointer-events-none" style={{ transform: 'translateZ(40px) scale(1.05)' }} />}
                 </>
               ) : (card.imageUrl || card.player?.minecraftName || card.title) ? (
-                <img
-                  src={card.imageUrl || `https://vzge.me/bust/512/${card.player?.minecraftName || card.title}.png`}
-                  alt={card.title}
-                  loading={isEditing ? "eager" : "lazy"} decoding="async"
-                  className={`w-full h-full object-cover object-top drop-shadow-2xl transition-transform duration-300 ${isEditing ? 'pointer-events-auto cursor-grab active:cursor-grabbing hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'pointer-events-none'}`}
-                  style={{ transform: (card.rarity === 'MYTHIC' || card.rarity === 'MYTHIQUE') ? 'translateZ(40px) scale(1.05)' : 'translateZ(10px)' }}
-                  onMouseDown={(e) => handleMouseDown(e, 'character')}
-                  onWheel={(e) => handleWheel(e, 'character')}
-                  onError={(e) => { e.currentTarget.src = 'https://minotar.net/armor/body/Steve/512.png'; }}
-                />
+                (() => {
+                  const avatarUrl = card.imageUrl || `https://vzge.me/bust/512/${card.player?.minecraftName || card.title}.png`;
+                  const isVideo = avatarUrl.match(/\.(mp4|webm|mov)$/i);
+                  const commonProps = {
+                    className: `w-full h-full object-cover object-top drop-shadow-2xl transition-transform duration-300 ${isEditing ? 'pointer-events-auto cursor-grab active:cursor-grabbing hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'pointer-events-none'}`,
+                    style: { transform: (card.rarity === 'MYTHIC' || card.rarity === 'MYTHIQUE') ? 'translateZ(40px) scale(1.05)' : 'translateZ(10px)' },
+                    onMouseDown: (e: any) => handleMouseDown(e, 'character'),
+                    onWheel: (e: any) => handleWheel(e, 'character'),
+                  };
+
+                  return isVideo ? (
+                    <video
+                      src={avatarUrl}
+                      autoPlay loop muted playsInline
+                      {...commonProps}
+                    />
+                  ) : (
+                    <img
+                      src={avatarUrl}
+                      alt={card.title || "Character"}
+                      loading={isEditing ? "eager" : "lazy"} decoding="async"
+                      {...commonProps}
+                      onError={(e) => { e.currentTarget.src = 'https://minotar.net/armor/body/Steve/512.png'; }}
+                    />
+                  );
+                })()
               ) : (
                 <div className="w-20 h-20 bg-gray-700/50 rounded-full mb-10 border border-white/10"></div>
               )}

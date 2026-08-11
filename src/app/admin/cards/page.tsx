@@ -105,6 +105,51 @@ export default function AdminCardsPage() {
   const [isCapturing, setIsCapturing] = useState(false);
   const [draggingItem, setDraggingItem] = useState<{type: string, id: string} | null>(null);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadTarget, setUploadTarget] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !uploadTarget) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      const { url } = await res.json();
+      
+      switch (uploadTarget) {
+        case 'cardImageUrl': setCardImageUrl(url); break;
+        case 'layer1Url': setLayer1Url(url); break;
+        case 'layer2Url': setLayer2Url(url); break;
+        case 'layer3Url': setLayer3Url(url); break;
+        case 'cardCustomBg': setCardCustomBg(url); break;
+      }
+      toast.success("Fichier envoyé avec succès !");
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur lors de l'envoi du fichier");
+    } finally {
+      setIsUploading(false);
+      setUploadTarget(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const triggerUpload = (target: string) => {
+    setUploadTarget(target);
+    fileInputRef.current?.click();
+  };
+
   const fetchData = async () => {
     try {
       const [resP, resC, resE, resV, resT] = await Promise.all([
@@ -533,6 +578,13 @@ export default function AdminCardsPage() {
 
   return (
     <div className="space-y-10">
+      <input
+        type="file"
+        accept="image/*,video/*"
+        ref={fileInputRef}
+        onChange={handleUploadFile}
+        style={{ position: 'absolute', width: '0', height: '0', opacity: '0' }}
+      />
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b border-[var(--card-border)] pb-8">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-purple-500/20 rounded-2xl text-purple-400">
@@ -752,10 +804,12 @@ export default function AdminCardsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-6">
                             <div>
-                                <label className="block text-[10px] font-black text-[var(--color-text-secondary)] uppercase tracking-widest mb-2.5 ml-1">Avatar du Personnage (PNG/GIF)</label>
+                                <label className="block text-[10px] font-black text-[var(--color-text-secondary)] uppercase tracking-widest mb-2.5 ml-1">Avatar du Personnage (PNG/GIF/MP4)</label>
                                 <div className="flex gap-2">
-                                    <input type="text" value={cardImageUrl} onChange={e => setCardImageUrl(e.target.value)} className="flex-1 bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-2xl px-5 py-3 text-xs text-[var(--text-color)] outline-none" placeholder="Lien direct vers l'image..." />
-                                    <button type="button" className="p-3 bg-[var(--icon-bg)] border border-[var(--card-border)] rounded-2xl text-[var(--color-text-secondary)] hover:text-[var(--text-color)] transition-colors"><UploadCloud className="w-5 h-5" /></button>
+                                    <input type="text" value={cardImageUrl} onChange={e => setCardImageUrl(e.target.value)} className="flex-1 bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-2xl px-5 py-3 text-xs text-[var(--text-color)] outline-none" placeholder="Lien direct vers l'image ou la vidéo..." />
+                                    <button type="button" onClick={() => triggerUpload('cardImageUrl')} disabled={isUploading} className="p-3 bg-[var(--icon-bg)] border border-[var(--card-border)] rounded-2xl text-[var(--color-text-secondary)] hover:text-[var(--text-color)] transition-colors">
+                                        {isUploading && uploadTarget === 'cardImageUrl' ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}
+                                    </button>
                                 </div>
                             </div>
                             
@@ -764,12 +818,21 @@ export default function AdminCardsPage() {
                                     <label className="block text-[10px] font-black text-purple-400 uppercase tracking-widest mb-2.5 ml-1">Calques Mythiques (Optionnel)</label>
                                     <div className="flex gap-2">
                                         <input type="text" value={layer1Url} onChange={e => setLayer1Url(e.target.value)} className="flex-1 bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-2xl px-5 py-3 text-xs text-[var(--text-color)] outline-none" placeholder="Layer 1 (Fond)..." />
+                                        <button type="button" onClick={() => triggerUpload('layer1Url')} disabled={isUploading} className="p-3 bg-[var(--icon-bg)] border border-[var(--card-border)] rounded-2xl text-[var(--color-text-secondary)] hover:text-[var(--text-color)] transition-colors">
+                                            {isUploading && uploadTarget === 'layer1Url' ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}
+                                        </button>
                                     </div>
                                     <div className="flex gap-2">
                                         <input type="text" value={layer2Url} onChange={e => setLayer2Url(e.target.value)} className="flex-1 bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-2xl px-5 py-3 text-xs text-[var(--text-color)] outline-none" placeholder="Layer 2 (Milieu)..." />
+                                        <button type="button" onClick={() => triggerUpload('layer2Url')} disabled={isUploading} className="p-3 bg-[var(--icon-bg)] border border-[var(--card-border)] rounded-2xl text-[var(--color-text-secondary)] hover:text-[var(--text-color)] transition-colors">
+                                            {isUploading && uploadTarget === 'layer2Url' ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}
+                                        </button>
                                     </div>
                                     <div className="flex gap-2">
                                         <input type="text" value={layer3Url} onChange={e => setLayer3Url(e.target.value)} className="flex-1 bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-2xl px-5 py-3 text-xs text-[var(--text-color)] outline-none" placeholder="Layer 3 (Premier plan)..." />
+                                        <button type="button" onClick={() => triggerUpload('layer3Url')} disabled={isUploading} className="p-3 bg-[var(--icon-bg)] border border-[var(--card-border)] rounded-2xl text-[var(--color-text-secondary)] hover:text-[var(--text-color)] transition-colors">
+                                            {isUploading && uploadTarget === 'layer3Url' ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}
+                                        </button>
                                     </div>
                                 </div>
                             )}
@@ -801,7 +864,9 @@ export default function AdminCardsPage() {
                                 <label className="block text-[10px] font-black text-[var(--color-text-secondary)] uppercase tracking-widest mb-2.5 ml-1">Arrière-plan (Image/Vidéo)</label>
                                 <div className="flex gap-2">
                                     <input type="text" value={cardCustomBg} onChange={e => setCardCustomBg(e.target.value)} className="flex-1 bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-2xl px-5 py-3 text-xs text-[var(--text-color)] outline-none" placeholder="Lien direct..." />
-                                    <button type="button" className="p-3 bg-[var(--icon-bg)] border border-[var(--card-border)] rounded-2xl text-[var(--color-text-secondary)] hover:text-[var(--text-color)] transition-colors"><UploadCloud className="w-5 h-5" /></button>
+                                    <button type="button" onClick={() => triggerUpload('cardCustomBg')} disabled={isUploading} className="p-3 bg-[var(--icon-bg)] border border-[var(--card-border)] rounded-2xl text-[var(--color-text-secondary)] hover:text-[var(--text-color)] transition-colors">
+                                        {isUploading && uploadTarget === 'cardCustomBg' ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}
+                                    </button>
                                 </div>
                             </div>
                             <div className="flex flex-wrap gap-6 pt-2">
