@@ -1,44 +1,30 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://votre-domaine.fr';
-
   return [
     {
-      url: `${siteUrl}`,
+      url: 'https://paranoiastudio.fr',
       lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: 'weekly',
       priority: 1,
     },
     {
-      url: `${siteUrl}/shop`,
+      url: 'https://paranoiastudio.fr/shop',
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
     },
     {
-      url: `${siteUrl}/cards`,
+      url: 'https://paranoiastudio.fr/cards',
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
-      url: `${siteUrl}/launcher`,
+      url: 'https://paranoiastudio.fr/launcher',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.7,
     },
-    {
-      url: `${siteUrl}/videastes`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${siteUrl}/candidature`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.5,
-    }
-  ]
+  ];
 }

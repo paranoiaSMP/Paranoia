@@ -56,7 +56,7 @@ export default function Navbar() {
           </li>
           <li><Link href="/launcher" className="nav-item font-bold">Launcher</Link></li>
           
-          <li className="relative" onMouseLeave={() => setCommOpen(false)}>
+          <li className="relative">
             <button 
               onClick={() => setCommOpen(!commOpen)} 
               className="nav-item flex items-center gap-1 font-medium bg-transparent border-0 cursor-pointer text-[var(--nav-item-color)] hover:text-purple-400"
