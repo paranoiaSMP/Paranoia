@@ -16,8 +16,8 @@ export default function CardsSystemSection() {
           </div>
           
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-outfit font-black mb-6 leading-tight text-balance" style={{ color: 'var(--text-color)' }}>
-            Collectionne.<br className="hidden sm:block" />
-            Échange.<br className="hidden sm:block" />
+            Collectionne.<br />
+            Échange.<br />
             <span style={{ color: 'var(--logo-end)' }}>Domine.</span>
           </h2>
           
