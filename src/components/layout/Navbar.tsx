@@ -3,18 +3,29 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { Sun, Moon, ChevronDown, Video, FileText } from 'lucide-react';
 import './Navbar.css';
 
 export default function Navbar() {
   const [theme, setTheme] = useState('dark');
   const [commOpen, setCommOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
+
+  // Fermer le menu mobile quand on change de page
+  useEffect(() => {
+    const menuToggle = document.getElementById('menu-toggle') as HTMLInputElement;
+    if (menuToggle && menuToggle.checked) {
+      menuToggle.checked = false;
+    }
+    setCommOpen(false); // Fermer aussi le dropdown communauté
+  }, [pathname]);
 
   const toggleTheme = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTheme = e.target.checked ? 'dark' : 'light';
@@ -26,8 +37,8 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="nav-container">
-        <Link href="/" className="nav-logo flex items-center group">
-          <div className="relative w-14 h-14 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+        <Link href="/" className="nav-logo flex items-center group shrink-0">
+          <div className="relative w-28 h-10 sm:w-32 sm:h-12 transition-transform duration-300 group-hover:scale-105">
             <Image 
               src="/Paranoia_logo.png" 
               alt="Paranoia SMP Logo" 
