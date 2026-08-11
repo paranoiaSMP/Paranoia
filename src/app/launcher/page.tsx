@@ -11,7 +11,7 @@ export default function LauncherPage() {
       
       <div className="text-center mb-12 relative z-10 max-w-3xl">
         
-        <h1 className="text-5xl md:text-7xl font-bold mb-6">
+        <h1 className="text-3xl md:text-7xl font-bold mb-6">
           Le  <BoldGradient> PARANOIA SMP</BoldGradient> Launcher.
         </h1>
         
@@ -21,8 +21,8 @@ export default function LauncherPage() {
         
         <div className="relative inline-block group">
           <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-accent-purple)] to-fuchsia-500 rounded-xl blur-xl opacity-30 group-hover:opacity-70 transition-opacity duration-500"></div>
-          <button className="relative flex items-center gap-3 px-8 py-4 bg-[var(--surface-bg)] border-2 border-[var(--card-border)] rounded-xl text-xl font-bold text-[var(--muted-text)] cursor-not-allowed overflow-hidden shadow-lg">
-            <Download className="w-6 h-6" />
+          <button className="relative flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 bg-[var(--surface-bg)] border-2 border-[var(--card-border)] rounded-xl text-lg md:text-xl font-bold text-[var(--muted-text)] cursor-not-allowed overflow-hidden shadow-lg">
+            <Download className="w-5 h-5 md:w-6 md:h-6" />
             <span>Télécharger (Bientôt)</span>
           </button>
         </div>

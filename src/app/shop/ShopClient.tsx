@@ -97,12 +97,12 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
               <div className="absolute inset-0 bg-indigo-900/30 mix-blend-overlay"></div>
 
-              <div className="relative z-10 p-8 md:p-16 h-full flex flex-col justify-end">
+              <div className="relative z-10 p-5 md:p-16 h-full flex flex-col justify-end">
                 <div className="max-w-2xl">
                   <div className="inline-flex items-center gap-2 bg-indigo-500 text-white font-black text-xs px-4 py-1.5 rounded-full uppercase tracking-widest mb-4 shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-white/20">
                     <Sparkles className="w-4 h-4" /> Édition Spéciale
                   </div>
-                  <h2 className="text-4xl md:text-6xl font-outfit font-black text-white mb-4 drop-shadow-lg uppercase tracking-tighter flex items-center gap-4">
+                  <h2 className="text-3xl md:text-6xl font-outfit font-black text-white mb-4 drop-shadow-lg uppercase tracking-tighter flex items-center gap-4">
                     {ed.iconUrl && <img src={ed.iconUrl} alt={ed.name} className="w-12 h-12 md:w-16 md:h-16 object-contain" />}
                     {ed.name}
                   </h2>
@@ -151,7 +151,7 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
         {packages.map((pkg, i) => (
           <div
             key={pkg.id}
-            className="relative group backdrop-blur-xl border rounded-[2rem] p-8 flex flex-col items-center text-center transition-all duration-500 hover:scale-[1.02] hover:-translate-y-4 shadow-xl"
+            className="relative group backdrop-blur-xl border rounded-[2rem] p-5 md:p-8 flex flex-col items-center text-center transition-all duration-500 hover:scale-[1.02] hover:-translate-y-4 shadow-xl"
             style={{ background: 'var(--card-bg)', borderColor: pkg.borderVar }}
           >
             {/* Background Glow */}
@@ -182,7 +182,7 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
             {pkg.bonusAmount === 0 && (
               <div className="h-8 mb-6"></div> // spacer
             )}
-            <h3 className="text-5xl font-outfit font-black mb-2 flex items-baseline gap-2 relative z-10 drop-shadow-lg" style={{ color: 'var(--text-color)' }}>
+            <h3 className="text-4xl md:text-5xl font-outfit font-black mb-2 flex items-baseline gap-2 relative z-10 drop-shadow-lg" style={{ color: 'var(--text-color)' }}>
               {pkg.amount}
               <span className="text-lg font-bold uppercase tracking-widest" style={{ color: pkg.textVar }}>Coins</span>
             </h3>

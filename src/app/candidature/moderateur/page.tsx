@@ -69,7 +69,7 @@ export default function ModCandidaturePage() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 animate-slide-up">
       <div className="text-center mb-8">
         <ShieldCheck className="w-16 h-16 text-indigo-500 mx-auto mb-4 drop-shadow-[0_0_20px_rgba(99,102,241,0.5)]" />
-        <h1 className="text-3xl md:text-5xl font-outfit font-black mb-3" style={{ color: 'var(--text-color)', textShadow: '0 0 30px rgba(99,102,241,0.5)' }}>
+        <h1 className="text-2xl md:text-5xl font-outfit font-black mb-3" style={{ color: 'var(--text-color)', textShadow: '0 0 30px rgba(99,102,241,0.5)' }}>
           Recrutement <span className="text-indigo-400">Staff</span>
         </h1>
         <p className="text-[var(--color-text-secondary)] text-base max-w-xl mx-auto mb-6">
@@ -87,7 +87,7 @@ export default function ModCandidaturePage() {
         </div>
       </div>
 
-      <div className="relative rounded-3xl overflow-hidden backdrop-blur-2xl border p-8 md:p-12 shadow-2xl" style={{ background: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+      <div className="relative rounded-3xl overflow-hidden backdrop-blur-2xl border p-5 md:p-12 shadow-2xl" style={{ background: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-black/20">
           <div 
             className="h-full bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.8)] transition-all duration-700 ease-out relative" 

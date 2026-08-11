@@ -364,7 +364,7 @@ export default function PackOpenerClient({
     <div className="w-full">
       {/* TCG Hero & HUD Section */}
       <div className="flex flex-col items-center text-center mb-8">
-        <h1 className="text-5xl md:text-7xl font-outfit font-black tracking-tight mb-4 text-[var(--text-color)]">
+        <h1 className="text-3xl md:text-7xl font-outfit font-black tracking-tight mb-4 text-[var(--text-color)]">
           PARANOIA <span className="bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(179,102,255,0.3)]">TCG</span>
         </h1>
         <p className="text-[var(--nav-item-color)] font-medium text-base md:text-lg max-w-2xl">
@@ -544,7 +544,7 @@ export default function PackOpenerClient({
                   {/* Left Column: Booster Details & Lore */}
                   <div className="flex flex-col items-center lg:items-start text-center lg:text-left flex-1">
                     <span className="text-xs uppercase tracking-[0.3em] text-[var(--nav-item-color)] font-light mb-2 block">Spécifications du Booster</span>
-                    <h2 className={`text-3xl md:text-5xl font-outfit font-black uppercase tracking-tight mb-4 ${activeBox.text}`}>
+                    <h2 className={`text-2xl md:text-5xl font-outfit font-black uppercase tracking-tight mb-4 ${activeBox.text}`}>
                       Booster {activeBox.name}
                     </h2>
                     <p className="text-sm md:text-base text-[var(--nav-item-color)] font-normal leading-relaxed mb-6 max-w-md">

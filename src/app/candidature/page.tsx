@@ -28,7 +28,7 @@ export default function CandidaturePage() {
       <div className="absolute inset-0 bg-noise opacity-20 mix-blend-overlay pointer-events-none"></div>
       
       <div className="text-center mb-8 relative z-10 w-full max-w-3xl">
-        <h1 className="text-3xl md:text-5xl font-outfit font-black text-[var(--text-color)] mb-3 tracking-tight">
+        <h1 className="text-2xl md:text-5xl font-outfit font-black text-[var(--text-color)] mb-3 tracking-tight">
           Rejoindre <span className="text-[var(--logo-end)] drop-shadow-[0_0_15px_rgba(179,102,255,0.3)]">PARANOIA</span>
         </h1>
         <p className="text-[var(--nav-item-color)] font-medium text-base max-w-xl mx-auto mb-6">
@@ -47,7 +47,7 @@ export default function CandidaturePage() {
       </div>
 
       <div className="relative z-10 w-full max-w-3xl">
-        <div className="relative border-4 rounded-2xl shadow-2xl p-8 md:p-12" style={{ background: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+        <div className="relative border-4 rounded-2xl shadow-2xl p-5 md:p-12" style={{ background: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
           {/* Top Progress Bar */}
           <div className="absolute top-0 left-0 right-0 h-2 bg-[var(--card-border)] overflow-hidden rounded-t-xl">
             <div
