@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function CardsSystemSection() {
   return (
-    <section className="relative z-10 max-w-7xl mx-auto px-6 mt-16">
+    <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 mt-16">
       <div className="flex flex-col lg:flex-row items-center gap-16">
         
         {/* Left Side: Text Content */}
@@ -26,7 +26,7 @@ export default function CardsSystemSection() {
           </p>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-10 w-full text-left">
-            <div className="p-5 rounded-2xl border-2 flex flex-col gap-2 shadow-lg transition-transform hover:-translate-y-1" style={{ backgroundColor: 'var(--feature-purple-bg)', borderColor: 'var(--feature-purple-border)' }}>
+            <div className="p-4 sm:p-5 rounded-2xl border-2 flex flex-col gap-2 shadow-lg transition-transform hover:-translate-y-1" style={{ backgroundColor: 'var(--feature-purple-bg)', borderColor: 'var(--feature-purple-border)' }}>
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30">
                   <Award className="w-6 h-6" />
@@ -35,7 +35,7 @@ export default function CardsSystemSection() {
               </div>
               <p className="font-inter text-sm font-medium leading-relaxed" style={{ color: 'var(--nav-item-color)' }}>De Standard à Légendaire, chaque carte possède un taux de drop unique.</p>
             </div>
-            <div className="p-5 rounded-2xl border-2 flex flex-col gap-2 shadow-lg transition-transform hover:-translate-y-1" style={{ backgroundColor: 'var(--feature-emerald-bg)', borderColor: 'var(--feature-emerald-border)' }}>
+            <div className="p-4 sm:p-5 rounded-2xl border-2 flex flex-col gap-2 shadow-lg transition-transform hover:-translate-y-1" style={{ backgroundColor: 'var(--feature-emerald-bg)', borderColor: 'var(--feature-emerald-border)' }}>
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   <Zap className="w-6 h-6" />

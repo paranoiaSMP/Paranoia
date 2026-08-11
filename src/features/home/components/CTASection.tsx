@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 export default function CTASection() {
   return (
-    <section className="relative z-10 max-w-6xl mx-auto px-6 mt-16 mb-20">
+    <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 mt-16 mb-20">
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -18,12 +18,12 @@ export default function CTASection() {
         <div className="absolute inset-0 bg-noise opacity-20 pointer-events-none"></div>
         
         {/* Text Content */}
-        <div className="relative z-10 p-8 sm:p-10 md:p-16 flex-1 text-left flex flex-col items-start">
+        <div className="relative z-10 p-5 sm:p-8 md:p-16 flex-1 text-left flex flex-col items-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 border-2 shadow-sm" style={{ backgroundColor: 'var(--feature-purple-bg)', borderColor: 'var(--feature-purple-border)', color: 'var(--feature-purple-text)' }}>
             <Sparkles className="w-3.5 h-3.5" /> En cours de développement - v1.0
           </div>
           
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-outfit font-black mb-6 text-balance leading-tight" style={{ color: 'var(--text-color)' }}>
+          <h2 className="text-3xl sm:text-5xl md:text-6xl font-outfit font-black mb-6 text-balance leading-tight" style={{ color: 'var(--text-color)' }}>
             PARANOIA <span style={{ color: 'var(--logo-end)' }}>Launcher</span>
           </h2>
           
@@ -73,7 +73,7 @@ export default function CTASection() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full blur-[80px] opacity-30 bg-[var(--color-accent-purple,#9d0df2)] pointer-events-none"></div>
           <div className="absolute inset-0 bg-noise opacity-30 pointer-events-none"></div>
           
-          <div className="relative flex-1 flex items-center justify-center p-4 sm:p-8">
+          <div className="relative flex-1 flex items-center justify-center p-2 sm:p-8">
             <motion.div 
               whileHover={{ scale: 1.02 }}
               className="relative z-10 w-full max-w-[280px] rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-between border-2 shadow-2xl backdrop-blur-xl bg-[#14141c]/90 text-white border-purple-500/30 overflow-hidden"

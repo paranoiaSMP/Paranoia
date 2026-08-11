@@ -31,7 +31,7 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="relative z-10 max-w-6xl mx-auto px-6 mt-10">
+    <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 mt-10">
       <div className="text-center mb-12">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
@@ -68,7 +68,7 @@ export default function FeaturesSection() {
             <div className="absolute inset-0 rounded-xl translate-y-2 translate-x-1 sm:translate-y-3 sm:translate-x-2 transition-transform duration-300 group-hover:translate-y-4 group-hover:translate-x-3" style={{ backgroundColor: 'var(--card-border)' }}></div>
             
             <div 
-              className="relative h-full rounded-xl p-6 sm:p-8 flex flex-col justify-between border-2 sm:border-4 transition-all duration-300 group-hover:-translate-y-2 group-active:translate-y-1"
+              className="relative h-full rounded-xl p-5 sm:p-8 flex flex-col justify-between border-2 sm:border-4 transition-all duration-300 group-hover:-translate-y-2 group-active:translate-y-1"
               style={{ backgroundColor: 'var(--surface-bg)', borderColor: 'var(--card-border)' }}
             >
               <div className="relative z-10">
