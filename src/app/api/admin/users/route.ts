@@ -92,7 +92,7 @@ export async function DELETE(req: Request) {
 
     // Delete all related data first, then the user
     await prisma.$transaction([
-      prisma.cardOwnership.deleteMany({ where: { userId } }),
+      prisma.userCard.deleteMany({ where: { userId } }),
       prisma.userBox.deleteMany({ where: { userId } }),
       prisma.session.deleteMany({ where: { userId } }),
       prisma.account.deleteMany({ where: { userId } }),

@@ -200,6 +200,15 @@ export async function DELETE(req: Request) {
       where: { tradingCardId: stringId }
     });
 
+    await prisma.cardVariantLink.deleteMany({
+      where: {
+        OR: [
+          { motherCardId: stringId },
+          { targetCardId: stringId }
+        ]
+      }
+    });
+
     await prisma.tradingCard.delete({
       where: { id: stringId }
     });
