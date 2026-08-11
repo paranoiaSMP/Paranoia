@@ -151,6 +151,11 @@ export default function AdminCardsPage() {
   };
 
   const freezeSkin = async () => {
+    if (cardImageUrl) {
+      const confirmOverwrite = window.confirm("Cette carte a déjà une image. Voulez-vous vraiment la remplacer par le skin actuel du joueur ?");
+      if (!confirmOverwrite) return;
+    }
+
     const selectedPlayer = players.find(p => p.id === cardPlayerId);
     const playerName = selectedPlayer?.minecraftName || cardTitle;
     
