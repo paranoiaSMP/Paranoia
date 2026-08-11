@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function CardsSystemSection() {
   return (
-    <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 mt-16">
+    <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 mt-16 mb-24 lg:mb-32">
       <div className="flex flex-col lg:flex-row items-center gap-16">
         
         {/* Left Side: Text Content */}
@@ -54,7 +54,7 @@ export default function CardsSystemSection() {
         </div>
         
         {/* Right Side: Visual / Floating Boosters */}
-        <div className="flex-1 w-full relative h-[300px] sm:h-[400px] lg:h-[600px] flex items-center justify-center mt-10 lg:mt-0">
+        <div className="flex-1 w-full relative h-[380px] sm:h-[450px] lg:h-[600px] flex items-center justify-center mt-16 lg:mt-0">
           {/* Background decoration */}
           <div className="absolute inset-0 bg-noise opacity-30 rounded-full blur-3xl mix-blend-overlay"></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 rounded-full blur-[100px] opacity-40 pointer-events-none" style={{ backgroundColor: 'var(--logo-end)' }}></div>
@@ -63,7 +63,7 @@ export default function CardsSystemSection() {
           <motion.div 
             animate={{ y: [-10, 10, -10], rotateZ: [-2, 2, -2] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute z-20 drop-shadow-2xl w-[150px] sm:w-[200px] lg:w-[280px]"
+            className="absolute z-20 drop-shadow-2xl w-[130px] sm:w-[200px] lg:w-[280px]"
           >
             <Image 
               src="/LegendaireB.png" 
@@ -71,7 +71,7 @@ export default function CardsSystemSection() {
               width={280} 
               height={380} 
               className="object-contain w-full h-auto"
-              sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 280px"
+              sizes="(max-width: 640px) 130px, (max-width: 1024px) 200px, 280px"
             />
           </motion.div>
           
@@ -79,7 +79,7 @@ export default function CardsSystemSection() {
           <motion.div 
             animate={{ y: [10, -10, 10], rotateZ: [5, 1, 5] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute z-10 -ml-16 sm:-ml-24 lg:-ml-40 -mt-8 sm:-mt-10 lg:-mt-20 opacity-90 drop-shadow-xl w-[100px] sm:w-[140px] lg:w-[200px]"
+            className="absolute z-10 -ml-16 sm:-ml-24 lg:-ml-40 -mt-6 sm:-mt-10 lg:-mt-20 opacity-90 drop-shadow-xl w-[90px] sm:w-[140px] lg:w-[200px]"
           >
             <Image 
               src="/StandardB.png" 
@@ -87,7 +87,7 @@ export default function CardsSystemSection() {
               width={200} 
               height={280} 
               className="object-contain filter blur-[1px] w-full h-auto"
-              sizes="(max-width: 640px) 100px, (max-width: 1024px) 140px, 200px"
+              sizes="(max-width: 640px) 90px, (max-width: 1024px) 140px, 200px"
             />
           </motion.div>
           
@@ -95,7 +95,7 @@ export default function CardsSystemSection() {
           <motion.div 
             animate={{ y: [-5, 15, -5], rotateZ: [-6, -2, -6] }}
             transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute z-30 ml-20 sm:ml-28 lg:ml-48 mt-12 sm:mt-16 lg:mt-32 opacity-95 drop-shadow-2xl w-[110px] sm:w-[160px] lg:w-[220px]"
+            className="absolute z-30 ml-20 sm:ml-28 lg:ml-48 mt-12 sm:mt-16 lg:mt-32 opacity-95 drop-shadow-2xl w-[100px] sm:w-[160px] lg:w-[220px]"
           >
             <Image 
               src="/MythiqueB.png" 
@@ -103,7 +103,7 @@ export default function CardsSystemSection() {
               width={220} 
               height={300} 
               className="object-contain w-full h-auto"
-              sizes="(max-width: 640px) 110px, (max-width: 1024px) 160px, 220px"
+              sizes="(max-width: 640px) 100px, (max-width: 1024px) 160px, 220px"
             />
           </motion.div>
         </div>
