@@ -471,7 +471,7 @@ export default function PackOpenerClient({
           {!showReveal && (
             <div className="w-full flex flex-col items-center">
               {/* CATEGORY DECK (Version 3: Color-Coded Cards & Isolated Images) */}
-              <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full max-w-7xl mb-10 px-2 overflow-x-auto snap-x snap-mandatory pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full max-w-7xl mb-10 px-2 overflow-x-auto snap-x snap-mandatory pt-12 pb-6 -mt-8" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {Object.keys(boxesData).map((key) => {
                   const box = boxesData[key];
                   const isSelected = selectedBoxType === key;

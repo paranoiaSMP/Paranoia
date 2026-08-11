@@ -148,7 +148,7 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
       )}
 
       {/* Packages (Scroll horizontal sur mobile) */}
-      <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 lg:gap-12 max-w-6xl mx-auto overflow-x-auto snap-x snap-mandatory pb-8 px-4 md:px-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 lg:gap-12 max-w-6xl mx-auto overflow-x-auto snap-x snap-mandatory pt-8 pb-8 px-4 md:px-0 -mt-4 md:mt-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {packages.map((pkg, i) => (
           <div
             key={pkg.id}
