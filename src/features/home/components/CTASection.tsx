@@ -19,40 +19,40 @@ export default function CTASection() {
         
         {/* Text Content */}
         <div className="relative z-10 p-5 sm:p-8 md:p-16 flex-1 text-left flex flex-col items-start">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 border-2 shadow-sm" style={{ backgroundColor: 'var(--feature-purple-bg)', borderColor: 'var(--feature-purple-border)', color: 'var(--feature-purple-text)' }}>
-            <Sparkles className="w-3.5 h-3.5" /> En cours de développement - v1.0
+          <div className="inline-flex items-center gap-1 sm:gap-2 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-6 border-2 shadow-sm" style={{ backgroundColor: 'var(--feature-purple-bg)', borderColor: 'var(--feature-purple-border)', color: 'var(--feature-purple-text)' }}>
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> En cours de développement - v1.0
           </div>
           
-          <h2 className="text-3xl sm:text-5xl md:text-6xl font-outfit font-black mb-6 text-balance leading-tight" style={{ color: 'var(--text-color)' }}>
+          <h2 className="text-2xl sm:text-5xl md:text-6xl font-outfit font-black mb-4 sm:mb-6 text-balance leading-tight" style={{ color: 'var(--text-color)' }}>
             PARANOIA <span style={{ color: 'var(--logo-end)' }}>Launcher</span>
           </h2>
           
-          <p className="text-base sm:text-lg mb-8 font-inter max-w-md leading-relaxed text-balance" style={{ color: 'var(--nav-item-color)' }}>
+          <p className="text-sm sm:text-lg mb-6 sm:mb-8 font-inter max-w-md leading-relaxed text-balance" style={{ color: 'var(--nav-item-color)' }}>
             Profitez d'une expérience de jeu fluide et sans compromis. Notre launcher personnalisé vous permet de rejoindre le serveur instantanément avec des performances maximales, sans aucune configuration préalable.
           </p>
           
-          <ul className="flex flex-col gap-4 mb-10 font-inter w-full">
-            <li className="flex items-center gap-3 font-medium text-sm sm:text-base" style={{ color: 'var(--text-color)' }}>
+          <ul className="flex flex-col gap-3 sm:gap-4 mb-8 sm:mb-10 font-inter w-full">
+            <li className="flex items-center gap-2.5 sm:gap-3 font-medium text-xs sm:text-base" style={{ color: 'var(--text-color)' }}>
               <div className="p-1 rounded-md shrink-0" style={{ backgroundColor: 'var(--feature-emerald-bg)' }}>
-                <Zap className="w-4 h-4" style={{ color: 'var(--feature-emerald-text)' }} />
+                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: 'var(--feature-emerald-text)' }} />
               </div>
               Lancement ultra-rapide
             </li>
-            <li className="flex items-center gap-3 font-medium text-sm sm:text-base" style={{ color: 'var(--text-color)' }}>
+            <li className="flex items-center gap-2.5 sm:gap-3 font-medium text-xs sm:text-base" style={{ color: 'var(--text-color)' }}>
               <div className="p-1 rounded-md shrink-0" style={{ backgroundColor: 'var(--feature-purple-bg)' }}>
-                <Settings className="w-4 h-4" style={{ color: 'var(--feature-purple-text)' }} />
+                <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: 'var(--feature-purple-text)' }} />
               </div>
               Optimisation native des FPS
             </li>
-            <li className="flex items-center gap-3 font-medium text-sm sm:text-base" style={{ color: 'var(--text-color)' }}>
+            <li className="flex items-center gap-2.5 sm:gap-3 font-medium text-xs sm:text-base" style={{ color: 'var(--text-color)' }}>
               <div className="p-1 rounded-md shrink-0" style={{ backgroundColor: 'var(--feature-amber-bg)' }}>
-                <ShieldCheck className="w-4 h-4" style={{ color: 'var(--feature-amber-text)' }} />
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: 'var(--feature-amber-text)' }} />
               </div>
               Installation automatique
             </li>
-            <li className="flex items-center gap-3 font-medium text-sm sm:text-base" style={{ color: 'var(--text-color)' }}>
+            <li className="flex items-center gap-2.5 sm:gap-3 font-medium text-xs sm:text-base" style={{ color: 'var(--text-color)' }}>
               <div className="p-1 rounded-md shrink-0" style={{ backgroundColor: 'var(--feature-purple-bg)' }}>
-                <Calendar className="w-4 h-4" style={{ color: 'var(--feature-purple-text)' }} />
+                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: 'var(--feature-purple-text)' }} />
               </div>
               Accès direct aux événements
             </li>
@@ -68,33 +68,33 @@ export default function CTASection() {
         </div>
         
         {/* Visual Content (Stylized Futuristic Launcher Preview) */}
-        <div className="relative w-full md:w-2/5 min-h-[350px] flex items-stretch border-t-4 md:border-t-0 md:border-l-4 overflow-hidden" style={{ backgroundColor: 'var(--navbar-bg)', borderColor: 'var(--card-border)' }}>
+        <div className="relative w-full md:w-2/5 min-h-[220px] sm:min-h-[350px] flex items-stretch border-t-4 md:border-t-0 md:border-l-4 overflow-hidden" style={{ backgroundColor: 'var(--navbar-bg)', borderColor: 'var(--card-border)' }}>
           {/* Ambient Purple Glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full blur-[80px] opacity-30 bg-[var(--color-accent-purple,#9d0df2)] pointer-events-none"></div>
           <div className="absolute inset-0 bg-noise opacity-30 pointer-events-none"></div>
           
-          <div className="relative flex-1 flex items-center justify-center p-2 sm:p-8">
+          <div className="relative flex-1 flex items-center justify-center p-3 sm:p-8">
             <motion.div 
               whileHover={{ scale: 1.02 }}
-              className="relative z-10 w-full max-w-[280px] rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-between border-2 shadow-2xl backdrop-blur-xl bg-[#14141c]/90 text-white border-purple-500/30 overflow-hidden"
+              className="relative z-10 w-full max-w-[280px] rounded-2xl p-3 sm:p-6 flex flex-col items-center justify-between border-2 shadow-2xl backdrop-blur-xl bg-[#14141c]/90 text-white border-purple-500/30 overflow-hidden"
             >
               {/* Top Bar Decoration */}
-              <div className="w-full flex items-center justify-between pb-3 mb-4 border-b border-purple-500/20 text-xs text-purple-300 font-mono">
+              <div className="w-full flex items-center justify-between pb-2 sm:pb-3 mb-2 sm:mb-4 border-b border-purple-500/20 text-[10px] sm:text-xs text-purple-300 font-mono">
                 <span className="flex items-center gap-1.5 font-bold">
-                  <Terminal className="w-3.5 h-3.5 text-purple-400" /> PARANOIA_CLIENT_v1
+                  <Terminal className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400" /> PARANOIA_CLIENT
                 </span>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 animate-ping"></span>
               </div>
 
               {/* Center Logo & Status */}
-              <div className="my-4 flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#7a0aad] to-[#d946ef] flex items-center justify-center shadow-lg shadow-purple-500/30 mb-4 border border-white/20">
-                  <Play className="w-8 h-8 text-white translate-x-0.5" />
+              <div className="my-2 sm:my-4 flex flex-col items-center text-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#7a0aad] to-[#d946ef] flex items-center justify-center shadow-lg shadow-purple-500/30 mb-2 sm:mb-4 border border-white/20">
+                  <Play className="w-6 h-6 sm:w-8 sm:h-8 text-white translate-x-0.5" />
                 </div>
-                <h4 className="font-outfit font-black text-xl tracking-tight text-white mb-1">
+                <h4 className="font-outfit font-black text-lg sm:text-xl tracking-tight text-white mb-1">
                   PARANOIA <span className="text-fuchsia-400">SMP</span>
                 </h4>
-                <span className="text-[11px] uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-purple-950/80 text-purple-300 border border-purple-500/30 font-semibold">
+                <span className="text-[9px] sm:text-[11px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-purple-950/80 text-purple-300 border border-purple-500/30 font-semibold">
                   Moteur Optimisé • 60+ FPS
                 </span>
               </div>
