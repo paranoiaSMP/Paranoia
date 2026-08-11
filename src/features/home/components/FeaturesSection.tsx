@@ -37,7 +37,7 @@ export default function FeaturesSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          className="text-3xl md:text-5xl font-outfit font-black mb-4"
+          className="text-3xl md:text-5xl font-outfit font-black mb-4 text-balance"
           style={{ color: 'var(--text-color)' }}
         >
           Pourquoi rejoindre <span className="text-gradient">Paranoia</span> ?
@@ -47,7 +47,7 @@ export default function FeaturesSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ delay: 0.2 }}
-          className="max-w-2xl mx-auto font-inter text-lg"
+          className="max-w-2xl mx-auto font-inter text-lg text-balance"
           style={{ color: 'var(--nav-item-color)' }}
         >
           Une expérience multijoueur inédite allant du SMP avec un Plugin Custom à la mécaniques de collection de cartes.

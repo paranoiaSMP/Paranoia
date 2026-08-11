@@ -15,13 +15,13 @@ export default function CardsSystemSection() {
             <Sparkles className="w-3 h-3" /> Exclusivité Paranoia
           </div>
           
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-outfit font-black mb-6 leading-tight" style={{ color: 'var(--text-color)' }}>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-outfit font-black mb-6 leading-tight text-balance" style={{ color: 'var(--text-color)' }}>
             Collectionne.<br/>
             Échange.<br/>
             <span style={{ color: 'var(--logo-end)' }}>Domine.</span>
           </h2>
           
-          <p className="text-base sm:text-lg md:text-xl mb-8 font-inter max-w-xl leading-relaxed" style={{ color: 'var(--nav-item-color)' }}>
+          <p className="text-base sm:text-lg md:text-xl mb-8 font-inter max-w-xl leading-relaxed text-balance" style={{ color: 'var(--nav-item-color)' }}>
             Découvrez un système de cartes à collectionner intégré directement dans le jeu. Ouvrez des boosters, obtenez des cartes de différentes raretés et profitez d'avantages uniques.
           </p>
           
@@ -46,30 +46,24 @@ export default function CardsSystemSection() {
             </div>
           </div>
           
-          <Link href="/cards" className="inline-block group relative">
-            <div className="absolute inset-0 rounded-xl translate-y-1.5 translate-x-1.5 transition-all duration-150" style={{ backgroundColor: 'var(--card-border)' }}></div>
-            <div 
-              className="relative px-8 py-4 rounded-xl font-bold text-lg border-2 transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:-translate-x-0.5 group-active:translate-y-1.5 group-active:translate-x-1.5 flex items-center justify-center gap-3"
-              style={{ backgroundColor: 'var(--surface-bg)', borderColor: 'var(--card-border)', color: 'var(--text-color)' }}
-            >
-              <Layers className="w-5 h-5" style={{ color: 'var(--logo-end)' }} />
-              Découvrir les boosters
-              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-            </div>
+          <Link href="/cards" className="btn-neo-secondary inline-flex w-fit group mt-4">
+            <Layers className="w-5 h-5" style={{ color: 'var(--logo-end)' }} />
+            Découvrir les boosters
+            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
         
         {/* Right Side: Visual / Floating Boosters */}
-        <div className="flex-1 w-full relative h-[400px] lg:h-[600px] flex items-center justify-center">
+        <div className="flex-1 w-full relative h-[300px] sm:h-[400px] lg:h-[600px] flex items-center justify-center mt-10 lg:mt-0">
           {/* Background decoration */}
           <div className="absolute inset-0 bg-noise opacity-30 rounded-full blur-3xl mix-blend-overlay"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[100px] opacity-40 pointer-events-none" style={{ backgroundColor: 'var(--logo-end)' }}></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 rounded-full blur-[100px] opacity-40 pointer-events-none" style={{ backgroundColor: 'var(--logo-end)' }}></div>
           
           {/* Floating Booster 1 (Legendary) */}
           <motion.div 
             animate={{ y: [-10, 10, -10], rotateZ: [-2, 2, -2] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute z-20 drop-shadow-2xl w-[200px] lg:w-[280px]"
+            className="absolute z-20 drop-shadow-2xl w-[150px] sm:w-[200px] lg:w-[280px]"
           >
             <Image 
               src="/LegendaireB.png" 
@@ -77,7 +71,7 @@ export default function CardsSystemSection() {
               width={280} 
               height={380} 
               className="object-contain w-full h-auto"
-              sizes="(max-width: 768px) 200px, 280px"
+              sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 280px"
             />
           </motion.div>
           
@@ -85,7 +79,7 @@ export default function CardsSystemSection() {
           <motion.div 
             animate={{ y: [10, -10, 10], rotateZ: [5, 1, 5] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute z-10 -ml-24 lg:-ml-40 -mt-10 lg:-mt-20 opacity-90 drop-shadow-xl w-[140px] lg:w-[200px]"
+            className="absolute z-10 -ml-16 sm:-ml-24 lg:-ml-40 -mt-8 sm:-mt-10 lg:-mt-20 opacity-90 drop-shadow-xl w-[100px] sm:w-[140px] lg:w-[200px]"
           >
             <Image 
               src="/StandardB.png" 
@@ -93,7 +87,7 @@ export default function CardsSystemSection() {
               width={200} 
               height={280} 
               className="object-contain filter blur-[1px] w-full h-auto"
-              sizes="(max-width: 768px) 140px, 200px"
+              sizes="(max-width: 640px) 100px, (max-width: 1024px) 140px, 200px"
             />
           </motion.div>
           
@@ -101,7 +95,7 @@ export default function CardsSystemSection() {
           <motion.div 
             animate={{ y: [-5, 15, -5], rotateZ: [-6, -2, -6] }}
             transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute z-30 ml-28 lg:ml-48 mt-16 lg:mt-32 opacity-95 drop-shadow-2xl w-[160px] lg:w-[220px]"
+            className="absolute z-30 ml-20 sm:ml-28 lg:ml-48 mt-12 sm:mt-16 lg:mt-32 opacity-95 drop-shadow-2xl w-[110px] sm:w-[160px] lg:w-[220px]"
           >
             <Image 
               src="/MythiqueB.png" 
@@ -109,7 +103,7 @@ export default function CardsSystemSection() {
               width={220} 
               height={300} 
               className="object-contain w-full h-auto"
-              sizes="(max-width: 768px) 160px, 220px"
+              sizes="(max-width: 640px) 110px, (max-width: 1024px) 160px, 220px"
             />
           </motion.div>
         </div>

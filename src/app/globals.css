@@ -101,6 +101,36 @@
     box-shadow: 4px 4px 0px 0px var(--color-accent-purple-dark);
   }
 
+  .btn-neo-primary {
+    @apply relative flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-outfit font-bold text-lg border-2 text-white bg-[var(--color-accent-purple)] border-[var(--color-accent-purple-dark)] transition-all duration-150 cursor-pointer;
+    box-shadow: 6px 6px 0px 0px var(--color-accent-purple-dark);
+  }
+  .btn-neo-primary:hover {
+    @apply -translate-y-0.5 -translate-x-0.5 bg-[#c084fc];
+    box-shadow: 8px 8px 0px 0px var(--color-accent-purple-dark);
+  }
+  .btn-neo-primary:active {
+    @apply translate-y-1.5 translate-x-1.5;
+    box-shadow: 0px 0px 0px 0px var(--color-accent-purple-dark);
+  }
+
+  .btn-neo-secondary {
+    @apply relative flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-outfit font-bold text-lg border-2 transition-all duration-150 cursor-pointer;
+    background-color: var(--surface-bg, #111118);
+    border-color: var(--color-accent-purple-dark, #6b21a8);
+    color: var(--text-color, white);
+    box-shadow: 6px 6px 0px 0px var(--color-accent-purple-dark, #6b21a8);
+  }
+  .btn-neo-secondary:hover {
+    @apply -translate-y-0.5 -translate-x-0.5;
+    background-color: var(--color-accent-purple-dark, #6b21a8);
+    box-shadow: 8px 8px 0px 0px var(--color-accent-purple-dark, #6b21a8);
+  }
+  .btn-neo-secondary:active {
+    @apply translate-y-1.5 translate-x-1.5;
+    box-shadow: 0px 0px 0px 0px var(--color-accent-purple-dark, #6b21a8);
+  }
+
   .btn-primary {
     @apply relative overflow-hidden rounded-md bg-[var(--color-accent-purple)] text-white font-bold py-3 px-6 transition-all duration-200 border-2 border-[var(--color-accent-purple-dark)];
     box-shadow: 4px 4px 0px 0px var(--color-accent-purple-dark);

@@ -11,7 +11,7 @@ export default function CTASection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="relative rounded-3xl overflow-hidden flex flex-col md:flex-row items-center border-4 shadow-2xl"
+        className="relative rounded-3xl overflow-hidden flex flex-col md:flex-row items-stretch border-4 shadow-2xl"
         style={{ backgroundColor: 'var(--surface-bg)', borderColor: 'var(--card-border)' }}
       >
         {/* Subtle noise texture */}
@@ -23,11 +23,11 @@ export default function CTASection() {
             <Sparkles className="w-3.5 h-3.5" /> En cours de développement - v1.0
           </div>
           
-          <h2 className="text-3xl sm:text-4xl md:text-6xl font-outfit font-black mb-6" style={{ color: 'var(--text-color)' }}>
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-outfit font-black mb-6 text-balance" style={{ color: 'var(--text-color)' }}>
             PARANOIA <span style={{ color: 'var(--logo-end)' }}>Launcher</span>
           </h2>
           
-          <p className="text-base sm:text-lg mb-8 font-inter max-w-md leading-relaxed" style={{ color: 'var(--nav-item-color)' }}>
+          <p className="text-base sm:text-lg mb-8 font-inter max-w-md leading-relaxed text-balance" style={{ color: 'var(--nav-item-color)' }}>
             Profitez d'une expérience de jeu fluide et sans compromis. Notre launcher personnalisé vous permet de rejoindre le serveur instantanément avec des performances maximales, sans aucune configuration préalable.
           </p>
           
@@ -60,21 +60,15 @@ export default function CTASection() {
           
           <div className="flex flex-col sm:flex-row items-start gap-4">
             {/* Disabled Coming Soon Button */}
-            <div className="inline-block group relative cursor-not-allowed opacity-70">
-              <div className="absolute inset-0 rounded-xl translate-y-1.5 translate-x-1.5" style={{ backgroundColor: 'var(--card-border)' }}></div>
-              <div 
-                className="relative px-8 py-4 rounded-xl font-bold text-lg border-2 flex items-center justify-center gap-3"
-                style={{ backgroundColor: 'var(--surface-bg)', borderColor: 'var(--card-border)', color: 'var(--nav-item-color)' }}
-              >
-                <Monitor className="w-5 h-5" />
-                Bientôt Disponible
-              </div>
+            <div className="btn-neo-secondary cursor-not-allowed opacity-70 pointer-events-none">
+              <Monitor className="w-5 h-5" />
+              Bientôt Disponible
             </div>
           </div>
         </div>
         
         {/* Visual Content (Stylized Futuristic Launcher Preview) */}
-        <div className="relative w-full md:w-2/5 min-h-[350px] md:min-h-[100%] flex items-stretch md:absolute right-0 top-0 bottom-0 border-t-4 md:border-t-0 md:border-l-4 overflow-hidden" style={{ backgroundColor: 'var(--navbar-bg)', borderColor: 'var(--card-border)' }}>
+        <div className="relative w-full md:w-2/5 min-h-[350px] flex items-stretch border-t-4 md:border-t-0 md:border-l-4 overflow-hidden" style={{ backgroundColor: 'var(--navbar-bg)', borderColor: 'var(--card-border)' }}>
           {/* Ambient Purple Glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full blur-[80px] opacity-30 bg-[var(--color-accent-purple,#9d0df2)] pointer-events-none"></div>
           <div className="absolute inset-0 bg-noise opacity-30 pointer-events-none"></div>

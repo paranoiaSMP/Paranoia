@@ -20,7 +20,7 @@ export default function NavigationManager({ children }: { children: React.ReactN
   return (
     <>
       <Navbar />
-      <main className="flex-grow pt-32 px-6 md:px-10 lg:px-16">
+      <main className="flex-grow pt-32">
         {children}
       </main>
       <Footer />
