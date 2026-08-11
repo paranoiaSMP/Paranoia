@@ -24,6 +24,7 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const file = formData.get('file') as File;
+    const playerName = formData.get('playerName') as string | null;
 
     if (!file) {
       return new NextResponse("No file received.", { status: 400 });
@@ -38,9 +39,10 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Créer un nom de fichier unique
+    // Créer un nom de fichier unique, classé par joueur si possible
     const ext = file.name.split('.').pop() || 'png';
-    const uniqueFilename = `cards/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+    const folder = playerName ? `cards/${playerName}` : 'cards/general';
+    const uniqueFilename = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
     // Upload vers Cloudflare R2
     await s3Client.send(

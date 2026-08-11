@@ -116,6 +116,12 @@ export default function AdminCardsPage() {
     setIsUploading(true);
     const formData = new FormData();
     formData.append('file', file);
+    
+    const selectedPlayer = players.find(p => p.id === cardPlayerId);
+    const playerName = selectedPlayer?.minecraftName || cardTitle;
+    if (playerName) {
+      formData.append('playerName', playerName);
+    }
 
     try {
       const res = await fetch('/api/upload', {
@@ -179,6 +185,7 @@ export default function AdminCardsPage() {
       // 2. Upload it to R2
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('playerName', playerName);
       
       const uploadRes = await fetch('/api/upload', {
         method: 'POST',
@@ -599,6 +606,12 @@ export default function AdminCardsPage() {
       const file = new File([blob], `card_${editingCardId}_discord.png`, { type: 'image/png' });
       const formData = new FormData();
       formData.append('file', file);
+      
+      const selectedPlayer = players.find(p => p.id === cardPlayerId);
+      const playerName = selectedPlayer?.minecraftName || cardTitle;
+      if (playerName) {
+        formData.append('playerName', playerName);
+      }
 
       const uploadRes = await fetch('/api/upload', {
         method: 'POST',
