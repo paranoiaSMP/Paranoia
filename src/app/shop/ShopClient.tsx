@@ -147,12 +147,12 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
         </div>
       )}
 
-      {/* Editions Spéciales */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 max-w-6xl mx-auto">
+      {/* Packages (Scroll horizontal sur mobile) */}
+      <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 lg:gap-12 max-w-6xl mx-auto overflow-x-auto snap-x snap-mandatory pb-8 px-4 md:px-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {packages.map((pkg, i) => (
           <div
             key={pkg.id}
-            className="relative group backdrop-blur-xl border rounded-2xl md:rounded-[2rem] p-4 md:p-8 flex flex-col items-center text-center transition-all duration-500 hover:scale-[1.02] hover:-translate-y-4 shadow-xl"
+            className="relative group backdrop-blur-xl border rounded-2xl md:rounded-[2rem] p-4 md:p-8 flex flex-col items-center text-center transition-all duration-500 md:hover:scale-[1.02] md:hover:-translate-y-4 shadow-xl shrink-0 snap-center w-[85vw] md:w-auto"
             style={{ background: 'var(--card-bg)', borderColor: pkg.borderVar }}
           >
             {/* Background Glow */}
