@@ -19,9 +19,7 @@ export default function CTASection() {
         
         {/* Text Content */}
         <div className="relative z-10 p-5 sm:p-8 md:p-16 flex-1 text-left flex flex-col items-start">
-          <div className="inline-flex items-center gap-1 sm:gap-2 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-6 border-2 shadow-sm" style={{ backgroundColor: 'var(--feature-purple-bg)', borderColor: 'var(--feature-purple-border)', color: 'var(--feature-purple-text)' }}>
-            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> En cours de développement - v1.0
-          </div>
+
           
           <h2 className="text-2xl sm:text-5xl md:text-6xl font-outfit font-black mb-4 sm:mb-6 text-balance leading-tight" style={{ color: 'var(--text-color)' }}>
             PARANOIA <span style={{ color: 'var(--logo-end)' }}>Launcher</span>

@@ -11,9 +11,7 @@ export default function CardsSystemSection() {
         
         {/* Left Side: Text Content */}
         <div className="flex-1 text-center sm:text-left flex flex-col items-center sm:items-start">
-          <div className="inline-flex items-center gap-2 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-6 border-2" style={{ backgroundColor: 'var(--feature-purple-bg)', borderColor: 'var(--feature-purple-border)', color: 'var(--feature-purple-text)' }}>
-            <Sparkles className="w-3 h-3" /> Exclusivité Paranoia
-          </div>
+
           
           <h2 className="text-3xl sm:text-5xl md:text-6xl font-outfit font-black mb-4 sm:mb-6 leading-tight text-balance" style={{ color: 'var(--text-color)' }}>
             Collectionne.<br />
