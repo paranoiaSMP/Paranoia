@@ -10,22 +10,22 @@ export default function CardsSystemSection() {
       <div className="flex flex-col lg:flex-row items-center gap-16">
         
         {/* Left Side: Text Content */}
-        <div className="flex-1 text-left">
+        <div className="flex-1 text-center sm:text-left flex flex-col items-center sm:items-start">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6 border-2" style={{ backgroundColor: 'var(--feature-purple-bg)', borderColor: 'var(--feature-purple-border)', color: 'var(--feature-purple-text)' }}>
             <Sparkles className="w-3 h-3" /> Exclusivité Paranoia
           </div>
           
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-outfit font-black mb-6 leading-tight text-balance" style={{ color: 'var(--text-color)' }}>
-            Collectionne.<br/>
-            Échange.<br/>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-outfit font-black mb-6 leading-tight text-balance" style={{ color: 'var(--text-color)' }}>
+            Collectionne.<br className="hidden sm:block" />
+            Échange.<br className="hidden sm:block" />
             <span style={{ color: 'var(--logo-end)' }}>Domine.</span>
           </h2>
           
-          <p className="text-base sm:text-lg md:text-xl mb-8 font-inter max-w-xl leading-relaxed text-balance" style={{ color: 'var(--nav-item-color)' }}>
+          <p className="text-base sm:text-lg md:text-xl mb-8 font-inter max-w-xl leading-relaxed text-balance px-2 sm:px-0" style={{ color: 'var(--nav-item-color)' }}>
             Découvrez un système de cartes à collectionner intégré directement dans le jeu. Ouvrez des boosters, obtenez des cartes de différentes raretés et profitez d'avantages uniques.
           </p>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-10 w-full text-left">
             <div className="p-5 rounded-2xl border-2 flex flex-col gap-2 shadow-lg transition-transform hover:-translate-y-1" style={{ backgroundColor: 'var(--feature-purple-bg)', borderColor: 'var(--feature-purple-border)' }}>
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30">
@@ -46,8 +46,8 @@ export default function CardsSystemSection() {
             </div>
           </div>
           
-          <Link href="/cards" className="btn-neo-secondary inline-flex w-fit group mt-4">
-            <Layers className="w-5 h-5" style={{ color: 'var(--logo-end)' }} />
+          <Link href="/cards" className="btn-neo-secondary flex justify-center items-center w-full sm:w-auto group mt-2 sm:mt-4">
+            <Layers className="w-5 h-5 mr-2" style={{ color: 'var(--logo-end)' }} />
             Découvrir les boosters
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Link>

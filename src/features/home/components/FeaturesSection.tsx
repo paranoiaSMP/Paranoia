@@ -37,7 +37,7 @@ export default function FeaturesSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          className="text-3xl md:text-5xl font-outfit font-black mb-4 text-balance"
+          className="text-4xl md:text-5xl font-outfit font-black mb-4 text-balance leading-tight"
           style={{ color: 'var(--text-color)' }}
         >
           Pourquoi rejoindre <span className="text-gradient">Paranoia</span> ?
@@ -47,14 +47,14 @@ export default function FeaturesSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ delay: 0.2 }}
-          className="max-w-2xl mx-auto font-inter text-lg text-balance"
+          className="max-w-2xl mx-auto font-inter text-lg text-balance px-2"
           style={{ color: 'var(--nav-item-color)' }}
         >
           Une expérience multijoueur inédite allant du SMP avec un Plugin Custom à la mécaniques de collection de cartes.
         </motion.p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
         {features.map((feature, i) => (
           <motion.div
             key={i}
@@ -65,31 +65,31 @@ export default function FeaturesSection() {
             className="group relative cursor-pointer"
           >
             {/* Chunky shadow base for physical depth */}
-            <div className="absolute inset-0 rounded-xl translate-y-3 translate-x-2 transition-transform duration-300 group-hover:translate-y-4 group-hover:translate-x-3" style={{ backgroundColor: 'var(--card-border)' }}></div>
+            <div className="absolute inset-0 rounded-xl translate-y-2 translate-x-1 sm:translate-y-3 sm:translate-x-2 transition-transform duration-300 group-hover:translate-y-4 group-hover:translate-x-3" style={{ backgroundColor: 'var(--card-border)' }}></div>
             
             <div 
-              className="relative h-full rounded-xl p-8 flex flex-col justify-between border-4 transition-all duration-300 group-hover:-translate-y-2 group-active:translate-y-1"
+              className="relative h-full rounded-xl p-6 sm:p-8 flex flex-col justify-between border-2 sm:border-4 transition-all duration-300 group-hover:-translate-y-2 group-active:translate-y-1"
               style={{ backgroundColor: 'var(--surface-bg)', borderColor: 'var(--card-border)' }}
             >
               <div className="relative z-10">
                 <div 
-                  className="w-14 h-14 rounded-lg flex items-center justify-center mb-6 border-2"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg flex items-center justify-center mb-5 sm:mb-6 border-2"
                   style={{ backgroundColor: feature.bgVar, borderColor: feature.borderVar, color: feature.textVar }}
                 >
-                  <feature.icon className="w-7 h-7" />
+                  <feature.icon className="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
                 
-                <h3 className="text-2xl font-bold font-outfit mb-4" style={{ color: 'var(--text-color)' }}>
+                <h3 className="text-xl sm:text-2xl font-bold font-outfit mb-3 sm:mb-4" style={{ color: 'var(--text-color)' }}>
                   {feature.title}
                 </h3>
                 
-                <p className="leading-relaxed font-inter" style={{ color: 'var(--nav-item-color)' }}>
+                <p className="text-sm sm:text-base leading-relaxed font-inter" style={{ color: 'var(--nav-item-color)' }}>
                   {feature.desc}
                 </p>
               </div>
               
               <div 
-                className="mt-8 px-5 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider flex items-center justify-between border-2 transition-all duration-300 group-hover:scale-[1.02] shadow-sm"
+                className="mt-6 sm:mt-8 px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-between border-2 transition-all duration-300 group-hover:scale-[1.02] shadow-sm"
                 style={{ 
                   backgroundColor: feature.bgVar, 
                   borderColor: feature.borderVar,

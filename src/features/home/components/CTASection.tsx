@@ -18,12 +18,12 @@ export default function CTASection() {
         <div className="absolute inset-0 bg-noise opacity-20 pointer-events-none"></div>
         
         {/* Text Content */}
-        <div className="relative z-10 p-12 md:p-16 flex-1 text-left">
+        <div className="relative z-10 p-8 sm:p-10 md:p-16 flex-1 text-left flex flex-col items-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 border-2 shadow-sm" style={{ backgroundColor: 'var(--feature-purple-bg)', borderColor: 'var(--feature-purple-border)', color: 'var(--feature-purple-text)' }}>
             <Sparkles className="w-3.5 h-3.5" /> En cours de développement - v1.0
           </div>
           
-          <h2 className="text-3xl sm:text-4xl md:text-6xl font-outfit font-black mb-6 text-balance" style={{ color: 'var(--text-color)' }}>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-outfit font-black mb-6 text-balance leading-tight" style={{ color: 'var(--text-color)' }}>
             PARANOIA <span style={{ color: 'var(--logo-end)' }}>Launcher</span>
           </h2>
           
@@ -31,37 +31,37 @@ export default function CTASection() {
             Profitez d'une expérience de jeu fluide et sans compromis. Notre launcher personnalisé vous permet de rejoindre le serveur instantanément avec des performances maximales, sans aucune configuration préalable.
           </p>
           
-          <ul className="flex flex-col gap-4 mb-10 font-inter">
-            <li className="flex items-center gap-3 font-medium" style={{ color: 'var(--text-color)' }}>
-              <div className="p-1 rounded-md" style={{ backgroundColor: 'var(--feature-emerald-bg)' }}>
+          <ul className="flex flex-col gap-4 mb-10 font-inter w-full">
+            <li className="flex items-center gap-3 font-medium text-sm sm:text-base" style={{ color: 'var(--text-color)' }}>
+              <div className="p-1 rounded-md shrink-0" style={{ backgroundColor: 'var(--feature-emerald-bg)' }}>
                 <Zap className="w-4 h-4" style={{ color: 'var(--feature-emerald-text)' }} />
               </div>
               Lancement ultra-rapide
             </li>
-            <li className="flex items-center gap-3 font-medium" style={{ color: 'var(--text-color)' }}>
-              <div className="p-1 rounded-md" style={{ backgroundColor: 'var(--feature-purple-bg)' }}>
+            <li className="flex items-center gap-3 font-medium text-sm sm:text-base" style={{ color: 'var(--text-color)' }}>
+              <div className="p-1 rounded-md shrink-0" style={{ backgroundColor: 'var(--feature-purple-bg)' }}>
                 <Settings className="w-4 h-4" style={{ color: 'var(--feature-purple-text)' }} />
               </div>
               Optimisation native des FPS
             </li>
-            <li className="flex items-center gap-3 font-medium" style={{ color: 'var(--text-color)' }}>
-              <div className="p-1 rounded-md" style={{ backgroundColor: 'var(--feature-amber-bg)' }}>
+            <li className="flex items-center gap-3 font-medium text-sm sm:text-base" style={{ color: 'var(--text-color)' }}>
+              <div className="p-1 rounded-md shrink-0" style={{ backgroundColor: 'var(--feature-amber-bg)' }}>
                 <ShieldCheck className="w-4 h-4" style={{ color: 'var(--feature-amber-text)' }} />
               </div>
-              Installation automatique des ressources
+              Installation automatique
             </li>
-            <li className="flex items-center gap-3 font-medium" style={{ color: 'var(--text-color)' }}>
-              <div className="p-1 rounded-md" style={{ backgroundColor: 'var(--feature-purple-bg)' }}>
+            <li className="flex items-center gap-3 font-medium text-sm sm:text-base" style={{ color: 'var(--text-color)' }}>
+              <div className="p-1 rounded-md shrink-0" style={{ backgroundColor: 'var(--feature-purple-bg)' }}>
                 <Calendar className="w-4 h-4" style={{ color: 'var(--feature-purple-text)' }} />
               </div>
-              Accès direct aux événements en jeu
+              Accès direct aux événements
             </li>
           </ul>
           
-          <div className="flex flex-col sm:flex-row items-start gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch w-full sm:w-auto gap-4">
             {/* Disabled Coming Soon Button */}
-            <div className="btn-neo-secondary cursor-not-allowed opacity-70 pointer-events-none">
-              <Monitor className="w-5 h-5" />
+            <div className="btn-neo-secondary cursor-not-allowed opacity-70 pointer-events-none flex justify-center w-full sm:w-auto text-center">
+              <Monitor className="w-5 h-5 mr-2" />
               Bientôt Disponible
             </div>
           </div>
