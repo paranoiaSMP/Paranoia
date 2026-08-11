@@ -337,25 +337,25 @@
     transition-delay: 0s;
   }
 
-  .menu-toggle:checked ~ .nav-links {
+  .nav-links.mobile-open {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0) scale(1);
   }
 
-  .menu-toggle:checked ~ .nav-links > li {
+  .nav-links.mobile-open > li {
     opacity: 1;
     transform: translateY(0);
   }
 
   /* Cascading delays */
-  .menu-toggle:checked ~ .nav-links > li:nth-child(1) { transition-delay: 0.1s; }
-  .menu-toggle:checked ~ .nav-links > li:nth-child(2) { transition-delay: 0.15s; }
-  .menu-toggle:checked ~ .nav-links > li:nth-child(3) { transition-delay: 0.2s; }
-  .menu-toggle:checked ~ .nav-links > li:nth-child(4) { transition-delay: 0.25s; }
-  .menu-toggle:checked ~ .nav-links > li:nth-child(5) { transition-delay: 0.3s; }
-  .menu-toggle:checked ~ .nav-links > li:nth-child(6) { transition-delay: 0.35s; }
-  .menu-toggle:checked ~ .nav-links > li:nth-child(7) { transition-delay: 0.4s; }
+  .nav-links.mobile-open > li:nth-child(1) { transition-delay: 0.1s; }
+  .nav-links.mobile-open > li:nth-child(2) { transition-delay: 0.15s; }
+  .nav-links.mobile-open > li:nth-child(3) { transition-delay: 0.2s; }
+  .nav-links.mobile-open > li:nth-child(4) { transition-delay: 0.25s; }
+  .nav-links.mobile-open > li:nth-child(5) { transition-delay: 0.3s; }
+  .nav-links.mobile-open > li:nth-child(6) { transition-delay: 0.35s; }
+  .nav-links.mobile-open > li:nth-child(7) { transition-delay: 0.4s; }
 
   .nav-item {
     font-size: 1.5rem;
@@ -372,9 +372,9 @@
     justify-content: center;
   }
 
-  .menu-toggle:checked ~ .burger-icon span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  .menu-toggle:checked ~ .burger-icon span:nth-child(2) { opacity: 0; }
-  .menu-toggle:checked ~ .burger-icon span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .burger-icon.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .burger-icon.open span:nth-child(2) { opacity: 0; }
+  .burger-icon.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
   /* Navbar background fallback and opacity for mobile */
   .navbar::before {

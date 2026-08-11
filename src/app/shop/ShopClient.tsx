@@ -122,22 +122,6 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
         </div>
       )}
 
-      {/* HUD Balance */}
-      {isLoggedIn && (
-        <div className="flex justify-center md:justify-end mb-12">
-          <div className="relative group cursor-default">
-            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-red)] rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-            <div className="relative flex items-center gap-4 backdrop-blur-xl px-8 py-4 rounded-2xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
-              <span className="font-medium uppercase tracking-widest text-sm" style={{ color: 'var(--muted-text)' }}>Votre Banque</span>
-              <div className="h-8 w-px" style={{ background: 'var(--card-border)' }}></div>
-              <div className="flex items-center gap-3">
-                <img src="/Paracoin.png" alt="PARA Coins" className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] animate-pulse-glow" />
-                <span className="font-outfit font-black text-3xl tracking-tight" style={{ color: 'var(--text-color)' }}>{balance.toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {successMsg && (
         <div className="mb-12 p-6 bg-green-500/10 border border-green-500/30 rounded-2xl text-green-400 flex items-center justify-center gap-3 animate-fade-in shadow-[0_0_30px_rgba(34,197,94,0.15)] backdrop-blur-md">
@@ -146,7 +130,24 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
         </div>
       )}
 
-      {/* Pricing Cards */}
+      {/* HUD Balance (Top on Mobile) */}
+      {isLoggedIn && (
+        <div className="flex justify-center md:justify-end mb-8 md:mb-12">
+          <div className="relative group cursor-default w-full sm:w-auto">
+            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-red)] rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+            <div className="relative flex items-center justify-between sm:justify-start gap-4 backdrop-blur-xl px-6 py-4 rounded-2xl w-full" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+              <span className="font-medium uppercase tracking-widest text-xs sm:text-sm" style={{ color: 'var(--muted-text)' }}>Votre Banque</span>
+              <div className="h-8 w-px hidden sm:block" style={{ background: 'var(--card-border)' }}></div>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <img src="/Paracoin.png" alt="PARA Coins" className="w-6 h-6 sm:w-8 sm:h-8 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] animate-pulse-glow" />
+                <span className="font-outfit font-black text-2xl sm:text-3xl tracking-tight" style={{ color: 'var(--text-color)' }}>{balance.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Editions Spéciales */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 max-w-6xl mx-auto">
         {packages.map((pkg, i) => (
           <div
@@ -166,7 +167,7 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
               <h3 className="text-xl font-bold uppercase tracking-widest" style={{ color: 'var(--muted-text)' }}>{pkg.title}</h3>
             </div>
 
-            <div className="w-32 h-32 mb-4 relative flex items-center justify-center">
+            <div className="w-20 h-20 md:w-32 md:h-32 mb-4 relative flex items-center justify-center">
               <div className="absolute inset-0 rounded-full blur-2xl opacity-50 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700" style={{ background: pkg.bgVar }}></div>
               <img
                 src="/Paracoin.png"
@@ -180,13 +181,13 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
               </div>
             )}
             {pkg.bonusAmount === 0 && (
-              <div className="h-8 mb-6"></div> // spacer
+              <div className="hidden md:block h-8 mb-6"></div> // spacer
             )}
             <h3 className="text-4xl md:text-5xl font-outfit font-black mb-2 flex items-baseline gap-2 relative z-10 drop-shadow-lg" style={{ color: 'var(--text-color)' }}>
               {pkg.amount}
               <span className="text-lg font-bold uppercase tracking-widest" style={{ color: pkg.textVar }}>Coins</span>
             </h3>
-            <p className="mb-10 flex-1 relative z-10 font-medium px-4" style={{ color: 'var(--muted-text)' }}>
+            <p className="mb-6 md:mb-10 flex-1 relative z-10 font-medium px-4 text-sm md:text-base" style={{ color: 'var(--muted-text)' }}>
               Idéal pour agrandir rapidement votre collection de Trading Cards.
             </p>
             <button
