@@ -38,7 +38,7 @@ export default function CandidaturePage() {
         {/* Segmented Role Selector Tabs */}
         <div className="inline-flex p-1.5 rounded-2xl border-2 gap-2 bg-[var(--navbar-bg)] shadow-md" style={{ borderColor: 'var(--card-border)' }}>
           <span className="px-6 py-2.5 rounded-xl font-outfit font-bold text-sm bg-[var(--color-accent-purple,#9d0df2)] text-white shadow-sm flex items-center gap-2">
-            <span>🎮</span> Candidature Joueur
+            Candidature Joueur
           </span>
           <a href="/candidature/moderateur" className="px-6 py-2.5 rounded-xl font-outfit font-bold text-sm text-[var(--nav-item-color)] hover:text-[var(--text-color)] hover:bg-white/5 transition-all flex items-center gap-2">
             <Shield className="w-4 h-4 text-indigo-400" /> Devenir Modérateur
