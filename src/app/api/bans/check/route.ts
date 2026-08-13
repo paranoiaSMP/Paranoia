@@ -5,29 +5,27 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const uuid = url.searchParams.get("uuid");
+    const username = url.searchParams.get("username");
 
-    if (!uuid) {
-      return new NextResponse("Missing uuid", { status: 400 });
+    if (!uuid || !username) {
+      return new NextResponse("Missing uuid or username", { status: 400 });
     }
 
-    // Step 1: Find the user by minecraftUuid to get their minecraftName
-    const user = await prisma.user.findUnique({
+    // Upsert the Player table directly with the username
+    // This way, every time someone launches the game, they are saved in the admin panel
+    const player = await prisma.player.upsert({
       where: {
-        minecraftUuid: uuid,
+        minecraftName: username,
+      },
+      update: {}, // Don't change anything if they exist
+      create: {
+        minecraftName: username,
+        status: "ACTIVE",
       },
     });
 
-    if (!user || !user.minecraftName) {
-      // If we don't know this user, they are not banned by our system yet
-      return NextResponse.json({ banned: false });
-    }
-
-    // Step 2: Check the Player table for ban status
-    const player = await prisma.player.findUnique({
-      where: {
-        minecraftName: user.minecraftName,
-      },
-    });
+    // Optionally update the User table if they exist, but we only really need the Player table for bans
+    // We can just rely on the Player status for the ban check.
 
     if (!player) {
       return NextResponse.json({ banned: false });
