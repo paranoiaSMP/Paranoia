@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Users, Loader2 } from "lucide-react";
+import { Plus, Trash2, Users, Loader2, Ban, ShieldCheck } from "lucide-react";
 import toast from 'react-hot-toast';
 
 type Player = {
@@ -84,6 +84,29 @@ export default function AdminPlayersPage() {
     execute();
   };
 
+  const handleToggleBan = async (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === "BANNED" ? "ACTIVE" : "BANNED";
+    try {
+      setLoading(true);
+      const res = await fetch("/api/players", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+      if (res.ok) {
+        toast.success(newStatus === "BANNED" ? "Joueur banni !" : "Joueur débanni !");
+        fetchPlayers();
+      } else {
+        toast.error("Erreur lors de la mise à jour du statut.");
+      }
+    } catch (e) {
+      toast.error("Erreur serveur");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <div className="space-y-12">
       <div className="flex items-center gap-4 border-b border-[var(--card-border)] pb-6">
@@ -140,16 +163,33 @@ export default function AdminPlayersPage() {
                       <img src={`https://vzge.me/bust/512/${player.minecraftName}.png`} alt={player.minecraftName} className="w-10 h-10 object-contain drop-shadow-md" />
                     </div>
                     <div>
-                        <span className="font-black text-[var(--text-color)] uppercase tracking-tight">{player.minecraftName}</span>
+                        <span className="font-black text-[var(--text-color)] uppercase tracking-tight flex items-center gap-2">
+                          {player.minecraftName}
+                          {player.status === "BANNED" && (
+                            <span className="text-[10px] bg-red-500/20 text-red-500 px-2 py-0.5 rounded border border-red-500/30 font-bold tracking-widest">
+                              BANNI
+                            </span>
+                          )}
+                        </span>
                         <p className="text-[10px] text-[var(--color-text-secondary)] font-bold uppercase tracking-widest">{player.id.slice(0, 8)}</p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => handleDeletePlayer(player.id)} 
-                    className="text-[var(--color-text-secondary)] hover:text-red-500 transition-all p-3 rounded-xl hover:bg-red-500/10 opacity-0 group-hover:opacity-100"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <button 
+                      onClick={() => handleToggleBan(player.id, player.status)} 
+                      className={`transition-all p-3 rounded-xl hover:bg-opacity-20 ${player.status === "BANNED" ? "text-green-500 hover:bg-green-500/10" : "text-orange-500 hover:bg-orange-500/10"}`}
+                      title={player.status === "BANNED" ? "Débannir" : "Bannir"}
+                    >
+                      {player.status === "BANNED" ? <ShieldCheck className="w-5 h-5" /> : <Ban className="w-5 h-5" />}
+                    </button>
+                    <button 
+                      onClick={() => handleDeletePlayer(player.id)} 
+                      className="text-[var(--color-text-secondary)] hover:text-red-500 transition-all p-3 rounded-xl hover:bg-red-500/10"
+                      title="Supprimer"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
               ))}
               {players.length === 0 && !loading && (

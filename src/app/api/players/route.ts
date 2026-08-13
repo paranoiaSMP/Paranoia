@@ -64,3 +64,26 @@ export async function DELETE(req: Request) {
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
+
+export async function PATCH(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "ADMIN") {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const { id, status } = await req.json();
+    if (!id || !status) {
+      return new NextResponse("Missing id or status", { status: 400 });
+    }
+
+    const player = await prisma.player.update({
+      where: { id },
+      data: { status },
+    });
+
+    return NextResponse.json(player);
+  } catch (error) {
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
