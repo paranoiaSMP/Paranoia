@@ -97,12 +97,12 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
               <div className="absolute inset-0 bg-indigo-900/30 mix-blend-overlay"></div>
 
-              <div className="relative z-10 p-8 md:p-16 h-full flex flex-col justify-end">
+              <div className="relative z-10 p-5 md:p-16 h-full flex flex-col justify-end">
                 <div className="max-w-2xl">
                   <div className="inline-flex items-center gap-2 bg-indigo-500 text-white font-black text-xs px-4 py-1.5 rounded-full uppercase tracking-widest mb-4 shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-white/20">
                     <Sparkles className="w-4 h-4" /> Édition Spéciale
                   </div>
-                  <h2 className="text-4xl md:text-6xl font-outfit font-black text-white mb-4 drop-shadow-lg uppercase tracking-tighter flex items-center gap-4">
+                  <h2 className="text-3xl md:text-6xl font-outfit font-black text-white mb-4 drop-shadow-lg uppercase tracking-tighter flex items-center gap-4">
                     {ed.iconUrl && <img src={ed.iconUrl} alt={ed.name} className="w-12 h-12 md:w-16 md:h-16 object-contain" />}
                     {ed.name}
                   </h2>
@@ -122,22 +122,6 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
         </div>
       )}
 
-      {/* HUD Balance */}
-      {isLoggedIn && (
-        <div className="flex justify-center md:justify-end mb-12">
-          <div className="relative group cursor-default">
-            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-red)] rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-            <div className="relative flex items-center gap-4 backdrop-blur-xl px-8 py-4 rounded-2xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
-              <span className="font-medium uppercase tracking-widest text-sm" style={{ color: 'var(--muted-text)' }}>Votre Banque</span>
-              <div className="h-8 w-px" style={{ background: 'var(--card-border)' }}></div>
-              <div className="flex items-center gap-3">
-                <img src="/Paracoin.png" alt="PARA Coins" className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] animate-pulse-glow" />
-                <span className="font-outfit font-black text-3xl tracking-tight" style={{ color: 'var(--text-color)' }}>{balance.toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {successMsg && (
         <div className="mb-12 p-6 bg-green-500/10 border border-green-500/30 rounded-2xl text-green-400 flex items-center justify-center gap-3 animate-fade-in shadow-[0_0_30px_rgba(34,197,94,0.15)] backdrop-blur-md">
@@ -146,53 +130,70 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
         </div>
       )}
 
-      {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 max-w-6xl mx-auto">
+      {/* HUD Balance (Top on Mobile) */}
+      {isLoggedIn && (
+        <div className="flex justify-center md:justify-end mb-8 md:mb-12">
+          <div className="relative group cursor-default w-full sm:w-auto">
+            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-red)] rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+            <div className="relative flex items-center justify-between sm:justify-start gap-4 backdrop-blur-xl px-6 py-4 rounded-2xl w-full" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+              <span className="font-medium uppercase tracking-widest text-xs sm:text-sm" style={{ color: 'var(--muted-text)' }}>Votre Banque</span>
+              <div className="h-8 w-px hidden sm:block" style={{ background: 'var(--card-border)' }}></div>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <img src="/Paracoin.png" alt="PARA Coins" className="w-6 h-6 sm:w-8 sm:h-8 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] animate-pulse-glow" />
+                <span className="font-outfit font-black text-2xl sm:text-3xl tracking-tight" style={{ color: 'var(--text-color)' }}>{balance.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Packages (Scroll horizontal sur mobile) */}
+      <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 lg:gap-12 max-w-6xl mx-auto overflow-x-auto snap-x snap-mandatory pt-8 pb-8 px-4 md:px-0 -mt-4 md:mt-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {packages.map((pkg, i) => (
           <div
             key={pkg.id}
-            className="relative group backdrop-blur-xl border rounded-[2rem] p-8 flex flex-col items-center text-center transition-all duration-500 hover:scale-[1.02] hover:-translate-y-4 shadow-xl"
+            className="relative group backdrop-blur-xl border rounded-2xl md:rounded-[2rem] p-4 md:p-8 flex flex-col items-center text-center transition-all duration-500 md:hover:scale-[1.02] md:hover:-translate-y-4 shadow-xl shrink-0 snap-center w-[85vw] md:w-auto"
             style={{ background: 'var(--card-bg)', borderColor: pkg.borderVar }}
           >
             {/* Background Glow */}
-            <div className="absolute inset-0 blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-[2rem]" style={{ background: pkg.bgVar }}></div>
+            <div className="absolute inset-0 blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-2xl md:rounded-[2rem]" style={{ background: pkg.bgVar }}></div>
             {pkg.popular && (
-              <div className="absolute -top-5 bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-sm font-black px-6 py-1.5 rounded-full uppercase tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.6)] animate-pulse-glow border border-white/20 z-10 flex items-center gap-2">
-                <Zap className="w-4 h-4 fill-white" />
+              <div className="absolute -top-4 md:-top-5 bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-xs md:text-sm font-black px-4 md:px-6 py-1 md:py-1.5 rounded-full uppercase tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.6)] animate-pulse-glow border border-white/20 z-10 flex items-center gap-1.5 md:gap-2">
+                <Zap className="w-3.5 h-3.5 md:w-4 md:h-4 fill-white" />
                 Populaire
               </div>
             )}
-            <div className="mb-6 mt-2">
-              <h3 className="text-xl font-bold uppercase tracking-widest" style={{ color: 'var(--muted-text)' }}>{pkg.title}</h3>
+            <div className="mb-2 md:mb-6 mt-2">
+              <h3 className="text-lg md:text-xl font-bold uppercase tracking-widest" style={{ color: 'var(--muted-text)' }}>{pkg.title}</h3>
             </div>
 
-            <div className="w-32 h-32 mb-4 relative flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full blur-2xl opacity-50 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700" style={{ background: pkg.bgVar }}></div>
+            <div className="w-16 h-16 md:w-32 md:h-32 mb-2 md:mb-4 relative flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full blur-xl md:blur-2xl opacity-50 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700" style={{ background: pkg.bgVar }}></div>
               <img
                 src="/Paracoin.png"
                 alt="PARA Coins"
-                className="relative z-10 w-full h-full object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.6)] transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12"
+                className="relative z-10 w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)] md:drop-shadow-[0_20px_30px_rgba(0,0,0,0.6)] transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12"
               />
             </div>
             {pkg.bonusAmount > 0 && (
-              <div className="bg-gradient-to-r from-red-600 to-red-500 border border-red-400/50 text-white font-black text-sm px-4 py-1 rounded shadow-[0_0_15px_rgba(239,68,68,0.5)] mb-6 transform -rotate-2 group-hover:scale-110 transition-transform duration-300">
+              <div className="bg-gradient-to-r from-red-600 to-red-500 border border-red-400/50 text-white font-black text-[10px] md:text-sm px-2 md:px-4 py-0.5 md:py-1 rounded shadow-[0_0_15px_rgba(239,68,68,0.5)] mb-3 md:mb-6 transform -rotate-2 group-hover:scale-110 transition-transform duration-300">
                 {pkg.baseAmount} + {pkg.bonusAmount} EN PLUS
               </div>
             )}
             {pkg.bonusAmount === 0 && (
-              <div className="h-8 mb-6"></div> // spacer
+              <div className="hidden md:block h-6 md:h-8 mb-3 md:mb-6"></div> // spacer
             )}
-            <h3 className="text-5xl font-outfit font-black mb-2 flex items-baseline gap-2 relative z-10 drop-shadow-lg" style={{ color: 'var(--text-color)' }}>
+            <h3 className="text-3xl md:text-5xl font-outfit font-black mb-3 md:mb-2 flex items-baseline gap-1 md:gap-2 relative z-10 drop-shadow-lg" style={{ color: 'var(--text-color)' }}>
               {pkg.amount}
-              <span className="text-lg font-bold uppercase tracking-widest" style={{ color: pkg.textVar }}>Coins</span>
+              <span className="text-sm md:text-lg font-bold uppercase tracking-widest" style={{ color: pkg.textVar }}>Coins</span>
             </h3>
-            <p className="mb-10 flex-1 relative z-10 font-medium px-4" style={{ color: 'var(--muted-text)' }}>
+            <p className="hidden md:block mb-6 md:mb-10 flex-1 relative z-10 font-medium px-4 text-sm md:text-base" style={{ color: 'var(--muted-text)' }}>
               Idéal pour agrandir rapidement votre collection de Trading Cards.
             </p>
             <button
               onClick={() => handleBuy(pkg.id, pkg.amount)}
               disabled={loadingPkg !== null}
-              className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition-all duration-300 relative overflow-hidden group/btn z-10 ${
+              className={`w-full py-3 md:py-4 rounded-xl font-bold flex items-center justify-center gap-2 md:gap-3 transition-all duration-300 relative overflow-hidden group/btn z-10 ${
                 loadingPkg === pkg.id
                   ? 'bg-white/10 text-white/50 cursor-not-allowed border border-white/10'
                   : `${pkg.buttonBg} text-white`
@@ -201,7 +202,7 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
               {loadingPkg !== pkg.id && (
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out"></div>
               )}
-              <span className="relative z-10 flex items-center gap-2 text-lg">
+              <span className="relative z-10 flex items-center gap-1.5 md:gap-2 text-sm md:text-lg">
                 {loadingPkg === pkg.id ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />

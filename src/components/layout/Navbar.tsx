@@ -10,6 +10,7 @@ import './Navbar.css';
 export default function Navbar() {
   const [theme, setTheme] = useState('dark');
   const [commOpen, setCommOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -20,10 +21,7 @@ export default function Navbar() {
 
   // Fermer le menu mobile quand on change de page
   useEffect(() => {
-    const menuToggle = document.getElementById('menu-toggle') as HTMLInputElement;
-    if (menuToggle && menuToggle.checked) {
-      menuToggle.checked = false;
-    }
+    setMobileMenuOpen(false);
     setCommOpen(false); // Fermer aussi le dropdown communauté
   }, [pathname]);
 
@@ -49,14 +47,17 @@ export default function Navbar() {
           </div>
         </Link>
         
-        <input type="checkbox" id="menu-toggle" className="menu-toggle" />
-        <label htmlFor="menu-toggle" className="burger-icon" aria-label="Toggle navigation">
+        <button 
+          className={`burger-icon ${mobileMenuOpen ? 'open' : ''} bg-transparent border-0`} 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation"
+        >
           <span></span>
           <span></span>
           <span></span>
-        </label>
+        </button>
         
-        <ul className="nav-links">
+        <ul className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
           <li className="nav-link-first"><Link href="/" className="nav-item font-medium">Accueil</Link></li>
           <li><Link href="/shop" className="nav-item font-semibold">Boutique</Link></li>
           <li>
@@ -76,7 +77,7 @@ export default function Navbar() {
               <ChevronDown className={`w-3.5 h-3.5 opacity-70 transition-transform duration-200 ${commOpen ? 'rotate-180 text-purple-400' : ''}`} />
             </button>
             {commOpen && (
-              <div className="absolute left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-0 sm:-left-4 mt-2 w-44 bg-[var(--navbar-bg)] backdrop-blur-2xl border border-[var(--card-border)] rounded-2xl shadow-2xl overflow-hidden z-50 p-2 animate-slide-up">
+              <div className="relative sm:absolute mt-2 sm:left-1/2 sm:-translate-x-1/2 sm:-left-4 w-full sm:w-44 bg-[var(--navbar-bg)] backdrop-blur-2xl border border-[var(--card-border)] rounded-2xl shadow-2xl overflow-hidden z-50 p-2 animate-slide-up">
                 <Link 
                   href="/videastes" 
                   onClick={() => setCommOpen(false)}

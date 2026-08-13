@@ -364,7 +364,7 @@ export default function PackOpenerClient({
     <div className="w-full">
       {/* TCG Hero & HUD Section */}
       <div className="flex flex-col items-center text-center mb-8">
-        <h1 className="text-5xl md:text-7xl font-outfit font-black tracking-tight mb-4 text-[var(--text-color)]">
+        <h1 className="text-3xl md:text-7xl font-outfit font-black tracking-tight mb-4 text-[var(--text-color)]">
           PARANOIA <span className="bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(179,102,255,0.3)]">TCG</span>
         </h1>
         <p className="text-[var(--nav-item-color)] font-medium text-base md:text-lg max-w-2xl">
@@ -380,7 +380,7 @@ export default function PackOpenerClient({
         <div className="flex flex-wrap items-center justify-center gap-2 w-full lg:w-auto">
           <button 
             onClick={() => setActiveTab("opener")} 
-            className={`flex items-center gap-2.5 px-5 py-3 font-bold rounded-2xl transition-all duration-200 text-sm md:text-base ${
+            className={`flex items-center gap-1.5 md:gap-2.5 px-3 py-2 md:px-5 md:py-3 font-bold rounded-xl md:rounded-2xl transition-all duration-200 text-xs md:text-base ${
               activeTab === 'opener' 
                 ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.5)] scale-102 font-black' 
                 : 'text-[var(--nav-item-color)] hover:bg-purple-500/10 hover:text-[var(--text-color)] border border-transparent'
@@ -392,7 +392,7 @@ export default function PackOpenerClient({
           
           <button 
             onClick={() => setActiveTab("collection")} 
-            className={`flex items-center gap-2.5 px-5 py-3 font-bold rounded-2xl transition-all duration-200 text-sm md:text-base ${
+            className={`flex items-center gap-1.5 md:gap-2.5 px-3 py-2 md:px-5 md:py-3 font-bold rounded-xl md:rounded-2xl transition-all duration-200 text-xs md:text-base ${
               activeTab === 'collection' 
                 ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.5)] scale-102 font-black' 
                 : 'text-[var(--nav-item-color)] hover:bg-purple-500/10 hover:text-[var(--text-color)] border border-transparent'
@@ -407,7 +407,7 @@ export default function PackOpenerClient({
 
           <button 
             onClick={() => setActiveTab("catalogue")} 
-            className={`flex items-center gap-2.5 px-5 py-3 font-bold rounded-2xl transition-all duration-200 text-sm md:text-base ${
+            className={`flex items-center gap-1.5 md:gap-2.5 px-3 py-2 md:px-5 md:py-3 font-bold rounded-xl md:rounded-2xl transition-all duration-200 text-xs md:text-base ${
               activeTab === 'catalogue' 
                 ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.5)] scale-102 font-black' 
                 : 'text-[var(--nav-item-color)] hover:bg-purple-500/10 hover:text-[var(--text-color)] border border-transparent'
@@ -471,7 +471,7 @@ export default function PackOpenerClient({
           {!showReveal && (
             <div className="w-full flex flex-col items-center">
               {/* CATEGORY DECK (Version 3: Color-Coded Cards & Isolated Images) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full max-w-7xl mb-10 px-2">
+              <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full max-w-7xl mb-10 px-2 overflow-x-auto snap-x snap-mandatory pt-12 pb-6 -mt-8" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {Object.keys(boxesData).map((key) => {
                   const box = boxesData[key];
                   const isSelected = selectedBoxType === key;
@@ -479,10 +479,10 @@ export default function PackOpenerClient({
                     <div
                       key={key}
                       onClick={() => !isOpening && setSelectedBoxType(key)}
-                      className={`group relative flex flex-col items-center justify-between p-5 rounded-3xl cursor-pointer transition-all duration-300 bg-gradient-to-b ${box.bgGradient} border-2 overflow-hidden ${
+                      className={`group relative flex flex-col items-center justify-between p-5 rounded-3xl cursor-pointer transition-all duration-300 bg-gradient-to-b ${box.bgGradient} border-2 overflow-hidden snap-center shrink-0 w-[80vw] sm:w-auto ${
                         isSelected 
-                          ? `${box.border} scale-105 shadow-2xl z-20` 
-                          : 'border-[var(--card-border)] hover:border-[var(--logo-end)] opacity-90 hover:opacity-100 hover:scale-102'
+                          ? `${box.border} scale-[1.02] sm:scale-105 shadow-2xl z-20` 
+                          : 'border-[var(--card-border)] hover:border-[var(--logo-end)] opacity-90 hover:opacity-100 hover:scale-100 sm:hover:scale-102'
                       }`}
                       style={{
                         boxShadow: isSelected ? `0 0 35px ${box.ringColor}` : undefined
@@ -544,7 +544,7 @@ export default function PackOpenerClient({
                   {/* Left Column: Booster Details & Lore */}
                   <div className="flex flex-col items-center lg:items-start text-center lg:text-left flex-1">
                     <span className="text-xs uppercase tracking-[0.3em] text-[var(--nav-item-color)] font-light mb-2 block">Spécifications du Booster</span>
-                    <h2 className={`text-3xl md:text-5xl font-outfit font-black uppercase tracking-tight mb-4 ${activeBox.text}`}>
+                    <h2 className={`text-2xl md:text-5xl font-outfit font-black uppercase tracking-tight mb-4 ${activeBox.text}`}>
                       Booster {activeBox.name}
                     </h2>
                     <p className="text-sm md:text-base text-[var(--nav-item-color)] font-normal leading-relaxed mb-6 max-w-md">

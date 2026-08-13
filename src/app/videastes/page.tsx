@@ -42,7 +42,7 @@ export default function VideastesPage() {
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="text-center mb-16">
          
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">
             Nos <BoldGradient from="from-fuchsia-500" to="to-purple-600">Vidéastes</BoldGradient>
           </h1>
           <p className="text-xl text-[var(--muted-text)] max-w-2xl mx-auto">
@@ -54,7 +54,7 @@ export default function VideastesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {createurs.map((createur) => (
             <Link key={createur.id} href={createur.lien} target="_blank" rel="noopener noreferrer">
-              <EasyBox className="h-full flex flex-col items-center text-center group cursor-pointer card-hover p-8 relative overflow-hidden">
+              <EasyBox className="h-full flex flex-col items-center text-center group cursor-pointer card-hover p-5 sm:p-8 relative overflow-hidden">
                 {/* Petit effet de fond au hover */}
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-fuchsia-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 
