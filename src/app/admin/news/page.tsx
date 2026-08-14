@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Trash2, Edit2, Loader2, Save, X, Newspaper } from "lucide-react";
 import toast from 'react-hot-toast';
+import { cn } from "@/lib/utils";
 
 export default function AdminNewsPage() {
   const [newsList, setNewsList] = useState<any[]>([]);
