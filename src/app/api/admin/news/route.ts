@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     // Ideally we should check if session.user.role === 'ADMIN', but keeping it simple based on existing structure.
     
     const news = await prisma.topic.findMany({
@@ -27,7 +28,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     const user = session?.user as any;
 
     if (!user || !user.id) {
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     const user = session?.user as any;
 
     if (!user) {
