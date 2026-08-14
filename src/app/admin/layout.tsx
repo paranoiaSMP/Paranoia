@@ -2,11 +2,12 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Users, Sparkles, Layers, ShieldAlert, ImagePlus, LayoutDashboard } from "lucide-react";
+import { Users, Sparkles, Layers, ShieldAlert, ImagePlus, LayoutDashboard, Newspaper } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const adminLinks = [
   { name: "Vue d'ensemble", href: "/admin", icon: LayoutDashboard },
+  { name: "Actualités", href: "/admin/news", icon: Newspaper },
   { name: "Joueurs", href: "/admin/players", icon: Users },
   { name: "Cartes", href: "/admin/cards", icon: Sparkles },
   { name: "Variantes", href: "/admin/variants", icon: Layers },

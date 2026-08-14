@@ -223,12 +223,18 @@ export default function PackOpenerClient({
       const cardsWithEffects = data.userCards.map((uc: any) => ({ ...uc.tradingCard, specialEffect: uc.specialEffect }));
       fetchedCardsRef.current = cardsWithEffects;
 
-      // Determine overall rarity glow of the pack (only MYTHIC triggers special glow)
-      if (cardsWithEffects.some((c: any) => c.rarity === 'MYTHIC')) {
-        setOpeningGlow('MYTHIC');
-      } else {
-        setOpeningGlow('STANDARD');
-      }
+      const hasMythic = cardsWithEffects.some((c: any) => c.rarity === 'MYTHIC');
+      const hasLegendary = cardsWithEffects.some((c: any) => c.rarity === 'LEGENDARY');
+      const hasEpic = cardsWithEffects.some((c: any) => c.rarity === 'EPIC');
+      const hasRare = cardsWithEffects.some((c: any) => c.rarity === 'RARE');
+      const hasUncommon = cardsWithEffects.some((c: any) => c.rarity === 'UNCOMMON');
+      
+      if (hasMythic) setOpeningGlow('MYTHIC');
+      else if (hasLegendary) setOpeningGlow('LEGENDARY');
+      else if (hasEpic) setOpeningGlow('EPIC');
+      else if (hasRare) setOpeningGlow('RARE');
+      else if (hasUncommon) setOpeningGlow('UNCOMMON');
+      else setOpeningGlow('COMMON');
 
       setInventory(prev => [...data.userCards, ...prev]);
       setBoosterStep("waiting_click");
@@ -667,8 +673,8 @@ export default function PackOpenerClient({
                       : boosterStep === "charging"
                       ? {
                           y: 0, opacity: 1,
-                          scale: [1, 0.95, 1.08, 0.95, 1.12, 1.2],
-                          rotate: [0, -3, 3, -5, 5, -8, 8, 0],
+                          scale: 1,
+                          rotate: 0,
                           transition: { duration: 1.6, ease: "easeInOut" }
                         }
                       : {
@@ -713,7 +719,18 @@ export default function PackOpenerClient({
                     )}
 
                     {/* The booster pack image */}
-                    <div className="relative w-72 h-[430px] md:w-80 md:h-[480px] z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] filter transition-transform duration-500 group-hover:scale-105">
+                    <motion.div 
+                      className="relative w-72 h-[430px] md:w-80 md:h-[480px] z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] filter transition-transform duration-500 group-hover:scale-105"
+                      animate={
+                        boosterStep === "charging"
+                        ? {
+                            scale: [1, 0.95, 1.08, 0.95, 1.12, 1.2],
+                            rotate: [0, -3, 3, -5, 5, -8, 8, 0],
+                            transition: { duration: 1.6, ease: "easeInOut" }
+                          }
+                        : {}
+                      }
+                    >
                       <Image 
                         src={selectedBoxType === "standard" ? "/StandardB.png" : selectedBoxType === "premium" ? "/PreniumB.png" : selectedBoxType === "legendary" ? "/LegendaireB.png" : "/MythiqueB.png"} 
                         alt="Booster Pack" 
@@ -723,7 +740,7 @@ export default function PackOpenerClient({
                         sizes="320px" 
                         unoptimized 
                       />
-                    </div>
+                    </motion.div>
 
                     {/* Refined Typography */}
                     {boosterStep === "fetching" && (
