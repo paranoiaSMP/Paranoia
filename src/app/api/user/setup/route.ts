@@ -41,8 +41,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[SETUP_POST]", error);
-    return new NextResponse("Erreur interne", { status: 500 });
+    return new NextResponse(`Erreur interne: ${error.message}`, { status: 500 });
   }
 }

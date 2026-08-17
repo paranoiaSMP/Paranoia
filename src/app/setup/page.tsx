@@ -30,14 +30,15 @@ export default function SetupPage() {
       });
 
       if (!res.ok) {
-        throw new Error("Erreur lors de l'enregistrement");
+        const errorText = await res.text();
+        throw new Error(errorText || "Erreur lors de l'enregistrement");
       }
 
       await update({ minecraftName: pseudo });
 
       window.location.href = "/";
-    } catch (err) {
-      setError("Une erreur est survenue.");
+    } catch (err: any) {
+      setError(err.message || "Une erreur est survenue.");
       setIsLoading(false);
     }
   };
