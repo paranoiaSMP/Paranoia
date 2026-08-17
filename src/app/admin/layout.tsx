@@ -13,6 +13,7 @@ const adminLinks = [
   { name: "Variantes", href: "/admin/variants", icon: Layers },
   { name: "Modération", href: "/admin/moderation", icon: ShieldAlert },
   { name: "Boutique & Éditions", href: "/admin/shop", icon: ImagePlus },
+  { name: "Objets Boutique", href: "/admin/shop/items", icon: ImagePlus },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

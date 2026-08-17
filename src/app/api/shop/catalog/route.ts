@@ -1,30 +1,37 @@
+import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  // Pour l'instant, c'est un catalogue statique.
-  // Tu pourras le relier à ta base de données (Prisma) plus tard quand tu auras créé un modèle pour les articles de la boutique.
-  const catalog = [
-    {
-      id: "grade_vip",
-      name: "Grade VIP",
-      description: "Accès prioritaire et kits exclusifs.",
-      price: 500,
-      currency: "paracoins",
-      imageUrl: "https://paranoiastudio.fr/images/shop/vip.png",
-      category: "Grades",
-      checkoutUrl: "https://paranoiastudio.fr/shop/checkout?item=grade_vip"
-    }
-  ];
+  try {
+    const dbItems = await prisma.launcherShopItem.findMany({
+      orderBy: { createdAt: "desc" }
+    });
 
-  return NextResponse.json(catalog, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    }
-  });
+    const catalog = dbItems.map(item => ({
+      id: item.itemId,
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      currency: item.currency,
+      imageUrl: item.imageUrl || "",
+      modelUrl: item.modelUrl || "",
+      category: item.category,
+      checkoutUrl: `https://paranoiastudio.fr/shop/checkout?item=${item.itemId}`
+    }));
+
+    return NextResponse.json(catalog, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération du catalogue:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }
 
 export async function OPTIONS() {

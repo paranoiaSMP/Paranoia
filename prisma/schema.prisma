@@ -250,3 +250,17 @@ model ModApplication {
   applicantId     String?
   applicant       User?    @relation(fields: [applicantId], references: [id], onDelete: SetNull)
 }
+
+model LauncherShopItem {
+  id          String   @id @default(cuid())
+  itemId      String   @unique
+  name        String
+  description String   @db.Text
+  price       Int
+  currency    String   @default("paracoins")
+  imageUrl    String?
+  modelUrl    String?
+  category    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
