@@ -13,12 +13,14 @@ import {
   type SVGProps,
 } from "react";
 
+import type { ReactNode } from "react";
+
 const ASSET_BASE_URL = "";
 const DEFAULT_DURATION = 3.6;
 
 type LayerDef = {
   file?: string;
-  text?: string;
+  text?: ReactNode;
   className?: string;
   name: string;
   initialScale: number;
@@ -52,41 +54,22 @@ export type GtaViPosterProps = {
 
 const LAYERS: LayerDef[] = [
   {
-    file: "/MythiqueB.png",
-    name: "Mythique",
-    initialScale: 1.2,
-    revealDelay: 0.46,
-  },
-  {
-    file: "/LegendaireB.png",
-    name: "Legendaire",
-    initialScale: 1.4,
-    revealDelay: 0.56,
-  },
-  {
-    file: "/Diamond.png",
-    name: "Diamond",
-    initialScale: 1.6,
-    revealDelay: 0.65,
-  },
-  {
-    file: "/Emerald.png",
-    name: "Emerald",
-    initialScale: 1.8,
-    revealDelay: 0.74,
-  },
-  {
-    file: "/Paracoin.png",
-    name: "Paracoin",
-    initialScale: 2.0,
-    revealDelay: 0.84,
-  },
-  {
-    text: "PARANOIA STUDIO",
+    text: (
+      <>
+        PARANOIA{" "}
+        <motion.span
+          initial={{ color: "#ffffff", fontStyle: "normal" }}
+          animate={{ color: "#a855f7", fontStyle: "italic" }}
+          transition={{ delay: 1.5, duration: 0.4, ease: "easeOut" }}
+        >
+          STUDIO
+        </motion.span>
+      </>
+    ),
     className: "text-4xl md:text-6xl lg:text-8xl font-black font-outfit tracking-[0.2em] uppercase text-white drop-shadow-2xl text-center",
     name: "GTA logo",
     initialScale: 3.306,
-    revealDelay: 0.8,
+    revealDelay: 0.2, // Faster reveal since there are no images before it
     initial: {
       opacity: 1,
       clipPath: "inset(0% 0% 100% 0%)",
