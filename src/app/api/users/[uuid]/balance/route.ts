@@ -14,10 +14,16 @@ export async function GET(
       return NextResponse.json({ error: "UUID is required" }, { status: 400 });
     }
 
+    // Format the UUID with dashes if it doesn't have them
+    let formattedUuid = uuid;
+    if (formattedUuid.length === 32) {
+      formattedUuid = `${formattedUuid.slice(0, 8)}-${formattedUuid.slice(8, 12)}-${formattedUuid.slice(12, 16)}-${formattedUuid.slice(16, 20)}-${formattedUuid.slice(20)}`;
+    }
+
     // On cherche l'utilisateur par son UUID Minecraft
     const user = await prisma.user.findUnique({
       where: {
-        minecraftUuid: uuid,
+        minecraftUuid: formattedUuid,
       },
       select: {
         paraCoins: true,
