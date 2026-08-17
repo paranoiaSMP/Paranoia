@@ -17,9 +17,27 @@ export async function POST(req: Request) {
       return new NextResponse("Pseudo invalide", { status: 400 });
     }
 
+    // Fetch the UUID from Mojang API
+    const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${minecraftName}`);
+    if (!mojangRes.ok) {
+      return new NextResponse("Pseudo Minecraft introuvable", { status: 404 });
+    }
+    
+    const mojangData = await mojangRes.json();
+    let uuid = mojangData.id;
+    
+    // Format the UUID with dashes
+    if (uuid && uuid.length === 32) {
+      uuid = `${uuid.slice(0, 8)}-${uuid.slice(8, 12)}-${uuid.slice(12, 16)}-${uuid.slice(16, 20)}-${uuid.slice(20)}`;
+    }
+
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { minecraftName },
+      data: { 
+        minecraftName: mojangData.name,
+        minecraftUuid: uuid,
+        isMcVerified: true
+      },
     });
 
     return NextResponse.json({ success: true });
