@@ -55,18 +55,18 @@ export type GtaViPosterProps = {
 const LAYERS: LayerDef[] = [
   {
     text: (
-      <>
-        PARANOIA{" "}
+      <div className="flex flex-col items-center justify-center leading-[0.9]">
+        <span>PARANOIA</span>
         <motion.span
-          initial={{ color: "#ffffff", fontStyle: "normal" }}
+          initial={{ color: "#ffffff", fontStyle: "normal", skewX: 0 }}
           animate={{ color: "#a855f7", fontStyle: "italic" }}
-          transition={{ delay: 1.5, duration: 0.4, ease: "easeOut" }}
+          transition={{ delay: 1.6, duration: 0.5, ease: "easeInOut" }}
         >
           STUDIO
         </motion.span>
-      </>
+      </div>
     ),
-    className: "text-4xl md:text-6xl lg:text-8xl font-black font-outfit tracking-[0.2em] uppercase text-white drop-shadow-2xl text-center",
+    className: "text-5xl md:text-7xl lg:text-9xl font-black font-outfit tracking-[0.15em] uppercase text-white drop-shadow-2xl text-center",
     name: "GTA logo",
     initialScale: 3.306,
     revealDelay: 0.2, // Faster reveal since there are no images before it
