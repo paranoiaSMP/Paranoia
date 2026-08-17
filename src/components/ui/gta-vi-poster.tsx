@@ -17,7 +17,9 @@ const ASSET_BASE_URL = "";
 const DEFAULT_DURATION = 3.6;
 
 type LayerDef = {
-  file: string;
+  file?: string;
+  text?: string;
+  className?: string;
   name: string;
   initialScale: number;
   revealDelay: number;
@@ -80,7 +82,8 @@ const LAYERS: LayerDef[] = [
     revealDelay: 0.84,
   },
   {
-    file: "/Paranoia_logo.png",
+    text: "PARANOIA STUDIO",
+    className: "text-4xl md:text-6xl lg:text-8xl font-black font-outfit tracking-[0.2em] uppercase text-white drop-shadow-2xl text-center",
     name: "GTA logo",
     initialScale: 3.306,
     revealDelay: 0.8,
@@ -173,41 +176,55 @@ export function GtaViPoster({
             const initialFilter = isGtaLogo ? `blur(${logoBlur}px)` : undefined;
             const animateFilter = isGtaLogo ? "blur(0px)" : undefined;
 
+            const motionProps = {
+              style: {
+                zIndex: index,
+                transformOrigin: "center",
+                willChange: "transform, opacity, filter, clip-path",
+              } as CSSProperties,
+              initial: {
+                opacity: 0,
+                scale,
+                filter: initialFilter,
+                ...layer.initial,
+              },
+              animate: {
+                opacity: 1,
+                scale: 1,
+                filter: animateFilter,
+                ...layer.animate,
+              },
+              transition: {
+                scale: { duration, ease: [0.16, 1, 0.3, 1] },
+                opacity: {
+                  duration: 0.7 * timeScale,
+                  delay: layer.revealDelay * timeScale,
+                  ease: "easeOut",
+                },
+                ...(isGtaLogo ? logoTransition : layer.transition),
+              },
+            };
+
+            if (layer.text) {
+              return (
+                <motion.div
+                  key={layer.name}
+                  className={`pointer-events-none absolute inset-0 flex items-center justify-center select-none ${layer.className || ""}`}
+                  {...(motionProps as any)}
+                >
+                  {layer.text}
+                </motion.div>
+              );
+            }
+
             return (
               <motion.img
                 key={layer.file}
                 src={`${ASSET_BASE_URL}/${layer.file}`}
                 alt={layer.name}
                 draggable={false}
-                className="pointer-events-none absolute inset-0 h-full w-full select-none"
-                style={
-                  {
-                    zIndex: index,
-                    transformOrigin: "center",
-                    willChange: "transform, opacity, filter, clip-path",
-                  } as CSSProperties
-                }
-                initial={{
-                  opacity: 0,
-                  scale,
-                  filter: initialFilter,
-                  ...layer.initial,
-                }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                  filter: animateFilter,
-                  ...layer.animate,
-                }}
-                transition={{
-                  scale: { duration, ease: [0.16, 1, 0.3, 1] },
-                  opacity: {
-                    duration: 0.7 * timeScale,
-                    delay: layer.revealDelay * timeScale,
-                    ease: "easeOut",
-                  },
-                  ...(isGtaLogo ? logoTransition : layer.transition),
-                }}
+                className="pointer-events-none absolute inset-0 h-full w-full select-none object-contain"
+                {...(motionProps as any)}
               />
             );
           })}
