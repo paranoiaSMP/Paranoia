@@ -28,7 +28,8 @@ export async function GET() {
           excerpt: "Découvrez le tout nouveau Mod Menu et les cosmétiques !",
           contentHtml: "<p>Grosse mise à jour...</p>",
           publishedAt: new Date().toISOString(),
-          tags: ["update"]
+          tags: ["update"],
+          url: "https://api.paranoiastudio.fr/news/v0.5.0-release"
         }
       ], {
         headers: {
@@ -47,7 +48,8 @@ export async function GET() {
       excerpt: topic.content.replace(/<[^>]*>?/gm, '').substring(0, 120) + (topic.content.length > 120 ? '...' : ''),
       contentHtml: topic.content,
       publishedAt: topic.createdAt.toISOString(),
-      tags: [topic.category]
+      tags: [topic.category],
+      url: `https://api.paranoiastudio.fr/news/${topic.id}`
     }));
 
     return NextResponse.json(formattedNews, {
