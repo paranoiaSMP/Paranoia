@@ -53,6 +53,8 @@ export const metadata: Metadata = {
   },
 };
 
+import SplashScreen from "@/components/layout/SplashScreen";
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -106,9 +108,11 @@ export default async function RootLayout({
               },
             }}
           />
-          <NavigationManager>
-            {children}
-          </NavigationManager>
+          <SplashScreen>
+            <NavigationManager>
+              {children}
+            </NavigationManager>
+          </SplashScreen>
         </Providers>
       </body>
     </html>
