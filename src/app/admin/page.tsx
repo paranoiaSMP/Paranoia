@@ -114,6 +114,7 @@ export default function AdminDashboardPage() {
               </h3>
               <div className="space-y-4">
                   <MaintenanceToggle />
+                  <UnlinkAllButton />
               </div>
           </div>
       </div>
@@ -186,6 +187,54 @@ function MaintenanceToggle() {
             isMaintenance ? "translate-x-7" : "translate-x-0"
           )}
         />
+      </button>
+    </div>
+  );
+}
+
+function UnlinkAllButton() {
+  const [loading, setLoading] = useState(false);
+
+  async function handleUnlink() {
+    if (!confirm("ATTENTION: Êtes-vous sûr de vouloir délier TOUS les comptes Minecraft ? Les joueurs devront refaire la commande /setup sur le site.")) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/users/unlink-all", {
+        method: "POST"
+      });
+      if (res.ok) {
+        alert("Tous les utilisateurs ont été déliés avec succès !");
+      } else {
+        alert("Erreur lors de l'opération.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Erreur réseau.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-between p-4 rounded-2xl bg-[var(--surface-bg)] border border-[var(--card-border)]">
+      <div>
+        <p className="font-bold text-[var(--text-color)] flex items-center gap-2">
+          Délier tous les joueurs
+        </p>
+        <p className="text-xs text-gray-500 mt-1">Force tous les joueurs à refaire la configuration de leur pseudo Minecraft.</p>
+      </div>
+      <button 
+        onClick={handleUnlink}
+        disabled={loading}
+        className={cn(
+          "px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors",
+          loading && "opacity-50 cursor-not-allowed"
+        )}
+      >
+        {loading ? "Chargement..." : "Délier Tout"}
       </button>
     </div>
   );
