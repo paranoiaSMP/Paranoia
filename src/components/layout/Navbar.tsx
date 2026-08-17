@@ -122,7 +122,7 @@ export default function Navbar() {
 }
 
 import { useSession, signIn, signOut } from "next-auth/react";
-import { LogOut, LayoutDashboard } from "lucide-react";
+import { LogOut, LayoutDashboard, User } from "lucide-react";
 
 function UserMenu() {
   const { data: session, status } = useSession();
@@ -164,8 +164,12 @@ function UserMenu() {
             <p className="font-bold text-[var(--text-color)] truncate">{session.user?.name}</p>
           </div>
           <div className="p-2">
+            <Link href="/setup" className="flex items-center gap-2 w-full p-2 text-sm font-bold text-[var(--color-accent-purple)] hover:bg-[var(--color-accent-purple)]/10 rounded-xl transition-colors">
+              <User className="w-4 h-4" />
+              Lier compte Minecraft
+            </Link>
             {(session.user as any)?.role === "ADMIN" && (
-              <Link href="/admin" className="flex items-center gap-2 w-full p-2 text-sm font-bold text-fuchsia-500 hover:bg-fuchsia-500/10 rounded-xl transition-colors">
+              <Link href="/admin" className="flex items-center gap-2 w-full p-2 text-sm font-bold text-fuchsia-500 hover:bg-fuchsia-500/10 rounded-xl transition-colors mt-1">
                 <LayoutDashboard className="w-4 h-4" />
                 Administration
               </Link>
