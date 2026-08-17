@@ -5,10 +5,10 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: Request,
-  { params }: { params: { uuid: string } }
+  { params }: { params: Promise<{ uuid: string }> }
 ) {
   try {
-    const { uuid } = params;
+    const { uuid } = await params;
 
     if (!uuid) {
       return NextResponse.json({ error: "UUID is required" }, { status: 400 });
