@@ -13,7 +13,7 @@ import {
   type SVGProps,
 } from "react";
 
-const ASSET_BASE_URL = "https://assets.aceternity.com/gta6";
+const ASSET_BASE_URL = "";
 const DEFAULT_DURATION = 3.6;
 
 type LayerDef = {
@@ -50,68 +50,37 @@ export type GtaViPosterProps = {
 
 const LAYERS: LayerDef[] = [
   {
-    file: "01-jl.webp",
-    name: "J and L",
-    initialScale: 1.234,
+    file: "/MythiqueB.png",
+    name: "Mythique",
+    initialScale: 1.2,
     revealDelay: 0.46,
   },
   {
-    file: "06-gator.webp",
-    name: "Gator",
-    initialScale: 1.318,
+    file: "/LegendaireB.png",
+    name: "Legendaire",
+    initialScale: 1.4,
     revealDelay: 0.56,
   },
   {
-    file: "04-boobie.webp",
-    name: "Boobie",
-    initialScale: 1.403,
+    file: "/Diamond.png",
+    name: "Diamond",
+    initialScale: 1.6,
     revealDelay: 0.65,
   },
-  { file: "03-gal.webp", name: "Gal", initialScale: 1.518, revealDelay: 0.74 },
   {
-    file: "02-biker.webp",
-    name: "Biker",
-    initialScale: 1.646,
+    file: "/Emerald.png",
+    name: "Emerald",
+    initialScale: 1.8,
+    revealDelay: 0.74,
+  },
+  {
+    file: "/Paracoin.png",
+    name: "Paracoin",
+    initialScale: 2.0,
     revealDelay: 0.84,
   },
   {
-    file: "00-heli.webp",
-    name: "Helicopter",
-    initialScale: 1.797,
-    revealDelay: 0.93,
-  },
-  {
-    file: "07-raul.webp",
-    name: "Raul",
-    initialScale: 1.98,
-    revealDelay: 1.02,
-  },
-  {
-    file: "05-lambo.webp",
-    name: "Lambo",
-    initialScale: 2.186,
-    revealDelay: 1.11,
-  },
-  {
-    file: "08-speedboat.webp",
-    name: "Speedboat",
-    initialScale: 2.42,
-    revealDelay: 1.21,
-  },
-  {
-    file: "09-logohole.webp",
-    name: "Logo hole",
-    initialScale: 2.446,
-    revealDelay: 1.9,
-  },
-  {
-    file: "10-vilogo.webp",
-    name: "VI logo",
-    initialScale: 2.446,
-    revealDelay: 0.5,
-  },
-  {
-    file: "11-gtalogo.webp",
+    file: "/Paranoia_logo.png",
     name: "GTA logo",
     initialScale: 3.306,
     revealDelay: 0.8,
