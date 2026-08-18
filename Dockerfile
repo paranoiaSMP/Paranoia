@@ -7,10 +7,10 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies
-COPY package.json package-lock.json* ./
+COPY package.json pnpm-lock.yaml* package-lock.json* ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
-RUN npm install
+RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
 # 2. Rebuild the source code only when needed
 FROM base AS builder
@@ -19,13 +19,13 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Generate Prisma Client
-RUN npx prisma generate
+RUN corepack enable pnpm && pnpm dlx prisma generate
 
 # Disable Next.js telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build Next.js application
-RUN npm run build
+RUN corepack enable pnpm && pnpm run build
 
 # 3. Production image, copy all the files and run next
 FROM base AS runner
