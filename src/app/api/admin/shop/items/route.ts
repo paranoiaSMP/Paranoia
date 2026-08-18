@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { syncCosmeticsJson } from "@/lib/syncCosmetics";
 
 export async function GET() {
   try {
@@ -44,6 +45,8 @@ export async function POST(req: Request) {
       },
     });
 
+    await syncCosmeticsJson();
+
     return NextResponse.json(item);
   } catch (error) {
     console.error("[SHOP_ITEMS_POST]", error);
@@ -75,6 +78,8 @@ export async function PUT(req: Request) {
       },
     });
 
+    await syncCosmeticsJson();
+
     return NextResponse.json(item);
   } catch (error) {
     console.error("[SHOP_ITEMS_PUT]", error);
@@ -99,6 +104,8 @@ export async function DELETE(req: Request) {
     const item = await prisma.launcherShopItem.delete({
       where: { id },
     });
+
+    await syncCosmeticsJson();
 
     return NextResponse.json(item);
   } catch (error) {
