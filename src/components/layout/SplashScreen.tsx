@@ -42,7 +42,8 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
               initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 3, ease }}
-              className="flex flex-col items-center justify-center font-black font-outfit"
+              className="flex flex-col items-center justify-center font-black"
+              style={{ fontFamily: "'-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}
             >
               {/* PARANOIA avec effet de masque (overflow-hidden) */}
               <div className="overflow-hidden pb-4 px-4">
