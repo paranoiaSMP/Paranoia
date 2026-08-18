@@ -13,6 +13,9 @@ export default withAuth(
     if (token && !token.minecraftName && !isSetupPage) {
       return NextResponse.redirect(new URL("/setup", req.url));
     }
+    if (token && token.minecraftName && isSetupPage) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
 
     if (req.nextUrl.pathname.startsWith("/admin")) {
       if (!token || token.role !== "ADMIN") {
