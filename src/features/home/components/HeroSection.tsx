@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Layers } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const FLIP_WORDS = ["SMP", "STUDIO", "TCG", "Launcher"];
 
 export default function HeroSection() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % FLIP_WORDS.length);
+    }, 2500); // Change word every 2.5 seconds
+    return () => clearInterval(interval);
+  }, []);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -33,8 +44,22 @@ export default function HeroSection() {
         animate="visible"
         className="max-w-4xl mx-auto relative z-10"
       >
-        <motion.h1 variants={itemVariants} className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-outfit font-black mb-4 sm:mb-6 tracking-tight leading-[1.1] text-balance" style={{ color: 'var(--text-color)' }}>
-          Bienvenue sur le <span style={{ color: 'var(--logo-end)' }}>Paranoia SMP</span>
+        <motion.h1 variants={itemVariants} className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-outfit font-black mb-4 sm:mb-6 tracking-tight leading-[1.1] text-balance flex flex-col items-center justify-center sm:block" style={{ color: 'var(--text-color)' }}>
+          Bienvenue sur Paranoia{" "}
+          <div className="inline-grid [grid-template-areas:'stack'] overflow-hidden pt-2 sm:pt-0" style={{ color: 'var(--logo-end)' }}>
+            <AnimatePresence mode="popLayout">
+              <motion.span
+                key={FLIP_WORDS[index]}
+                className="[grid-area:stack] inline-block text-left"
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -50, opacity: 0 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+              >
+                {FLIP_WORDS[index]}
+              </motion.span>
+            </AnimatePresence>
+          </div>
         </motion.h1>
         
         <motion.p variants={itemVariants} className="text-base sm:text-xl md:text-2xl max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-inter font-medium text-balance px-2" style={{ color: 'var(--nav-item-color)' }}>
