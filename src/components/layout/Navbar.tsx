@@ -16,11 +16,11 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const dockItems = [
-    { title: "Accueil", icon: <IconHome className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "/" },
-    { title: "Boutique", icon: <IconShoppingCart className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "/shop" },
-    { title: "TCG", icon: <IconCards className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "/cards" },
-    { title: "Launcher", icon: <IconDeviceGamepad2 className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "/launcher" },
-    { title: "Communauté", icon: <IconUsers className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "/videastes" },
+    { title: "Accueil", icon: <IconHome className="h-full w-full" />, href: "/" },
+    { title: "Boutique", icon: <IconShoppingCart className="h-full w-full" />, href: "/shop" },
+    { title: "TCG", icon: <IconCards className="h-full w-full" />, href: "/cards" },
+    { title: "Launcher", icon: <IconDeviceGamepad2 className="h-full w-full" />, href: "/launcher" },
+    { title: "Communauté", icon: <IconUsers className="h-full w-full" />, href: "/videastes" },
   ];
 
   useEffect(() => {

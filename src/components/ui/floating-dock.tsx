@@ -71,9 +71,9 @@ const FloatingDockMobile = ({
                 <a
                   href={item.href}
                   key={item.title}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 dark:bg-neutral-900"
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border-color)] shadow-[4px_4px_0px_0px_var(--color-border-color)] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:border-[var(--color-accent-purple-dark)] hover:shadow-[4px_4px_0px_0px_var(--color-accent-purple-dark)] transition-all text-[var(--color-text-primary)]"
                 >
-                  <div className="h-4 w-4">{item.icon}</div>
+                  <div className="h-5 w-5">{item.icon}</div>
                 </a>
               </motion.div>
             ))}
@@ -82,9 +82,9 @@ const FloatingDockMobile = ({
       </AnimatePresence>
       <button
         onClick={() => setOpen(!open)}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 dark:bg-neutral-800"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-bg-elevated)] border-2 border-[var(--color-accent-purple-dark)] shadow-[4px_4px_0px_0px_var(--color-accent-purple-dark)] hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-1 active:translate-x-1 active:shadow-none transition-all text-fuchsia-400"
       >
-        <IconLayoutNavbarCollapse className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
+        <IconLayoutNavbarCollapse className="h-6 w-6" />
       </button>
     </div>
   );
@@ -103,7 +103,7 @@ const FloatingDockDesktop = ({
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
       className={cn(
-        "mx-auto hidden h-16 items-end gap-4 rounded-2xl bg-gray-50 px-4 pb-3 md:flex dark:bg-neutral-900",
+        "mx-auto hidden h-16 items-end gap-4 rounded-2xl bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border-color)] shadow-[6px_6px_0px_0px_var(--color-border-color)] px-4 pb-3 md:flex",
         className,
       )}
     >
@@ -174,7 +174,7 @@ function IconContainer({
         style={{ width, height }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative flex aspect-square items-center justify-center rounded-full bg-gray-200 dark:bg-neutral-800"
+        className="relative flex aspect-square items-center justify-center rounded-full bg-[var(--color-bg-secondary)] border-2 border-transparent hover:border-[var(--color-accent-purple-dark)] transition-colors text-[var(--color-text-primary)]"
       >
         <AnimatePresence>
           {hovered && (
@@ -182,7 +182,7 @@ function IconContainer({
               initial={{ opacity: 0, y: 10, x: "-50%" }}
               animate={{ opacity: 1, y: 0, x: "-50%" }}
               exit={{ opacity: 0, y: 2, x: "-50%" }}
-              className="absolute -top-8 left-1/2 w-fit rounded-md border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs whitespace-pre text-neutral-700 dark:border-neutral-900 dark:bg-neutral-800 dark:text-white"
+              className="absolute -top-10 left-1/2 w-fit rounded-lg border-2 border-[var(--color-accent-purple-dark)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-sm font-bold whitespace-pre text-[var(--color-text-primary)] shadow-[4px_4px_0px_0px_var(--color-accent-purple-dark)]"
             >
               {title}
             </motion.div>
