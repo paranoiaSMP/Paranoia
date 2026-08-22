@@ -50,12 +50,32 @@
     --bg-color: var(--color-bg-primary);
     --text-color: var(--color-text-primary);
     --background: var(--color-bg-primary);
+    
+    /* Hero Background Gradient (Dark Mode - Default) */
+    --hero-grad-start: rgb(5, 0, 10);
+    --hero-grad-end: rgb(0, 0, 0);
+    --hero-color-1: 60, 10, 100;
+    --hero-color-2: 80, 20, 120;
+    --hero-color-3: 70, 15, 110;
+    --hero-color-4: 90, 25, 130;
+    --hero-color-5: 50, 5, 80;
+    --hero-color-ptr: 120, 40, 160;
   }
 
   [data-theme='light'] {
     --bg-color: #f4f4f5;
     --text-color: #09090b;
     --background: #f4f4f5;
+
+    /* Hero Background Gradient (Light Mode) */
+    --hero-grad-start: rgb(245, 240, 255);
+    --hero-grad-end: rgb(255, 255, 255);
+    --hero-color-1: 220, 180, 255;
+    --hero-color-2: 230, 190, 255;
+    --hero-color-3: 210, 160, 255;
+    --hero-color-4: 240, 210, 255;
+    --hero-color-5: 200, 150, 255;
+    --hero-color-ptr: 180, 100, 255;
   }
 
   * {
