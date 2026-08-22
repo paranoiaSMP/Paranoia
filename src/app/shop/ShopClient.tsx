@@ -133,15 +133,18 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
 
       {/* HUD Balance (Top on Mobile) */}
       {isLoggedIn && (
-        <div className="flex justify-center md:justify-end mb-8 md:mb-12">
+        <div className="flex justify-center md:justify-end mb-8 md:mb-12 px-4 md:px-0">
           <div className="relative group cursor-default w-full sm:w-auto">
-            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-red)] rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-            <div className="relative flex items-center justify-between sm:justify-start gap-4 backdrop-blur-xl px-6 py-4 rounded-2xl w-full" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
-              <span className="font-medium uppercase tracking-widest text-xs sm:text-sm" style={{ color: 'var(--muted-text)' }}>Votre Banque</span>
-              <div className="h-8 w-px hidden sm:block" style={{ background: 'var(--card-border)' }}></div>
+            <div className="relative flex items-center justify-between sm:justify-start gap-4 px-6 py-4 rounded-xl w-full bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border-color)] shadow-[4px_4px_0px_0px_var(--color-border-color)] transition-transform duration-200 group-hover:-translate-y-1 group-hover:shadow-[6px_6px_0px_0px_var(--color-border-color)]">
+              <span className="font-bold uppercase tracking-widest text-xs sm:text-sm text-[var(--color-text-secondary)]">
+                Votre Banque
+              </span>
+              <div className="h-8 w-px hidden sm:block bg-[var(--color-border-color)]"></div>
               <div className="flex items-center gap-2 sm:gap-3">
-                <img src="/Paracoin.png" alt="PARA Coins" className="w-6 h-6 sm:w-8 sm:h-8 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] animate-pulse-glow" />
-                <span className="font-outfit font-black text-2xl sm:text-3xl tracking-tight" style={{ color: 'var(--text-color)' }}>{balance.toLocaleString()}</span>
+                <img src="/Paracoin.png" alt="PARA Coins" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
+                <span className="font-black text-2xl sm:text-3xl tracking-tight text-[var(--color-text-primary)]">
+                  {balance.toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
