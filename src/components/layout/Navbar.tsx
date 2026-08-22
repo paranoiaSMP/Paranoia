@@ -67,11 +67,11 @@ export default function Navbar() {
           <span></span>
         </button>
         
-        {/* Render FloatingDock for mobile only, floating bottom-right */}
+        {/* Render FloatingDock for mobile only, floating horizontally at the bottom */}
         <FloatingDock 
           items={dockItems} 
           desktopClassName="hidden"
-          mobileClassName="fixed bottom-6 right-6 z-[9999]"
+          mobileClassName="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-max"
         />
         
         <ul className={`nav-links hidden md:flex ${mobileMenuOpen ? 'mobile-open' : ''}`}>

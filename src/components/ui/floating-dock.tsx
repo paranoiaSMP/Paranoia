@@ -28,65 +28,7 @@ export const FloatingDock = ({
   mobileClassName?: string;
 }) => {
   return (
-    <>
-      <FloatingDockDesktop items={items} className={desktopClassName} />
-      <FloatingDockMobile items={items} className={mobileClassName} />
-    </>
-  );
-};
-
-const FloatingDockMobile = ({
-  items,
-  className,
-}: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
-  className?: string;
-}) => {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className={cn("relative block md:hidden", className)}>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            layoutId="nav"
-            className="absolute inset-x-0 bottom-full mb-2 flex flex-col gap-2"
-          >
-            {items.map((item, idx) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                exit={{
-                  opacity: 0,
-                  y: 10,
-                  transition: {
-                    delay: idx * 0.05,
-                  },
-                }}
-                transition={{ delay: (items.length - 1 - idx) * 0.05 }}
-              >
-                <a
-                  href={item.href}
-                  key={item.title}
-                  className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border-color)] shadow-[4px_4px_0px_0px_var(--color-border-color)] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:border-[var(--color-accent-purple-dark)] hover:shadow-[4px_4px_0px_0px_var(--color-accent-purple-dark)] transition-all text-[var(--color-text-primary)]"
-                >
-                  <div className="h-5 w-5">{item.icon}</div>
-                </a>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-bg-elevated)] border-2 border-[var(--color-accent-purple-dark)] shadow-[4px_4px_0px_0px_var(--color-accent-purple-dark)] hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-1 active:translate-x-1 active:shadow-none transition-all text-fuchsia-400"
-      >
-        <IconLayoutNavbarCollapse className="h-6 w-6" />
-      </button>
-    </div>
+    <FloatingDockDesktop items={items} className={mobileClassName} />
   );
 };
 
@@ -102,8 +44,10 @@ const FloatingDockDesktop = ({
     <motion.div
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
+      onTouchMove={(e) => mouseX.set(e.touches[0].clientX)}
+      onTouchEnd={() => mouseX.set(Infinity)}
       className={cn(
-        "mx-auto hidden h-16 items-end gap-4 rounded-2xl bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border-color)] shadow-[6px_6px_0px_0px_var(--color-border-color)] px-4 pb-3 md:flex",
+        "mx-auto flex md:hidden h-16 items-end gap-3 sm:gap-4 rounded-2xl bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border-color)] shadow-[6px_6px_0px_0px_var(--color-border-color)] px-3 sm:px-4 pb-3",
         className,
       )}
     >
