@@ -16,11 +16,14 @@ interface PricingPlan {
 
 export function PricingCards({ plans }: { plans: PricingPlan[] }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl mx-auto px-4 my-12">
+    <div 
+      className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 w-full max-w-6xl mx-auto px-4 md:px-6 my-12 overflow-x-auto snap-x snap-mandatory pb-8 pt-4"
+      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+    >
       {plans.map((plan, idx) => (
         <div
           key={idx}
-          className={`relative flex flex-col p-6 rounded-3xl bg-[var(--color-bg-elevated)] border-2 transition-transform duration-300 hover:-translate-y-2 ${
+          className={`relative flex flex-col p-6 rounded-3xl bg-[var(--color-bg-elevated)] border-2 transition-transform duration-300 hover:-translate-y-2 shrink-0 snap-center w-[85vw] md:w-auto ${
             plan.isFeatured
               ? "border-[var(--color-accent-purple-dark)] shadow-[8px_8px_0px_0px_var(--color-accent-purple-dark)] z-10 scale-100 md:scale-105"
               : "border-[var(--color-border-color)] shadow-[6px_6px_0px_0px_var(--color-border-color)]"
