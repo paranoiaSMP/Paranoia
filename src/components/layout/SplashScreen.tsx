@@ -50,12 +50,11 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
                 {/* La lettre P */}
                 <motion.h1
                   initial={{ y: 50, opacity: 0, filter: "blur(12px)", color: "#ffffff" }}
-                  animate={{ y: 0, opacity: 1, filter: "blur(0px)", color: "#a855f7" }}
+                  animate={{ y: 0, opacity: 1, filter: "blur(0px)", color: "#ffffff" }}
                   transition={{
                     y: { duration: 1, ease },
                     opacity: { duration: 1, ease },
-                    filter: { duration: 1, ease },
-                    color: { duration: 0.8, delay: 2.4, ease: "easeInOut" }
+                    filter: { duration: 1, ease }
                   }}
                   className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] leading-none tracking-widest uppercase drop-shadow-2xl z-20 relative"
                 >
@@ -71,10 +70,9 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
                 >
                   <motion.h1
                     initial={{ x: -50, color: "#ffffff" }}
-                    animate={{ x: 0, color: "#a855f7" }}
+                    animate={{ x: 0, color: "#ffffff" }}
                     transition={{
-                      x: { duration: 1.2, ease, delay: 0.8 },
-                      color: { duration: 0.8, delay: 2.4, ease: "easeInOut" }
+                      x: { duration: 1.2, ease, delay: 0.8 }
                     }}
                     className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] leading-none tracking-widest uppercase drop-shadow-2xl whitespace-nowrap pl-1"
                   >
