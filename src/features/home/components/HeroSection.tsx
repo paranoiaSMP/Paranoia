@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BackgroundGradientAnimation } from '@/components/ui/background-gradient-animation';
 
 const FLIP_WORDS = ["SMP", "STUDIO", "TCG", "Launcher"];
 
@@ -33,10 +34,18 @@ export default function HeroSection() {
 
   return (
     <section className="relative z-10 flex flex-col items-center justify-center min-h-[90vh] text-center px-4 pt-20">
-      {/* Ambient background glowing orbs */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-gradient-to-tr from-[#7a0aad]/20 to-[#d946ef]/15 rounded-full blur-3xl pointer-events-none -z-10"></div>
-      <div className="absolute top-2/3 left-1/4 w-[300px] h-[300px] bg-[#9d0df2]/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
-      <div className="absolute top-1/3 right-1/4 w-[250px] h-[250px] bg-fuchsia-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+      {/* Background animé */}
+      <BackgroundGradientAnimation
+        gradientBackgroundStart="rgb(10, 0, 20)"
+        gradientBackgroundEnd="rgb(0, 0, 0)"
+        firstColor="120, 20, 200"
+        secondColor="160, 50, 220"
+        thirdColor="140, 30, 210"
+        fourthColor="180, 70, 240"
+        fifthColor="90, 10, 150"
+        pointerColor="200, 100, 255"
+        containerClassName="absolute inset-0 -z-10"
+      />
 
       <motion.div
         variants={containerVariants}
