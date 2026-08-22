@@ -66,16 +66,16 @@ export default function Footer() {
             </p>
 
             {/* Social Icons Row */}
-            <div className="flex items-center justify-center md:justify-start gap-3 mt-6">
-              <a href="https://discord.gg/paranoiasmp" target="_blank" rel="noopener noreferrer" className="p-3 rounded-xl border-2 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(88,101,242,0.6)] flex items-center gap-2 bg-[#5865F2] border-[#5865F2]/40 text-white font-bold text-sm">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-start gap-3 mt-6">
+              <a href="https://discord.gg/paranoiasmp" target="_blank" rel="noopener noreferrer" className="p-3 rounded-xl border-2 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(88,101,242,0.6)] flex items-center justify-center sm:justify-start gap-2 bg-[#5865F2] border-[#5865F2]/40 text-white font-bold text-sm">
                 <MessageSquare className="w-5 h-5 fill-current" />
                 Discord
               </a>
-              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-xl border-2 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(220,38,38,0.6)] bg-red-600/20 border-red-500/30 text-red-400 hover:bg-red-600 hover:text-white flex items-center gap-2 font-bold text-sm">
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-xl border-2 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(220,38,38,0.6)] bg-red-600/20 border-red-500/30 text-red-400 hover:bg-red-600 hover:text-white flex items-center justify-center sm:justify-start gap-2 font-bold text-sm">
                 <YoutubeIcon className="w-5 h-5" />
                 YouTube
               </a>
-              <a href="https://twitch.tv" target="_blank" rel="noopener noreferrer" className="p-3 rounded-xl border-2 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(147,51,234,0.6)] bg-purple-600/20 border-purple-500/30 text-purple-400 hover:bg-purple-600 hover:text-white flex items-center gap-2 font-bold text-sm">
+              <a href="https://twitch.tv" target="_blank" rel="noopener noreferrer" className="p-3 rounded-xl border-2 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(147,51,234,0.6)] bg-purple-600/20 border-purple-500/30 text-purple-400 hover:bg-purple-600 hover:text-white flex items-center justify-center sm:justify-start gap-2 font-bold text-sm">
                 <TwitchIcon className="w-5 h-5" />
                 Twitch
               </a>
@@ -86,10 +86,10 @@ export default function Footer() {
           <div className="text-center md:text-left">
             <h4 className="font-outfit font-black text-lg mb-5 uppercase tracking-wider text-[var(--text-color)] border-l-4 pl-3" style={{ borderColor: 'var(--color-accent-purple,#b366ff)' }}>Navigation</h4>
             <ul className="flex flex-col gap-3.5 text-base font-bold">
-              <li><Link href="/" className="hover:text-[var(--logo-end)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Accueil</Link></li>
-              <li><Link href="/cards" className="hover:text-[var(--logo-end)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Système de Cartes (TCG)</Link></li>
-              <li><Link href="/shop" className="hover:text-[var(--logo-end)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Boutique Officielle</Link></li>
-              <li><Link href="/launcher" className="hover:text-[var(--logo-end)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Launcher Custom</Link></li>
+              <li><Link href="/" className="block py-1 hover:text-[var(--logo-end)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Accueil</Link></li>
+              <li><Link href="/cards" className="block py-1 hover:text-[var(--logo-end)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Système de Cartes (TCG)</Link></li>
+              <li><Link href="/shop" className="block py-1 hover:text-[var(--logo-end)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Boutique Officielle</Link></li>
+              <li><Link href="/launcher" className="block py-1 hover:text-[var(--logo-end)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Launcher Custom</Link></li>
             </ul>
           </div>
           
@@ -97,10 +97,10 @@ export default function Footer() {
           <div className="text-center md:text-left">
             <h4 className="font-outfit font-black text-lg mb-5 uppercase tracking-wider text-[var(--text-color)] border-l-4 pl-3" style={{ borderColor: 'var(--feature-emerald-text,#10b981)' }}>Communauté & Infos</h4>
             <ul className="flex flex-col gap-3.5 text-base font-bold">
-              <li><Link href="/videastes" className="hover:text-[var(--feature-emerald-text)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Nos Vidéastes & Partenaires</Link></li>
-              <li><Link href="/candidature" className="hover:text-[var(--feature-amber-text)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Nous Rejoindre (Recrutement)</Link></li>
-              <li><span className="cursor-pointer hover:text-purple-400 transition-colors opacity-80 font-medium text-sm flex items-center justify-center md:justify-start gap-1.5 pt-2" style={{ color: 'var(--nav-item-color)' }}><Shield className="w-4 h-4" /> Mentions Légales & CGV</span></li>
-              <li><span className="cursor-pointer hover:text-purple-400 transition-colors opacity-80 font-medium text-sm flex items-center justify-center md:justify-start gap-1.5" style={{ color: 'var(--nav-item-color)' }}><FileText className="w-4 h-4" /> Charte de Confidentialité</span></li>
+              <li><Link href="/videastes" className="block py-1 hover:text-[var(--feature-emerald-text)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Nos Vidéastes & Partenaires</Link></li>
+              <li><Link href="/candidature" className="block py-1 hover:text-[var(--feature-amber-text)] transition-colors opacity-95" style={{ color: 'var(--text-color)' }}>Nous Rejoindre (Recrutement)</Link></li>
+              <li><span className="cursor-pointer py-1 hover:text-purple-400 transition-colors opacity-80 font-medium text-sm flex items-center justify-center md:justify-start gap-1.5 pt-2" style={{ color: 'var(--nav-item-color)' }}><Shield className="w-4 h-4" /> Mentions Légales & CGV</span></li>
+              <li><span className="cursor-pointer py-1 hover:text-purple-400 transition-colors opacity-80 font-medium text-sm flex items-center justify-center md:justify-start gap-1.5" style={{ color: 'var(--nav-item-color)' }}><FileText className="w-4 h-4" /> Charte de Confidentialité</span></li>
             </ul>
           </div>
         </div>

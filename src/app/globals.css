@@ -102,7 +102,7 @@
   }
 
   .btn-neo-primary {
-    @apply relative flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-outfit font-bold text-lg border-2 text-white bg-[var(--color-accent-purple)] border-[var(--color-accent-purple-dark)] transition-all duration-150 cursor-pointer;
+    @apply relative flex items-center justify-center gap-2 md:gap-3 px-5 py-3 md:px-8 md:py-4 rounded-xl font-outfit font-bold text-base md:text-lg border-2 text-white bg-[var(--color-accent-purple)] border-[var(--color-accent-purple-dark)] transition-all duration-150 cursor-pointer;
     box-shadow: 6px 6px 0px 0px var(--color-accent-purple-dark);
   }
   .btn-neo-primary:hover {
@@ -115,7 +115,7 @@
   }
 
   .btn-neo-secondary {
-    @apply relative flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-outfit font-bold text-lg border-2 transition-all duration-150 cursor-pointer;
+    @apply relative flex items-center justify-center gap-2 md:gap-3 px-5 py-3 md:px-8 md:py-4 rounded-xl font-outfit font-bold text-base md:text-lg border-2 transition-all duration-150 cursor-pointer;
     background-color: var(--surface-bg, #111118);
     border-color: var(--color-accent-purple-dark, #6b21a8);
     color: var(--text-color, white);
