@@ -34,9 +34,9 @@ export default function HeroSection() {
 
   return (
     <section className="relative z-10 flex flex-col items-center justify-center min-h-[90vh] text-center px-4 pt-20">
-      {/* Background animé */}
+      {/* Background animé subtil et fondu */}
       <BackgroundGradientAnimation
-        gradientBackgroundStart="rgb(10, 0, 20)"
+        gradientBackgroundStart="rgb(5, 0, 10)"
         gradientBackgroundEnd="rgb(0, 0, 0)"
         firstColor="120, 20, 200"
         secondColor="160, 50, 220"
@@ -44,7 +44,7 @@ export default function HeroSection() {
         fourthColor="180, 70, 240"
         fifthColor="90, 10, 150"
         pointerColor="200, 100, 255"
-        containerClassName="absolute inset-0 -z-10"
+        containerClassName="absolute inset-0 -z-10 opacity-40 [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_80%,transparent)]"
       />
 
       <motion.div
