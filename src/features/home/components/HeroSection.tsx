@@ -46,15 +46,15 @@ export default function HeroSection() {
       >
         <motion.h1 variants={itemVariants} className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-outfit font-black mb-4 sm:mb-6 tracking-tight leading-[1.1] text-balance flex flex-col items-center justify-center sm:block" style={{ color: 'var(--text-color)' }}>
           Bienvenue sur Paranoia{" "}
-          <div className="inline-grid [grid-template-areas:'stack'] overflow-hidden pt-2 sm:pt-0" style={{ color: 'var(--logo-end)' }}>
+          <div className="inline-grid [grid-template-areas:'stack'] overflow-visible pt-2 sm:pt-0" style={{ color: 'var(--logo-end)', perspective: '1000px' }}>
             <AnimatePresence mode="popLayout">
               <motion.span
                 key={FLIP_WORDS[index]}
-                className="[grid-area:stack] inline-block text-left"
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -50, opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
+                className="[grid-area:stack] inline-block text-left origin-center"
+                initial={{ opacity: 0, y: 40, rotateX: -90, filter: "blur(12px)", scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0, filter: "blur(0px)", scale: 1 }}
+                exit={{ opacity: 0, y: -40, rotateX: 90, filter: "blur(12px)", scale: 0.9 }}
+                transition={{ type: "spring", stiffness: 130, damping: 14, mass: 1 }}
               >
                 {FLIP_WORDS[index]}
               </motion.span>
