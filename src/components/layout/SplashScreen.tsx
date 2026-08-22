@@ -105,13 +105,6 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
 
             </motion.div>
 
-            {/* Glow ambiant violet en bas de l'écran qui apparaît quand le texte devient violet */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.6 }}
-              transition={{ duration: 1.5, delay: 2.4, ease }}
-              className="absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[70vw] h-[50vh] bg-purple-600/40 blur-[100px] rounded-full pointer-events-none"
-            />
           </motion.div>
         )}
       </AnimatePresence>
