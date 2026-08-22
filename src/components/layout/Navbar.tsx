@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Sun, Moon, ChevronDown, Video, FileText } from 'lucide-react';
+import { FloatingDock } from '@/components/ui/floating-dock';
+import { IconHome, IconShoppingCart, IconCards, IconDeviceGamepad2, IconUsers } from '@tabler/icons-react';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -12,6 +14,14 @@ export default function Navbar() {
   const [commOpen, setCommOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+
+  const dockItems = [
+    { title: "Accueil", icon: <IconHome className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "/" },
+    { title: "Boutique", icon: <IconShoppingCart className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "/shop" },
+    { title: "TCG", icon: <IconCards className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "/cards" },
+    { title: "Launcher", icon: <IconDeviceGamepad2 className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "/launcher" },
+    { title: "Communauté", icon: <IconUsers className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "/videastes" },
+  ];
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -48,7 +58,7 @@ export default function Navbar() {
         </Link>
         
         <button 
-          className={`burger-icon ${mobileMenuOpen ? 'open' : ''} bg-transparent border-0`} 
+          className={`burger-icon ${mobileMenuOpen ? 'open' : ''} bg-transparent border-0 hidden`} 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle navigation"
         >
@@ -57,7 +67,14 @@ export default function Navbar() {
           <span></span>
         </button>
         
-        <ul className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+        {/* Render FloatingDock for mobile only, floating bottom-right */}
+        <FloatingDock 
+          items={dockItems} 
+          desktopClassName="hidden"
+          mobileClassName="fixed bottom-6 right-6 z-[9999]"
+        />
+        
+        <ul className={`nav-links hidden md:flex ${mobileMenuOpen ? 'mobile-open' : ''}`}>
           <li className="nav-link-first"><Link href="/" className="nav-item font-medium">Accueil</Link></li>
           <li><Link href="/shop" className="nav-item font-semibold">Boutique</Link></li>
           <li>
