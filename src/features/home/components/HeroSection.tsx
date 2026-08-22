@@ -34,16 +34,16 @@ export default function HeroSection() {
 
   return (
     <section className="relative z-10 flex flex-col items-center justify-center min-h-[90vh] text-center px-4 pt-20">
-      {/* Background animé subtil et fondu */}
+      {/* Background animé subtil et fondu (Violet plus sombre) */}
       <BackgroundGradientAnimation
         gradientBackgroundStart="rgb(5, 0, 10)"
         gradientBackgroundEnd="rgb(0, 0, 0)"
-        firstColor="120, 20, 200"
-        secondColor="160, 50, 220"
-        thirdColor="140, 30, 210"
-        fourthColor="180, 70, 240"
-        fifthColor="90, 10, 150"
-        pointerColor="200, 100, 255"
+        firstColor="60, 10, 100"
+        secondColor="80, 20, 120"
+        thirdColor="70, 15, 110"
+        fourthColor="90, 25, 130"
+        fifthColor="50, 5, 80"
+        pointerColor="120, 40, 160"
         containerClassName="absolute inset-0 -z-10 opacity-40 [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_80%,transparent)]"
       />
 
