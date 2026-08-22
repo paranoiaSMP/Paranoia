@@ -43,38 +43,22 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar">
-      <div className="nav-container">
-        <Link href="/" className="nav-logo flex items-center group shrink-0">
-          <div className="relative w-28 h-10 sm:w-32 sm:h-12 transition-transform duration-300 group-hover:scale-105">
-            <Image 
-              src="/Paranoia_logo.png" 
-              alt="Paranoia SMP Logo" 
-              fill 
-              priority={true}
-              className="object-contain drop-shadow-[0_0_8px_rgba(179,102,255,0.4)]"
-            />
-          </div>
-        </Link>
-        
-        <button 
-          className={`burger-icon ${mobileMenuOpen ? 'open' : ''} bg-transparent border-0 hidden`} 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle navigation"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-        
-        {/* Render FloatingDock for mobile only, floating horizontally at the bottom */}
-        <FloatingDock 
-          items={dockItems} 
-          desktopClassName="hidden"
-          mobileClassName="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-max"
-        />
-        
-        <ul className={`nav-links hidden md:flex ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+    <>
+      <nav className="navbar hidden md:block">
+        <div className="nav-container">
+          <Link href="/" className="nav-logo flex items-center group shrink-0">
+            <div className="relative w-28 h-10 sm:w-32 sm:h-12 transition-transform duration-300 group-hover:scale-105">
+              <Image 
+                src="/Paranoia_logo.png" 
+                alt="Paranoia SMP Logo" 
+                fill 
+                priority={true}
+                className="object-contain drop-shadow-[0_0_8px_rgba(179,102,255,0.4)]"
+              />
+            </div>
+          </Link>
+          
+          <ul className={`nav-links hidden md:flex`}>
           <li className="nav-link-first"><Link href="/" className="nav-item font-medium">Accueil</Link></li>
           <li><Link href="/shop" className="nav-item font-semibold">Boutique</Link></li>
           <li>
@@ -135,6 +119,12 @@ export default function Navbar() {
         </ul>
       </div>
     </nav>
+    <FloatingDock 
+      items={dockItems} 
+      desktopClassName="hidden"
+      mobileClassName="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-max"
+    />
+    </>
   );
 }
 
