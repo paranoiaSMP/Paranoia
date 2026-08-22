@@ -46,19 +46,19 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
               style={{ fontFamily: "'-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}
             >
               {/* PARANOIA avec effet de masque (overflow-hidden) */}
-              <div className="overflow-hidden pb-4 px-4">
+              <div className="overflow-hidden pb-4 px-4 w-full flex justify-center">
                 <motion.h1
                   initial={{ y: 120, opacity: 0, filter: "blur(12px)" }}
                   animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
                   transition={{ duration: 1.4, ease, delay: 0.3 }}
-                  className="text-6xl md:text-8xl lg:text-[10rem] leading-none tracking-[0.15em] uppercase bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-400 drop-shadow-2xl"
+                  className="text-4xl sm:text-6xl md:text-8xl lg:text-[10rem] leading-none tracking-[0.15em] uppercase bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-400 drop-shadow-2xl text-center"
                 >
                   PARANOIA
                 </motion.h1>
               </div>
 
               {/* STUDIO */}
-              <div className="overflow-hidden mt-2 px-4">
+              <div className="overflow-hidden mt-2 px-4 w-full flex justify-center">
                 <motion.div
                   initial={{ y: 80, opacity: 0, filter: "blur(12px)" }}
                   animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
@@ -68,7 +68,7 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
                     initial={{ color: "#ffffff", fontStyle: "normal", skewX: 0 }}
                     animate={{ color: "#a855f7", fontStyle: "italic" }}
                     transition={{ duration: 0.8, ease: "easeInOut", delay: 2.2 }}
-                    className="text-3xl md:text-5xl lg:text-7xl leading-none tracking-[0.3em] uppercase drop-shadow-[0_0_15px_rgba(168,85,247,0.3)]"
+                    className="text-xl sm:text-3xl md:text-5xl lg:text-7xl leading-none tracking-[0.3em] uppercase drop-shadow-[0_0_15px_rgba(168,85,247,0.3)] text-center ml-[0.3em]"
                   >
                     STUDIO
                   </motion.h2>
