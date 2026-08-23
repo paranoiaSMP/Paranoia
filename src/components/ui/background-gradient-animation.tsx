@@ -61,15 +61,27 @@ export const BackgroundGradientAnimation = ({
 
   useEffect(() => {
     let animationFrameId: number;
+    let lastX = -1;
+    let lastY = -1;
+    
     function move() {
       if (!interactiveRef.current) {
         return;
       }
+      
+      // Calculate new position
       curX.current = curX.current + (tgX.current - curX.current) / 20;
       curY.current = curY.current + (tgY.current - curY.current) / 20;
-      interactiveRef.current.style.transform = `translate(${Math.round(
-        curX.current
-      )}px, ${Math.round(curY.current)}px)`;
+      
+      const roundedX = Math.round(curX.current);
+      const roundedY = Math.round(curY.current);
+
+      // Only update DOM if the position actually changed by at least 1 pixel
+      if (roundedX !== lastX || roundedY !== lastY) {
+        interactiveRef.current.style.transform = `translate(${roundedX}px, ${roundedY}px)`;
+        lastX = roundedX;
+        lastY = roundedY;
+      }
       
       animationFrameId = requestAnimationFrame(move);
     }
@@ -103,29 +115,11 @@ export const BackgroundGradientAnimation = ({
         containerClassName
       )}
     >
-      <svg className="hidden">
-        <defs>
-          <filter id="blurMe">
-            <feGaussianBlur
-              in="SourceGraphic"
-              stdDeviation="10"
-              result="blur"
-            />
-            <feColorMatrix
-              in="blur"
-              mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8"
-              result="goo"
-            />
-            <feBlend in="SourceGraphic" in2="goo" />
-          </filter>
-        </defs>
-      </svg>
       <div className={cn("", className)}>{children}</div>
       <div
         className={cn(
-          "gradients-container h-full w-full blur-lg absolute inset-0 z-0",
-          isSafari ? "blur-2xl" : "[filter:url(#blurMe)_blur(40px)]"
+          "gradients-container h-full w-full absolute inset-0 z-0",
+          "blur-[60px] md:blur-[100px]" // Use standard CSS blur instead of SVG filter for massive RAM/Performance gains
         )}
       >
         <div
