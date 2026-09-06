@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Sun, Moon, ChevronDown, Video, FileText, Ticket } from 'lucide-react';
 import { FloatingDock } from '@/components/ui/floating-dock';
-import { IconHome, IconShoppingCart, IconCards, IconDeviceGamepad2, IconUsers } from '@tabler/icons-react';
+import { IconHome, IconShoppingCart, IconDice, IconDeviceGamepad2, IconUsers } from '@tabler/icons-react';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -18,7 +18,7 @@ export default function Navbar() {
   const dockItems = [
     { title: "Accueil", icon: <IconHome className="h-full w-full" />, href: "/" },
     { title: "Boutique", icon: <IconShoppingCart className="h-full w-full" />, href: "/shop" },
-    { title: "TCG", icon: <IconCards className="h-full w-full" />, href: "/cards" },
+    { title: "Jeux", icon: <IconDice className="h-full w-full" />, href: "/jeux" },
     { title: "Launcher", icon: <IconDeviceGamepad2 className="h-full w-full" />, href: "/launcher" },
     { title: "Communauté", icon: <IconUsers className="h-full w-full" />, href: "/videastes" },
   ];
@@ -62,8 +62,8 @@ export default function Navbar() {
           <li className="nav-link-first"><Link href="/" className="nav-item font-medium">Accueil</Link></li>
           <li><Link href="/shop" className="nav-item font-semibold">Boutique</Link></li>
           <li>
-            <Link href="/cards" className="nav-item font-black text-purple-400 hover:text-purple-300 flex items-center gap-1.5 transition-transform hover:scale-105">
-              <span>TCG</span>
+            <Link href="/jeux" className="nav-item font-black text-purple-400 hover:text-purple-300 flex items-center gap-1.5 transition-transform hover:scale-105">
+              <span>Jeux</span>
               <span className="px-1.5 py-0.5 text-[9px] uppercase font-black bg-purple-500/20 text-purple-300 rounded-full border border-purple-500/30 shadow-[0_0_8px_rgba(168,85,247,0.4)]">New</span>
             </Link>
           </li>
