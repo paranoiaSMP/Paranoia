@@ -10,13 +10,16 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
-RUN npm install --legacy-peer-deps
+RUN npm install --ignore-scripts --legacy-peer-deps
 
 # 2. Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+ENV DATABASE_URL="postgresql://paranoia:paranoia_password@localhost:8543/paranoia_db"
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Generate Prisma Client
 RUN npx prisma generate
