@@ -207,6 +207,7 @@ export default function TicketsPage() {
             alt="Paranoia Studio Tickets"
             fill
             priority
+            unoptimized
             className="object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[var(--card-bg)] via-[var(--card-bg)]/40 to-transparent" />

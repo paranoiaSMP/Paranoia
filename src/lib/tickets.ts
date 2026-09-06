@@ -34,32 +34,54 @@ export interface Ticket {
   messages: TicketMessage[];
 }
 
+import os from "os";
+
 const DATA_DIR = path.join(process.cwd(), "data");
 const TICKETS_FILE = path.join(DATA_DIR, "tickets.json");
+const FALLBACK_FILE = path.join(os.tmpdir(), "paranoia_tickets.json");
 
-async function ensureFile(): Promise<void> {
+let memoryTickets: Ticket[] = [];
+
+async function getFilePath(): Promise<string> {
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
-    await fs.access(TICKETS_FILE);
+    await fs.access(TICKETS_FILE).catch(async () => {
+      await fs.writeFile(TICKETS_FILE, JSON.stringify(memoryTickets, null, 2), "utf-8");
+    });
+    return TICKETS_FILE;
   } catch {
-    await fs.writeFile(TICKETS_FILE, JSON.stringify([], null, 2), "utf-8");
+    try {
+      await fs.access(FALLBACK_FILE).catch(async () => {
+        await fs.writeFile(FALLBACK_FILE, JSON.stringify(memoryTickets, null, 2), "utf-8");
+      });
+      return FALLBACK_FILE;
+    } catch {
+      return "";
+    }
   }
 }
 
 export async function getAllTickets(): Promise<Ticket[]> {
-  await ensureFile();
   try {
-    const raw = await fs.readFile(TICKETS_FILE, "utf-8");
+    const file = await getFilePath();
+    if (!file) return [...memoryTickets];
+    const raw = await fs.readFile(file, "utf-8");
     const tickets: Ticket[] = JSON.parse(raw);
+    memoryTickets = tickets;
     return tickets.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   } catch {
-    return [];
+    return [...memoryTickets];
   }
 }
 
 async function saveTickets(tickets: Ticket[]): Promise<void> {
-  await ensureFile();
-  await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2), "utf-8");
+  memoryTickets = tickets;
+  try {
+    const file = await getFilePath();
+    if (file) {
+      await fs.writeFile(file, JSON.stringify(tickets, null, 2), "utf-8");
+    }
+  } catch {}
 }
 
 export async function getTicketById(id: string): Promise<Ticket | null> {

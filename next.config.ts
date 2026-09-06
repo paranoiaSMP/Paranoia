@@ -10,7 +10,8 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'vzge.me' },
       { protocol: 'https', hostname: 'cdn.discordapp.com' },
       { protocol: 'https', hostname: 'www.pokememes.fr' },
-      { protocol: 'https', hostname: 'raw.githubusercontent.com' }
+      { protocol: 'https', hostname: 'raw.githubusercontent.com' },
+      { protocol: 'https', hostname: 'files.catbox.moe' }
     ]
   },
   poweredByHeader: false,
@@ -29,7 +30,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src * blob: data:; media-src * blob: data:; connect-src * ws: wss:;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src * blob: data:; media-src * blob: data:; connect-src * ws: wss:;",
           },
         ],
       },

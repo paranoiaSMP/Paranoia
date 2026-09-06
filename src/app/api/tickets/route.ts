@@ -22,7 +22,8 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.json(tickets);
-  } catch {
+  } catch (error) {
+    console.error("GET /api/tickets error:", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

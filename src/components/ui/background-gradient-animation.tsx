@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export const BackgroundGradientAnimation = ({
   gradientBackgroundStart = "rgb(108, 0, 162)",
@@ -34,11 +34,12 @@ export const BackgroundGradientAnimation = ({
   containerClassName?: string;
 }) => {
   const interactiveRef = useRef<HTMLDivElement>(null);
-
   const curX = useRef(0);
   const curY = useRef(0);
   const tgX = useRef(0);
   const tgY = useRef(0);
+  const isMoving = useRef(false);
+  const animationFrameId = useRef<number | null>(null);
 
   useEffect(() => {
     document.body.style.setProperty(
@@ -59,57 +60,43 @@ export const BackgroundGradientAnimation = ({
     document.body.style.setProperty("--blending-value", blendingValue);
   }, []);
 
-  useEffect(() => {
-    let animationFrameId: number;
-    let lastX = -1;
-    let lastY = -1;
-    
-    function move() {
-      if (!interactiveRef.current) {
-        return;
-      }
-      
-      // Calculate new position
-      curX.current = curX.current + (tgX.current - curX.current) / 20;
-      curY.current = curY.current + (tgY.current - curY.current) / 20;
-      
-      const roundedX = Math.round(curX.current);
-      const roundedY = Math.round(curY.current);
+  const move = () => {
+    if (!interactiveRef.current) return;
+    curX.current += (tgX.current - curX.current) / 15;
+    curY.current += (tgY.current - curY.current) / 15;
+    const roundedX = Math.round(curX.current);
+    const roundedY = Math.round(curY.current);
+    interactiveRef.current.style.transform = `translate3d(${roundedX}px, ${roundedY}px, 0)`;
 
-      // Only update DOM if the position actually changed by at least 1 pixel
-      if (roundedX !== lastX || roundedY !== lastY) {
-        interactiveRef.current.style.transform = `translate(${roundedX}px, ${roundedY}px)`;
-        lastX = roundedX;
-        lastY = roundedY;
-      }
-      
-      animationFrameId = requestAnimationFrame(move);
+    if (Math.abs(tgX.current - curX.current) > 0.5 || Math.abs(tgY.current - curY.current) > 0.5) {
+      animationFrameId.current = requestAnimationFrame(move);
+    } else {
+      isMoving.current = false;
     }
+  };
 
-    move();
-    
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!interactiveRef.current) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    tgX.current = event.clientX - rect.left;
+    tgY.current = event.clientY - rect.top;
+    if (!isMoving.current) {
+      isMoving.current = true;
+      animationFrameId.current = requestAnimationFrame(move);
+    }
+  };
+
+  useEffect(() => {
     return () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
       }
     };
   }, []);
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (interactiveRef.current) {
-      const rect = interactiveRef.current.getBoundingClientRect();
-      tgX.current = event.clientX - rect.left;
-      tgY.current = event.clientY - rect.top;
-    }
-  };
-
-  const [isSafari, setIsSafari] = useState(false);
-  useEffect(() => {
-    setIsSafari(/^((?!chrome|android).)*safari/i.test(navigator.userAgent));
-  }, []);
-
   return (
     <div
+      onMouseMove={interactive ? handleMouseMove : undefined}
       className={cn(
         "h-full w-full relative overflow-hidden top-0 left-0 bg-[linear-gradient(40deg,var(--gradient-background-start),var(--gradient-background-end))]",
         containerClassName
@@ -118,8 +105,8 @@ export const BackgroundGradientAnimation = ({
       <div className={cn("", className)}>{children}</div>
       <div
         className={cn(
-          "gradients-container h-full w-full absolute inset-0 z-0",
-          "blur-[60px] md:blur-[100px]" // Use standard CSS blur instead of SVG filter for massive RAM/Performance gains
+          "gradients-container h-full w-full absolute inset-0 z-0 pointer-events-none",
+          "blur-[40px] md:blur-[60px]"
         )}
       >
         <div
@@ -127,7 +114,7 @@ export const BackgroundGradientAnimation = ({
             `absolute [background:radial-gradient(circle_at_center,_rgba(var(--first-color),_0.8)_0,_rgba(var(--first-color),_0)_50%)_no-repeat]`,
             `[mix-blend-mode:var(--blending-value)] w-[var(--size)] h-[var(--size)] top-[calc(50%-var(--size)/2)] left-[calc(50%-var(--size)/2)]`,
             `[transform-origin:center_center]`,
-            `animate-first`,
+            `animate-first will-change-transform`,
             `opacity-100`
           )}
         ></div>
@@ -136,7 +123,7 @@ export const BackgroundGradientAnimation = ({
             `absolute [background:radial-gradient(circle_at_center,_rgba(var(--second-color),_0.8)_0,_rgba(var(--second-color),_0)_50%)_no-repeat]`,
             `[mix-blend-mode:var(--blending-value)] w-[var(--size)] h-[var(--size)] top-[calc(50%-var(--size)/2)] left-[calc(50%-var(--size)/2)]`,
             `[transform-origin:calc(50%-400px)]`,
-            `animate-second`,
+            `animate-second will-change-transform`,
             `opacity-100`
           )}
         ></div>
@@ -145,7 +132,7 @@ export const BackgroundGradientAnimation = ({
             `absolute [background:radial-gradient(circle_at_center,_rgba(var(--third-color),_0.8)_0,_rgba(var(--third-color),_0)_50%)_no-repeat]`,
             `[mix-blend-mode:var(--blending-value)] w-[var(--size)] h-[var(--size)] top-[calc(50%-var(--size)/2)] left-[calc(50%-var(--size)/2)]`,
             `[transform-origin:calc(50%+400px)]`,
-            `animate-third`,
+            `animate-third will-change-transform`,
             `opacity-100`
           )}
         ></div>
@@ -154,7 +141,7 @@ export const BackgroundGradientAnimation = ({
             `absolute [background:radial-gradient(circle_at_center,_rgba(var(--fourth-color),_0.8)_0,_rgba(var(--fourth-color),_0)_50%)_no-repeat]`,
             `[mix-blend-mode:var(--blending-value)] w-[var(--size)] h-[var(--size)] top-[calc(50%-var(--size)/2)] left-[calc(50%-var(--size)/2)]`,
             `[transform-origin:calc(50%-200px)]`,
-            `animate-fourth`,
+            `animate-fourth will-change-transform`,
             `opacity-70`
           )}
         ></div>
@@ -163,7 +150,7 @@ export const BackgroundGradientAnimation = ({
             `absolute [background:radial-gradient(circle_at_center,_rgba(var(--fifth-color),_0.8)_0,_rgba(var(--fifth-color),_0)_50%)_no-repeat]`,
             `[mix-blend-mode:var(--blending-value)] w-[var(--size)] h-[var(--size)] top-[calc(50%-var(--size)/2)] left-[calc(50%-var(--size)/2)]`,
             `[transform-origin:calc(50%-800px)_calc(50%+800px)]`,
-            `animate-fifth`,
+            `animate-fifth will-change-transform`,
             `opacity-100`
           )}
         ></div>
@@ -171,10 +158,9 @@ export const BackgroundGradientAnimation = ({
         {interactive && (
           <div
             ref={interactiveRef}
-            onMouseMove={handleMouseMove}
             className={cn(
               `absolute [background:radial-gradient(circle_at_center,_rgba(var(--pointer-color),_0.8)_0,_rgba(var(--pointer-color),_0)_50%)_no-repeat]`,
-              `[mix-blend-mode:var(--blending-value)] w-full h-full -top-1/2 -left-1/2`,
+              `[mix-blend-mode:var(--blending-value)] w-full h-full -top-1/2 -left-1/2 will-change-transform`,
               `opacity-70`
             )}
           ></div>

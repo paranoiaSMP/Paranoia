@@ -7,13 +7,6 @@ import { Providers } from "@/components/providers";
 
 import { Toaster } from 'react-hot-toast';
 
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import ComingSoon from "@/components/layout/ComingSoon";
-
-export const dynamic = "force-dynamic";
-
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
@@ -55,24 +48,11 @@ export const metadata: Metadata = {
 
 import SplashScreen from "@/components/layout/SplashScreen";
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Check maintenance mode
-  let isMaintenance = false;
-  let isAdmin = false;
-
-  try {
-    const session = await getServerSession(authOptions);
-    isAdmin = (session?.user as any)?.role === "ADMIN";
-    
-    const maintenanceSetting = await prisma.systemSetting.findUnique({ where: { key: "maintenance_mode" } });
-    isMaintenance = maintenanceSetting?.value === "true";
-  } catch (e) {
-    console.error("Failed to fetch maintenance mode state:", e);
-  }
 
   return (
     <html lang="fr">
