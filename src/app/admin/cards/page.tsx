@@ -172,11 +172,14 @@ export default function AdminCardsPage() {
 
     setIsUploading(true);
     setUploadTarget('cardImageUrl');
-    const vzgeUrl = `https://vzge.me/bust/512/${playerName}.png`;
+    const identifier = selectedPlayer?.uuid || playerName;
+    const skinUrl = `https://vzge.me/bust/512/${identifier}.png`;
 
     try {
-      // 1. Fetch the image from vzge
-      const response = await fetch(vzgeUrl);
+      let response = await fetch(skinUrl);
+      if (!response.ok) {
+        response = await fetch(`https://vzge.me/bust/512/${playerName}.png`);
+      }
       if (!response.ok) throw new Error("Impossible de récupérer le skin.");
       
       const blob = await response.blob();
@@ -239,7 +242,7 @@ export default function AdminCardsPage() {
       setDraggingItem({ type, id });
     } else if (data.action === "wheel") {
       const delta = data.deltaY > 0 ? -5 : 5;
-      if (type === 'character') setCharScale(prev => Math.max(10, Math.min(300, prev + delta)));
+      if (type === 'character') setCharScale(prev => Math.max(10, Math.min(300, Number(prev) + delta)));
       if (type === 'title') setTitlePos(prev => ({...prev, scale: Math.max(10, Math.min(300, prev.scale + delta))}));
       if (type === 'desc') setDescPos(prev => ({...prev, scale: Math.max(10, Math.min(300, prev.scale + delta))}));
       if (type === 'rarityBadge') setRarityBadgePos(prev => ({...prev, scale: Math.max(10, Math.min(300, prev.scale + delta))}));
@@ -464,7 +467,7 @@ export default function AdminCardsPage() {
     
     setIsSavingLink(true);
     try {
-      let attrs = {};
+      let attrs: any = {};
       try { attrs = typeof motherCard.attributes === 'string' ? JSON.parse(motherCard.attributes) : (motherCard.attributes || {}); } catch(e){}
       
       attrs.parentCardId = editingCardId;
@@ -577,7 +580,7 @@ export default function AdminCardsPage() {
   };
 
   const waitForCaptureReady = async () => {
-    toast.info("Préparation de la carte : patience (10s) pour la vidéo/animation...", { id: "capture-wait" });
+    toast("Préparation de la carte : patience (10s) pour la vidéo/animation...", { id: "capture-wait" });
     await new Promise(resolve => setTimeout(resolve, 10000));
     toast.dismiss("capture-wait");
   };

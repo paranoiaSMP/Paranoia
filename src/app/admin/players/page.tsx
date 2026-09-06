@@ -159,9 +159,12 @@ export default function AdminPlayersPage() {
               {players.map(player => (
                 <div key={player.id} className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-2xl p-4 flex items-center justify-between group hover:border-blue-500/30 transition-all hover:bg-[#16161f]">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[var(--surface-bg)] rounded-xl flex items-center justify-center overflow-hidden border border-[var(--card-border)] group-hover:border-blue-500/20 transition-colors">
-                      <img src={`https://vzge.me/bust/512/${player.minecraftName}.png`} alt={player.minecraftName} className="w-10 h-10 object-contain drop-shadow-md" />
-                    </div>
+                      <img
+                        src={`https://vzge.me/bust/512/${player.uuid || player.minecraftName}.png`}
+                        alt={player.minecraftName}
+                        className="w-10 h-10 object-contain drop-shadow-md"
+                        onError={(e) => { e.currentTarget.src = `https://minotar.net/armor/body/${player.minecraftName}/512.png`; }}
+                      />
                     <div>
                         <span className="font-black text-[var(--text-color)] uppercase tracking-tight flex items-center gap-2">
                           {player.minecraftName}

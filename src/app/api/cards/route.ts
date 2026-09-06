@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     const { title, playerName, playerId, rarity, level, edition, proba, description, customBackground, customBadges, characterPosition, imageUrl, layer1Url, layer2Url, layer3Url, renderedImageUrl, attributes, isVariant } = parsed.data;
 
 
-    const parsedProba = parseFloat(proba);
+    const parsedProba = parseFloat(String(proba ?? 100));
     const validProba = isNaN(parsedProba) ? 100 : parsedProba;
     const parsedBadges = Array.isArray(customBadges) ? JSON.stringify(customBadges) : "[]";
     const parsedCharPos = typeof characterPosition === 'object' && characterPosition !== null ? JSON.stringify(characterPosition) : '{"x":50,"y":50,"scale":100}';
@@ -140,7 +140,7 @@ export async function PUT(req: Request) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
-    const parsedProba = parseFloat(proba);
+    const parsedProba = parseFloat(String(proba ?? 100));
     const validProba = isNaN(parsedProba) ? 100 : parsedProba;
 
     const parsedBadges = Array.isArray(customBadges) ? JSON.stringify(customBadges) : "[]";

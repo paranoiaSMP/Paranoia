@@ -53,3 +53,8 @@ gha-creds-*.json
 log.txt
 check-images.js
 replace.js
+.idea/
+*.pyc
+__pycache__/
+.venv/
+

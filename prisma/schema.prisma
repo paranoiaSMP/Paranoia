@@ -180,11 +180,28 @@ model UserCard {
 model Player {
   id            String   @id @default(cuid())
   minecraftName String   @unique
+  hwid          String?  // Hardware ID for launcher ban tracking
+  uuid          String?  // Mojang UUID
   status        String   @default("ACTIVE") // ACTIVE, BANNED, LEFT
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   cards         TradingCard[]
+  bans          Ban[]    // Historique des bans du joueur
+}
+
+model Ban {
+  id          String    @id @default(cuid())
+  playerId    String
+  player      Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  hwid        String?   // L'HWID de la machine au moment du ban
+  reason      String    @db.Text
+  bannedBy    String    // ID ou Pseudo du Staff
+  bannedAt    DateTime  @default(now())
+  
+  isActive    Boolean   @default(true)
+  unbannedAt  DateTime?
+  unbannedBy  String?   // ID ou Pseudo du Staff qui a unban
 }
 
 model Edition {

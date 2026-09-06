@@ -11,18 +11,38 @@ export async function GET(req: Request) {
       return new NextResponse("Missing uuid or username", { status: 400 });
     }
 
+    const authHeader = req.headers.get("x-launcher-secret");
+    if (authHeader !== process.env.LAUNCHER_API_SECRET) {
+      return new NextResponse("Unauthorized Launcher", { status: 401 });
+    }
+
     // Upsert the Player table directly with the username
     // This way, every time someone launches the game, they are saved in the admin panel
-    const player = await prisma.player.upsert({
-      where: {
-        minecraftName: username,
-      },
-      update: {}, // Don't change anything if they exist
-      create: {
-        minecraftName: username,
-        status: "ACTIVE",
-      },
-    });
+    let player = null;
+    if (uuid) {
+      player = await prisma.player.findFirst({
+        where: { uuid: String(uuid) }
+      });
+    }
+
+    if (player) {
+      if (player.minecraftName !== username) {
+        player = await prisma.player.update({
+          where: { id: player.id },
+          data: { minecraftName: String(username) }
+        });
+      }
+    } else {
+      player = await prisma.player.upsert({
+        where: { minecraftName: String(username) },
+        update: { uuid: uuid ? String(uuid) : undefined },
+        create: {
+          minecraftName: String(username),
+          uuid: uuid ? String(uuid) : undefined,
+          status: "ACTIVE",
+        },
+      });
+    }
 
     // Optionally update the User table if they exist, but we only really need the Player table for bans
     // We can just rely on the Player status for the ban check.

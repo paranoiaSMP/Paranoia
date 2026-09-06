@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id;
 
-    if (!userId) {
+    if (!userId || (session.user as any).role !== "ADMIN") {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 

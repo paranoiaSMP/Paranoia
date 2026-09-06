@@ -26,9 +26,31 @@ export async function POST(req: Request) {
       return new NextResponse("Missing minecraftName", { status: 400 });
     }
 
-    const player = await prisma.player.create({
-      data: {
-        minecraftName,
+    let uuid: string | null = null;
+    let exactName = minecraftName;
+
+    try {
+      const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${encodeURIComponent(minecraftName)}`);
+      if (mojangRes.ok) {
+        const mojangData = await mojangRes.json();
+        if (mojangData.id) {
+          uuid = mojangData.id;
+          exactName = mojangData.name || minecraftName;
+        }
+      }
+    } catch (e) {
+      console.error("Mojang API fetch error:", e);
+    }
+
+    const player = await prisma.player.upsert({
+      where: { minecraftName: exactName },
+      update: {
+        uuid: uuid || undefined,
+        status: "ACTIVE"
+      },
+      create: {
+        minecraftName: exactName,
+        uuid,
         status: "ACTIVE",
       },
     });

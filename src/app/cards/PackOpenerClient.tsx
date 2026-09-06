@@ -31,7 +31,6 @@ const FlippableCard = ({ card, index, boxType, allCards, ownedVariantIds, forceF
 
   const triggerWow = () => {
     setShowWow(true);
-    // Lightweight burst (no lagging 60fps loop)
     confetti({
       particleCount: 80, spread: 90, origin: { y: 0.6 }, zIndex: 4000,
       colors: ['#ef4444', '#dc2626', '#b91c1c', '#ffffff']
@@ -1196,7 +1195,13 @@ export default function PackOpenerClient({
                   {selectedCard.player && (
                     <div className="mt-6 pt-6 border-t border-white/10 flex items-center justify-between relative z-10 bg-white/5 rounded-xl p-4">
                       <div className="flex items-center gap-4">
-                        <img src={`https://vzge.me/bust/512/${selectedCard.player.minecraftName}.png`} alt="Skin" fetchPriority="high" className="w-12 h-12 object-contain drop-shadow-lg" />
+                        <img
+                          src={`https://vzge.me/bust/512/${(selectedCard.player as any)?.uuid || selectedCard.player.minecraftName}.png`}
+                          alt="Skin"
+                          fetchPriority="high"
+                          className="w-12 h-12 object-contain drop-shadow-lg"
+                          onError={(e) => { e.currentTarget.src = `https://minotar.net/armor/body/${selectedCard.player?.minecraftName || 'Steve'}/512.png`; }}
+                        />
                         <div><span className="text-xs text-[var(--color-text-secondary)] block uppercase tracking-wider font-bold">Joueur Associé</span><span className="text-lg font-black text-white">{selectedCard.player.minecraftName}</span></div>
                       </div>
                     </div>
@@ -1217,7 +1222,16 @@ export default function PackOpenerClient({
                           <div className="grid grid-cols-1 gap-4">
                             {relatedCards.map(c => (
                               <div key={c.id} onClick={() => setSelectedCard(c)} className="flex items-center gap-4 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/10 cursor-pointer transition-all group">
-                                <div className="w-12 h-16 bg-gray-800 rounded-lg overflow-hidden shrink-0"><img src={c.imageUrl || `https://vzge.me/bust/512/${c.player?.minecraftName || c.title}.png`} loading="lazy" decoding="async" className="w-full h-full object-cover" alt="" /></div>
+                                <div className="w-12 h-16 bg-gray-800 rounded-lg overflow-hidden shrink-0">
+                                  <img
+                                    src={c.imageUrl || `https://vzge.me/bust/512/${(c.player as any)?.uuid || c.player?.minecraftName || c.title}.png`}
+                                    loading="lazy"
+                                    decoding="async"
+                                    className="w-full h-full object-cover"
+                                    alt=""
+                                    onError={(e) => { e.currentTarget.src = `https://minotar.net/armor/body/${c.player?.minecraftName || 'Steve'}/512.png`; }}
+                                  />
+                                </div>
                                 <div className="flex-1"><span className="text-sm font-black text-white group-hover:text-purple-400 transition-colors">{c.title}</span><div className="flex items-center gap-2"><span className="text-[10px] text-white/50 uppercase">{c.rarity}</span><span className="text-[10px] text-indigo-400 uppercase font-bold">{c.level}</span></div></div>
                                 <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-white transition-all" />
                               </div>

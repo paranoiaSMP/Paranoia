@@ -40,7 +40,35 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ success: true });
+    const existingPlayer = await prisma.player.findFirst({
+      where: {
+        OR: [
+          { uuid: mojangData.id },
+          { uuid: uuid },
+          { minecraftName: mojangData.name }
+        ]
+      }
+    });
+
+    if (existingPlayer) {
+      await prisma.player.update({
+        where: { id: existingPlayer.id },
+        data: {
+          minecraftName: mojangData.name,
+          uuid: uuid,
+        }
+      });
+    } else {
+      await prisma.player.create({
+        data: {
+          minecraftName: mojangData.name,
+          uuid: uuid,
+          status: "ACTIVE"
+        }
+      });
+    }
+
+    return NextResponse.json({ success: true, minecraftName: mojangData.name, uuid });
   } catch (error: any) {
     console.error("[SETUP_POST]", error);
     return new NextResponse(`Erreur interne: ${error.message}`, { status: 500 });

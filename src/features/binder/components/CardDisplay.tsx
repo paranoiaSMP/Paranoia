@@ -343,9 +343,10 @@ export default function CardDisplay({
                   {card.layer3Url && <img src={card.layer3Url} alt="Layer 3" loading="lazy" className="absolute bottom-0 w-full object-contain pointer-events-none" style={{ transform: 'translateZ(70px) scale(1.1)' }} />}
                   {(!card.layer2Url && card.imageUrl) && <img src={card.imageUrl} alt="Fallback" loading="lazy" className="absolute bottom-0 w-full object-contain pointer-events-none" style={{ transform: 'translateZ(40px) scale(1.05)' }} />}
                 </>
-              ) : (card.imageUrl || card.player?.minecraftName) ? (
+              ) : (card.imageUrl || card.player?.minecraftName || (card.player as any)?.uuid) ? (
                 (() => {
-                  const avatarUrl = card.imageUrl || `https://vzge.me/bust/512/${card.player?.minecraftName}.png`;
+                  const identifier = (card.player as any)?.uuid || card.player?.minecraftName || card.title;
+                  const avatarUrl = card.imageUrl || `https://vzge.me/bust/512/${identifier}.png`;
                   const isVideo = avatarUrl.match(/\.(mp4|webm|mov)$/i);
                   const commonProps = {
                     className: `w-full h-full object-cover object-top drop-shadow-2xl transition-transform duration-300 ${isEditing ? 'pointer-events-auto cursor-grab active:cursor-grabbing hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'pointer-events-none'}`,
@@ -366,7 +367,7 @@ export default function CardDisplay({
                       alt={card.title || "Character"}
                       loading={isEditing ? "eager" : "lazy"} decoding="async"
                       {...commonProps}
-                      onError={(e) => { e.currentTarget.src = 'https://minotar.net/armor/body/Steve/512.png'; }}
+                      onError={(e) => { e.currentTarget.src = `https://minotar.net/armor/body/${card.player?.minecraftName || 'Steve'}/512.png`; }}
                     />
                   );
                 })()
