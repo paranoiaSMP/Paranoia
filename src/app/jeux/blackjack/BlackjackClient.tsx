@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -10,7 +10,8 @@ import {
   Keyboard, 
   HelpCircle,
   Coins,
-  ArrowLeft
+  ArrowLeft,
+  Sparkles
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -327,62 +328,62 @@ export default function BlackjackClient({
   }, [isGameActive, loading, canDouble, bet, coins]);
 
   return (
-    <div className="min-h-screen bg-[#07131b] text-white pt-6 pb-20 px-2 sm:px-6">
-      <div className="max-w-7xl mx-auto mb-4 flex items-center justify-between">
+    <div className="min-h-screen text-[var(--text-color)] pt-4 pb-20 px-2 sm:px-6 max-w-7xl mx-auto">
+      <div className="mb-4 flex items-center justify-between">
         <Link
           href="/jeux"
-          className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#b1bad3] hover:text-white transition-colors bg-[#1a2c38] hover:bg-[#213743] px-3.5 py-2 rounded-lg border border-[#2f4553]"
+          className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--nav-item-color)] hover:text-white transition-colors bg-[var(--surface-bg)] hover:bg-white/5 px-3.5 py-2 rounded-xl border-2 border-[var(--card-border)]"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Salle des jeux</span>
         </Link>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-[#0f212e] border border-[#2f4553] px-3.5 py-1.5 rounded-lg">
+          <div className="flex items-center gap-2.5 bg-[var(--surface-bg)] border-2 border-[var(--card-border)] px-4 py-1.5 rounded-xl shadow-sm">
             <Coins className="w-4 h-4 text-purple-400" />
-            <span className="text-xs font-bold text-[#b1bad3]">Solde:</span>
+            <span className="text-xs font-bold text-[var(--nav-item-color)]">Solde:</span>
             <span className="text-sm font-black font-mono text-purple-300">
-              {coins.toLocaleString("fr-FR")} <span className="text-xs text-[#557086]">PC</span>
+              {coins.toLocaleString("fr-FR")} <span className="text-xs text-[var(--nav-item-color)]">PC</span>
             </span>
           </div>
 
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className="w-9 h-9 rounded-lg bg-[#1a2c38] border border-[#2f4553] flex items-center justify-center text-[#b1bad3] hover:text-white transition-colors"
-            title="Activer/Couper le son"
+            className="w-10 h-10 rounded-xl bg-[var(--surface-bg)] border-2 border-[var(--card-border)] flex items-center justify-center text-[var(--nav-item-color)] hover:text-white transition-colors"
+            title="Son"
           >
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
           </button>
 
           <button
             onClick={() => setShowHelp(!showHelp)}
-            className="w-9 h-9 rounded-lg bg-[#1a2c38] border border-[#2f4553] flex items-center justify-center text-[#b1bad3] hover:text-white transition-colors"
-            title="Règles du Blackjack"
+            className="w-10 h-10 rounded-xl bg-[var(--surface-bg)] border-2 border-[var(--card-border)] flex items-center justify-center text-[var(--nav-item-color)] hover:text-white transition-colors"
+            title="Règles"
           >
             <HelpCircle className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto rounded-xl overflow-hidden border border-[#2f4553] bg-[#1a2c38] shadow-2xl flex flex-col lg:flex-row">
-        <div className="w-full lg:w-80 bg-[#1a2c38] p-5 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#2f4553] shrink-0">
-          <div className="flex flex-col gap-4">
-            <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#2f4553]">
-              <button className="flex-1 py-1.5 text-xs font-bold rounded-md bg-[#213743] text-white">
+      <div className="rounded-2xl overflow-hidden border-2 sm:border-4 border-[var(--card-border)] bg-[var(--surface-bg)] shadow-2xl flex flex-col lg:flex-row">
+        <div className="w-full lg:w-80 bg-[#0d0d14] p-5 flex flex-col justify-between border-b lg:border-b-0 lg:border-r-2 border-[var(--card-border)] shrink-0">
+          <div className="flex flex-col gap-5">
+            <div className="flex rounded-xl bg-black/40 p-1 border border-[var(--card-border)]">
+              <button className="flex-1 py-1.5 text-xs font-bold rounded-lg bg-purple-600/20 text-purple-300 border border-purple-500/30">
                 Manuel
               </button>
-              <button disabled className="flex-1 py-1.5 text-xs font-bold text-[#557086] opacity-60">
+              <button disabled className="flex-1 py-1.5 text-xs font-bold text-[var(--nav-item-color)] opacity-50">
                 Auto
               </button>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
+              <div className="flex items-center justify-between text-xs font-bold text-[var(--nav-item-color)]">
                 <span>Montant de la mise</span>
                 <span>Max: 50 000 PC</span>
               </div>
 
-              <div className="relative flex items-center rounded-md bg-[#0f212e] border border-[#2f4553] focus-within:border-purple-500 transition-colors">
+              <div className="relative flex items-center rounded-xl bg-black/40 border-2 border-[var(--card-border)] focus-within:border-purple-500 transition-colors">
                 <input
                   type="number"
                   min={10}
@@ -391,27 +392,27 @@ export default function BlackjackClient({
                   value={bet}
                   disabled={isGameActive}
                   onChange={(e) => setBet(Math.max(10, parseInt(e.target.value) || 10))}
-                  className="w-full bg-transparent px-3 py-2.5 text-sm font-bold font-mono text-white focus:outline-none disabled:opacity-60"
+                  className="w-full bg-transparent px-3.5 py-2.5 text-sm font-black font-mono text-purple-300 focus:outline-none disabled:opacity-50"
                 />
-                <div className="flex items-center gap-1 pr-1.5 shrink-0">
+                <div className="flex items-center gap-1 pr-2 shrink-0">
                   <button
                     disabled={isGameActive}
                     onClick={() => setBet((b) => Math.max(10, Math.floor(b / 2)))}
-                    className="px-2 py-1 text-xs font-bold bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white rounded transition-colors disabled:opacity-50"
+                    className="px-2 py-1 text-xs font-bold bg-purple-950/40 hover:bg-purple-900/60 text-purple-300 border border-purple-500/20 rounded-lg transition-colors disabled:opacity-40"
                   >
                     ½
                   </button>
                   <button
                     disabled={isGameActive}
                     onClick={() => setBet((b) => Math.min(coins, b * 2))}
-                    className="px-2 py-1 text-xs font-bold bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white rounded transition-colors disabled:opacity-50"
+                    className="px-2 py-1 text-xs font-bold bg-purple-950/40 hover:bg-purple-900/60 text-purple-300 border border-purple-500/20 rounded-lg transition-colors disabled:opacity-40"
                   >
                     2×
                   </button>
                   <button
                     disabled={isGameActive}
                     onClick={() => setBet(Math.min(50000, coins))}
-                    className="px-2 py-1 text-xs font-bold bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white rounded transition-colors disabled:opacity-50"
+                    className="px-2 py-1 text-xs font-bold bg-purple-950/40 hover:bg-purple-900/60 text-purple-300 border border-purple-500/20 rounded-lg transition-colors disabled:opacity-40"
                   >
                     Max
                   </button>
@@ -419,13 +420,13 @@ export default function BlackjackClient({
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-3 gap-2">
               {QUICK_CHIPS.map((chip) => (
                 <button
                   key={chip}
                   disabled={isGameActive}
                   onClick={() => setBet(chip)}
-                  className={`py-1.5 text-xs font-bold rounded-md border transition-all ${bet === chip ? 'bg-purple-600 border-purple-400 text-white' : 'bg-[#0f212e] border-[#2f4553] hover:border-[#557086] text-[#b1bad3]'} disabled:opacity-40`}
+                  className={`py-2 text-xs font-bold rounded-xl border-2 transition-all ${bet === chip ? 'bg-purple-600 border-purple-400 text-white shadow-[0_0_12px_rgba(168,85,247,0.4)]' : 'bg-black/40 border-[var(--card-border)] hover:border-purple-500/40 text-[var(--nav-item-color)] hover:text-white'} disabled:opacity-40`}
                 >
                   {chip} PC
                 </button>
@@ -433,35 +434,35 @@ export default function BlackjackClient({
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-[#2f4553]">
+          <div className="mt-6 pt-4 border-t border-[var(--card-border)]">
             {isGameActive ? (
               <div className="flex flex-col gap-2.5">
                 <button
                   onClick={handleHit}
                   disabled={loading}
-                  className="w-full py-3.5 rounded-md font-black uppercase tracking-wider text-sm bg-[#2f4553] hover:bg-[#3d596c] text-white flex items-center justify-between px-4 transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
+                  className="w-full py-3.5 rounded-xl font-outfit font-black uppercase tracking-wider text-sm bg-purple-600 hover:bg-purple-500 text-white border-2 border-purple-400/40 shadow-[0_4px_15px_rgba(168,85,247,0.3)] flex items-center justify-between px-4 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                 >
                   <span>Tirer (Hit)</span>
-                  <span className="text-[11px] px-1.5 py-0.5 rounded bg-[#0f212e] text-[#b1bad3]">H</span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/30 text-purple-200">H</span>
                 </button>
 
                 <button
                   onClick={handleStand}
                   disabled={loading}
-                  className="w-full py-3.5 rounded-md font-black uppercase tracking-wider text-sm bg-[#e9113c] hover:bg-[#ff2451] text-white flex items-center justify-between px-4 transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
+                  className="w-full py-3.5 rounded-xl font-outfit font-black uppercase tracking-wider text-sm bg-[#181824] hover:bg-[#222232] text-white border-2 border-[var(--card-border)] flex items-center justify-between px-4 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                 >
                   <span>Rester (Stand)</span>
-                  <span className="text-[11px] px-1.5 py-0.5 rounded bg-[#0f212e] text-[#b1bad3]">S</span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/30 text-zinc-400">S</span>
                 </button>
 
                 {canDouble && (
                   <button
                     onClick={handleDouble}
                     disabled={loading || coins < bet}
-                    className="w-full py-3 rounded-md font-black uppercase tracking-wider text-xs bg-[#f59e0b] hover:bg-[#fbbf24] text-black flex items-center justify-between px-4 transition-all shadow-md active:scale-[0.98] disabled:opacity-40"
+                    className="w-full py-3 rounded-xl font-outfit font-black uppercase tracking-wider text-xs bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black border-2 border-amber-300/40 flex items-center justify-between px-4 transition-all active:scale-[0.98] disabled:opacity-40 cursor-pointer shadow-md"
                   >
                     <span>Doubler (x2)</span>
-                    <span className="text-[11px] px-1.5 py-0.5 rounded bg-black/20 text-black">D</span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/20 text-black">D</span>
                   </button>
                 )}
               </div>
@@ -469,40 +470,42 @@ export default function BlackjackClient({
               <button
                 onClick={handleDeal}
                 disabled={loading || bet > coins || bet < 10}
-                className="w-full py-4 rounded-md font-black uppercase tracking-wider text-base bg-[#00e701] hover:bg-[#1fff20] text-[#013e01] shadow-[0_4px_18px_rgba(0,231,1,0.35)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="btn-neo-primary w-full py-4 text-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-base font-black tracking-wide"
               >
                 <span>{loading ? "Mélange..." : "Parier"}</span>
-                <span className="text-xs px-1.5 py-0.5 rounded bg-black/20 text-[#013e01]">Espace</span>
+                <span className="text-xs px-2 py-0.5 rounded bg-black/30 text-purple-200">Espace</span>
               </button>
             )}
           </div>
         </div>
 
-        <div className="flex-1 bg-[#0f212e] relative p-6 sm:p-10 flex flex-col justify-between min-h-[540px] overflow-hidden select-none">
-          <div className="absolute inset-x-8 top-12 bottom-12 rounded-full border border-[#213743]/50 pointer-events-none" />
+        <div className="flex-1 bg-gradient-to-b from-[#0e0c18] via-[#090810] to-[#05040a] relative p-6 sm:p-10 flex flex-col justify-between min-h-[540px] overflow-hidden select-none">
+          <div className="absolute inset-x-8 top-12 bottom-12 rounded-full border-2 border-purple-500/15 shadow-[inset_0_0_60px_rgba(122,10,173,0.08)] pointer-events-none" />
 
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-            <span className="font-outfit font-black tracking-[0.25em] text-[11px] sm:text-xs text-[#213743] uppercase block">
-              BLACKJACK PAYS 3 TO 2
+            <span className="font-outfit font-black tracking-[0.25em] text-[11px] sm:text-xs text-purple-400/20 uppercase block">
+              PARANOIA BLACKJACK • PAYS 3 TO 2
             </span>
-            <span className="font-outfit font-bold tracking-[0.15em] text-[10px] text-[#213743]/80 uppercase block mt-1">
-              DEALER MUST STAND ON 17
+            <span className="font-outfit font-bold tracking-[0.15em] text-[10px] text-purple-400/15 uppercase block mt-1">
+              DEALER STANDS ON 17
             </span>
           </div>
 
           <div className="absolute top-6 right-6 flex items-center gap-1 opacity-70">
-            <div className="w-14 h-20 rounded-md border border-[#2f4553] bg-[#1a2c38] shadow-md transform rotate-6" />
-            <div className="w-14 h-20 rounded-md border border-[#2f4553] bg-[#1a2c38] shadow-md -ml-10 transform -rotate-3" />
-            <div className="w-14 h-20 rounded-md border border-[#2f4553] bg-[#1a2c38] shadow-md -ml-10" />
+            <div className="w-14 h-20 rounded-xl border-2 border-purple-500/30 bg-purple-950/40 shadow-md transform rotate-6" />
+            <div className="w-14 h-20 rounded-xl border-2 border-purple-500/30 bg-purple-950/40 shadow-md -ml-10 transform -rotate-3" />
+            <div className="w-14 h-20 rounded-xl border-2 border-purple-500/30 bg-purple-950/40 shadow-md -ml-10 flex items-center justify-center text-purple-400 text-xs font-black font-outfit">
+              P
+            </div>
           </div>
 
           <div className="relative z-10 flex flex-col items-center">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-xs font-bold text-[#b1bad3] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[var(--nav-item-color)] uppercase tracking-wider">
                 Croupier
               </span>
               {dealerScore > 0 && (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#213743] text-white border border-[#2f4553]">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   {status === "playing" ? `${dealerScore}` : dealerScore}
                 </span>
               )}
@@ -510,12 +513,12 @@ export default function BlackjackClient({
 
             <div className="flex items-center justify-center gap-2 sm:gap-3 min-h-[110px] sm:min-h-[135px]">
               {dealerHand.length === 0 ? (
-                <div className="w-20 h-28 sm:w-24 sm:h-34 rounded-xl border border-[#213743] border-dashed flex items-center justify-center text-[#2f4553] text-xs font-bold">
+                <div className="w-20 h-28 sm:w-24 sm:h-34 rounded-xl border-2 border-purple-500/20 border-dashed flex items-center justify-center text-purple-500/30 text-xs font-bold">
                   Sabot
                 </div>
               ) : (
                 dealerHand.map((card, i) => (
-                  <StakeCard key={i} card={card} index={i} />
+                  <ParanoiaCard key={i} card={card} index={i} />
                 ))
               )}
             </div>
@@ -528,7 +531,7 @@ export default function BlackjackClient({
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="px-6 py-2 rounded-full bg-[#00e701]/20 border border-[#00e701] text-[#00e701] font-outfit font-black text-xl shadow-[0_0_25px_rgba(0,231,1,0.4)]"
+                  className="px-6 py-2 rounded-full bg-purple-500/20 border-2 border-purple-400 text-purple-200 font-outfit font-black text-xl shadow-[0_0_30px_rgba(168,85,247,0.5)]"
                 >
                   BLACKJACK ! +{payout} PC
                 </motion.div>
@@ -538,7 +541,7 @@ export default function BlackjackClient({
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="px-6 py-2 rounded-full bg-[#00e701]/20 border border-[#00e701] text-[#00e701] font-outfit font-black text-xl shadow-[0_0_25px_rgba(0,231,1,0.4)]"
+                  className="px-6 py-2 rounded-full bg-emerald-500/20 border-2 border-emerald-400 text-emerald-300 font-outfit font-black text-xl shadow-[0_0_30px_rgba(16,185,129,0.4)]"
                 >
                   GAGNÉ ! +{payout} PC
                 </motion.div>
@@ -548,7 +551,7 @@ export default function BlackjackClient({
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="px-6 py-2 rounded-full bg-[#2f4553] border border-[#557086] text-white font-outfit font-black text-lg"
+                  className="px-6 py-2 rounded-full bg-purple-900/30 border-2 border-purple-500/40 text-purple-200 font-outfit font-black text-lg"
                 >
                   ÉGALITÉ (Mise restituée)
                 </motion.div>
@@ -558,7 +561,7 @@ export default function BlackjackClient({
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="px-6 py-2 rounded-full bg-[#e9113c]/20 border border-[#e9113c] text-[#e9113c] font-outfit font-black text-lg shadow-[0_0_20px_rgba(233,17,60,0.3)]"
+                  className="px-6 py-2 rounded-full bg-red-500/20 border-2 border-red-500 text-red-300 font-outfit font-black text-lg shadow-[0_0_25px_rgba(239,68,68,0.4)]"
                 >
                   PERDU
                 </motion.div>
@@ -569,22 +572,22 @@ export default function BlackjackClient({
           <div className="relative z-10 flex flex-col items-center">
             <div className="flex items-center justify-center gap-2 sm:gap-3 min-h-[110px] sm:min-h-[135px]">
               {playerHand.length === 0 ? (
-                <div className="w-20 h-28 sm:w-24 sm:h-34 rounded-xl border border-[#213743] border-dashed flex items-center justify-center text-[#2f4553] text-xs font-bold">
+                <div className="w-20 h-28 sm:w-24 sm:h-34 rounded-xl border-2 border-purple-500/20 border-dashed flex items-center justify-center text-purple-500/30 text-xs font-bold">
                   Vos Cartes
                 </div>
               ) : (
                 playerHand.map((card, i) => (
-                  <StakeCard key={i} card={card} index={i} />
+                  <ParanoiaCard key={i} card={card} index={i} />
                 ))
               )}
             </div>
 
             <div className="flex items-center gap-2 mt-3">
-              <span className="text-xs font-bold text-[#b1bad3] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[var(--nav-item-color)] uppercase tracking-wider">
                 Joueur
               </span>
               {playerScore > 0 && (
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${playerScore === 21 ? 'bg-[#00e701]/20 text-[#00e701] border-[#00e701]/40' : playerScore > 21 ? 'bg-[#e9113c]/20 text-[#e9113c] border-[#e9113c]/40' : 'bg-[#213743] text-white border-[#2f4553]'}`}>
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-black border ${playerScore === 21 ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : playerScore > 21 ? 'bg-red-500/20 text-red-300 border-red-500/40' : 'bg-purple-500/20 text-purple-300 border-purple-500/30'}`}>
                   {playerScore} {playerScore > 21 ? "(Bust)" : ""}
                 </span>
               )}
@@ -593,9 +596,9 @@ export default function BlackjackClient({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto mt-4 px-2 flex flex-col sm:flex-row items-center justify-between text-xs text-[#557086] gap-3">
+      <div className="mt-4 px-2 flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--nav-item-color)] gap-3">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+          <ShieldCheck className="w-4 h-4 text-purple-400" />
           <span>Provably Fair • Résultat certifié côté serveur</span>
         </div>
         <div className="flex items-center gap-4">
@@ -607,12 +610,12 @@ export default function BlackjackClient({
       </div>
 
       {showHelp && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#1a2c38] border border-[#2f4553] rounded-2xl p-6 max-w-md w-full shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[var(--surface-bg)] border-2 border-[var(--card-border)] rounded-2xl p-6 max-w-md w-full shadow-2xl">
             <h3 className="text-lg font-outfit font-black text-white mb-3">
-              Règles du Blackjack (Stake Style)
+              Règles du Blackjack Paranoia
             </h3>
-            <ul className="text-xs text-[#b1bad3] space-y-2 leading-relaxed">
+            <ul className="text-xs text-[var(--nav-item-color)] space-y-2 leading-relaxed">
               <li>• L'objectif est d'avoir un total plus proche de 21 que le croupier sans dépasser 21.</li>
               <li>• Les figures (Valet, Dame, Roi) valent 10. L'As vaut 1 ou 11.</li>
               <li>• Un <strong>Blackjack naturel</strong> (As + carte de valeur 10 dès la donne) paie <strong>3:2</strong>.</li>
@@ -624,7 +627,7 @@ export default function BlackjackClient({
             </ul>
             <button
               onClick={() => setShowHelp(false)}
-              className="mt-6 w-full py-2.5 rounded-lg bg-[#2f4553] hover:bg-[#3d596c] text-white font-bold text-xs"
+              className="mt-6 w-full py-2.5 rounded-xl btn-neo-primary text-xs font-bold"
             >
               Compris
             </button>
@@ -635,17 +638,17 @@ export default function BlackjackClient({
   );
 }
 
-function StakeCard({ card, index }: { card: Card; index: number }) {
+function ParanoiaCard({ card, index }: { card: Card; index: number }) {
   if (card.rank === "?" || card.suit === "?") {
     return (
       <motion.div
         initial={{ y: -20, opacity: 0, scale: 0.95 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         transition={{ duration: 0.25, delay: index * 0.08 }}
-        className="w-20 h-28 sm:w-24 sm:h-34 rounded-xl border-2 border-[#2f4553] bg-[#1a2c38] flex items-center justify-center shadow-2xl relative overflow-hidden select-none"
+        className="w-20 h-28 sm:w-24 sm:h-34 rounded-xl border-2 border-purple-500/40 bg-gradient-to-br from-[#7a0aad]/80 via-[#3b0764] to-[#120520] flex items-center justify-center shadow-[0_4px_20px_rgba(122,10,173,0.3)] relative overflow-hidden select-none"
       >
-        <div className="absolute inset-1.5 rounded-lg border border-[#2f4553]/60 bg-[#0f212e] flex items-center justify-center">
-          <div className="w-8 h-8 rounded-full border border-purple-500/30 bg-purple-500/10 flex items-center justify-center font-outfit font-black text-xs text-purple-400">
+        <div className="absolute inset-1.5 rounded-lg border border-purple-400/20 bg-black/40 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full border border-purple-400/40 bg-purple-500/20 flex items-center justify-center font-outfit font-black text-xs text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.4)]">
             P
           </div>
         </div>
@@ -667,23 +670,23 @@ function StakeCard({ card, index }: { card: Card; index: number }) {
       className="w-20 h-28 sm:w-24 sm:h-34 rounded-xl bg-white text-zinc-900 border border-zinc-200 shadow-2xl flex flex-col justify-between p-2.5 select-none relative transform-gpu hover:-translate-y-1 transition-transform"
     >
       <div className="flex items-center justify-between leading-none">
-        <span className={`text-base sm:text-lg font-black font-outfit ${isRed ? 'text-[#eb0400]' : 'text-[#0f212e]'}`}>
+        <span className={`text-base sm:text-lg font-black font-outfit ${isRed ? 'text-red-600' : 'text-zinc-900'}`}>
           {card.rank}
         </span>
-        <span className={`text-sm sm:text-base font-black ${isRed ? 'text-[#eb0400]' : 'text-[#0f212e]'}`}>
+        <span className={`text-sm sm:text-base font-black ${isRed ? 'text-red-600' : 'text-zinc-900'}`}>
           {suitSymbol}
         </span>
       </div>
 
-      <div className={`text-2xl sm:text-4xl text-center leading-none ${isRed ? 'text-[#eb0400]' : 'text-[#0f212e]'}`}>
+      <div className={`text-2xl sm:text-4xl text-center leading-none ${isRed ? 'text-red-600' : 'text-zinc-900'}`}>
         {suitSymbol}
       </div>
 
       <div className="flex items-center justify-between leading-none rotate-180">
-        <span className={`text-base sm:text-lg font-black font-outfit ${isRed ? 'text-[#eb0400]' : 'text-[#0f212e]'}`}>
+        <span className={`text-base sm:text-lg font-black font-outfit ${isRed ? 'text-red-600' : 'text-zinc-900'}`}>
           {card.rank}
         </span>
-        <span className={`text-sm sm:text-base font-black ${isRed ? 'text-[#eb0400]' : 'text-[#0f212e]'}`}>
+        <span className={`text-sm sm:text-base font-black ${isRed ? 'text-red-600' : 'text-zinc-900'}`}>
           {suitSymbol}
         </span>
       </div>
