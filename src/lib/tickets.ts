@@ -2,6 +2,12 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 
+import { 
+  createDiscordTicketChannel, 
+  sendDiscordTicketMessage, 
+  closeDiscordTicketChannel 
+} from "@/lib/discord-ticket";
+
 export interface TicketMessage {
   id: string;
   authorName: string;
@@ -14,6 +20,7 @@ export interface TicketMessage {
 export interface Ticket {
   id: string;
   ticketId: string;
+  discordChannelId?: string;
   userId?: string;
   userName: string;
   userEmail?: string;
@@ -149,6 +156,20 @@ export async function createTicket(payload: {
     ]
   };
 
+  const discordChannelId = await createDiscordTicketChannel({
+    id: newTicket.id,
+    ticketId: newTicket.ticketId,
+    userName: newTicket.userName,
+    minecraftName: newTicket.minecraftName,
+    category: newTicket.category,
+    description: newTicket.description,
+    details: newTicket.details,
+  }).catch(() => null);
+
+  if (discordChannelId) {
+    newTicket.discordChannelId = discordChannelId;
+  }
+
   tickets.unshift(newTicket);
   await saveTickets(tickets);
   return newTicket;
@@ -156,7 +177,8 @@ export async function createTicket(payload: {
 
 export async function addMessageToTicket(
   id: string,
-  message: { authorName: string; authorRole: "USER" | "STAFF" | "SYSTEM"; authorImage?: string; content: string }
+  message: { authorName: string; authorRole: "USER" | "STAFF" | "SYSTEM"; authorImage?: string; content: string },
+  options?: { skipDiscord?: boolean }
 ): Promise<Ticket | null> {
   const tickets = await getAllTickets();
   const idx = tickets.findIndex(t => t.id === id || t.ticketId === id);
@@ -175,6 +197,16 @@ export async function addMessageToTicket(
   tickets[idx].messages.push(newMsg);
   tickets[idx].updatedAt = now;
   await saveTickets(tickets);
+
+  if (!options?.skipDiscord && tickets[idx].discordChannelId) {
+    sendDiscordTicketMessage(
+      tickets[idx].discordChannelId,
+      message.authorName,
+      message.authorRole,
+      message.content
+    ).catch(() => null);
+  }
+
   return tickets[idx];
 }
 
@@ -242,6 +274,10 @@ export async function closeTicket(id: string, closedByName: string): Promise<Tic
     content: `Ticket fermé par ${closedByName}.`,
     createdAt: now,
   });
+
+  if (tickets[idx].discordChannelId) {
+    closeDiscordTicketChannel(tickets[idx].discordChannelId, closedByName).catch(() => null);
+  }
 
   await saveTickets(tickets);
   return tickets[idx];

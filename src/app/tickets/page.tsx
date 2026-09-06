@@ -79,9 +79,9 @@ export default function TicketsPage() {
   const [replyText, setReplyText] = useState("");
   const [replying, setReplying] = useState(false);
 
-  const fetchTickets = async () => {
+  const fetchTickets = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const res = await fetch("/api/tickets");
       if (res.ok) {
         const data = await res.json();
@@ -92,15 +92,19 @@ export default function TicketsPage() {
         }
       }
     } catch {
-      toast.error("Impossible de charger les tickets");
+      if (!silent) toast.error("Impossible de charger les tickets");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchTickets();
-  }, [session]);
+    const interval = setInterval(() => {
+      fetchTickets(true);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [session, selectedTicket?.id]);
 
   const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault();
