@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Plus, Trash2, Users, Loader2, Ban, ShieldCheck } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Plus, Trash2, Users, Loader2, Ban, ShieldCheck, Upload, RefreshCw, X } from "lucide-react";
 import toast from 'react-hot-toast';
+import PlayerSkinView from "@/components/player/PlayerSkinView";
 
 type Player = {
   id: string;
   minecraftName: string;
+  uuid?: string | null;
+  customSkinUrl?: string | null;
   status: string;
 };
 
@@ -106,6 +109,66 @@ export default function AdminPlayersPage() {
     }
   };
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activePlayerForUpload, setActivePlayerForUpload] = useState<string | null>(null);
+
+  const handleUploadSkin = async (identifier: string, file: File) => {
+    const formData = new FormData();
+    formData.append("skin", file);
+
+    const toastId = toast.loading("Upload du skin 64x64...");
+    try {
+      const res = await fetch(`/api/players/${identifier}/skin`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success("Skin personnalisé appliqué !", { id: toastId });
+        fetchPlayers();
+      } else {
+        toast.error(data.error || "Erreur lors de l'upload", { id: toastId });
+      }
+    } catch {
+      toast.error("Erreur serveur", { id: toastId });
+    }
+  };
+
+  const handleDeleteSkin = async (identifier: string) => {
+    const toastId = toast.loading("Suppression du skin...");
+    try {
+      const res = await fetch(`/api/players/${identifier}/skin`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        toast.success("Skin réinitialisé sur Mojang !", { id: toastId });
+        fetchPlayers();
+      } else {
+        toast.error("Erreur suppression", { id: toastId });
+      }
+    } catch {
+      toast.error("Erreur serveur", { id: toastId });
+    }
+  };
+
+  const handleSyncUsername = async (identifier: string) => {
+    const toastId = toast.loading("Vérification auprès de Mojang...");
+    try {
+      const res = await fetch(`/api/players/${identifier}/sync-username`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(`Pseudo synchronisé : ${data.username}`, { id: toastId });
+        fetchPlayers();
+      } else {
+        toast.error(data.error || "Impossible de synchroniser", { id: toastId });
+      }
+    } catch {
+      toast.error("Erreur serveur", { id: toastId });
+    }
+  };
+
 
   return (
     <div className="space-y-12">
@@ -159,38 +222,75 @@ export default function AdminPlayersPage() {
               {players.map(player => (
                 <div key={player.id} className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-2xl p-4 flex items-center justify-between group hover:border-blue-500/30 transition-all hover:bg-[#16161f]">
                   <div className="flex items-center gap-4">
-                      <img
-                        src={`https://vzge.me/bust/512/${player.uuid || player.minecraftName}.png`}
-                        alt={player.minecraftName}
-                        className="w-10 h-10 object-contain drop-shadow-md"
-                        onError={(e) => { e.currentTarget.src = `https://minotar.net/armor/body/${player.minecraftName}/512.png`; }}
-                      />
+                    <PlayerSkinView
+                      uuid={player.uuid}
+                      minecraftName={player.minecraftName}
+                      customSkinUrl={player.customSkinUrl}
+                      size={40}
+                      type="bust"
+                      className="w-10 h-10 object-contain drop-shadow-md rounded-lg overflow-hidden"
+                    />
                     <div>
-                        <span className="font-black text-[var(--text-color)] uppercase tracking-tight flex items-center gap-2">
-                          {player.minecraftName}
-                          {player.status === "BANNED" && (
-                            <span className="text-[10px] bg-red-500/20 text-red-500 px-2 py-0.5 rounded border border-red-500/30 font-bold tracking-widest">
-                              BANNI
-                            </span>
-                          )}
-                        </span>
-                        <p className="text-[10px] text-[var(--color-text-secondary)] font-bold uppercase tracking-widest">{player.id.slice(0, 8)}</p>
+                      <span className="font-black text-[var(--text-color)] uppercase tracking-tight flex items-center gap-2">
+                        {player.minecraftName}
+                        {player.customSkinUrl && (
+                          <span className="text-[9px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/30 font-bold tracking-wider">
+                            SKIN PERSO
+                          </span>
+                        )}
+                        {player.status === "BANNED" && (
+                          <span className="text-[10px] bg-red-500/20 text-red-500 px-2 py-0.5 rounded border border-red-500/30 font-bold tracking-widest">
+                            BANNI
+                          </span>
+                        )}
+                      </span>
+                      <p className="text-[10px] text-[var(--color-text-secondary)] font-bold uppercase tracking-widest">
+                        {player.uuid ? `${player.uuid.slice(0, 8)}...` : player.id.slice(0, 8)}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                  <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
+                    {player.uuid && (
+                      <button
+                        onClick={() => handleSyncUsername(player.uuid || player.id)}
+                        className="p-2.5 rounded-xl text-blue-400 hover:bg-blue-500/10 transition-all"
+                        title="Vérifier et actualiser le pseudo via Mojang"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        setActivePlayerForUpload(player.uuid || player.id);
+                        fileInputRef.current?.click();
+                      }}
+                      className="p-2.5 rounded-xl text-purple-400 hover:bg-purple-500/10 transition-all"
+                      title="Uploader un skin PNG 64x64 personnalisé"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </button>
+                    {player.customSkinUrl && (
+                      <button
+                        onClick={() => handleDeleteSkin(player.uuid || player.id)}
+                        className="p-2.5 rounded-xl text-amber-400 hover:bg-amber-500/10 transition-all"
+                        title="Supprimer le skin personnalisé (revenir à Mojang)"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
                     <button 
                       onClick={() => handleToggleBan(player.id, player.status)} 
-                      className={`transition-all p-3 rounded-xl hover:bg-opacity-20 ${player.status === "BANNED" ? "text-green-500 hover:bg-green-500/10" : "text-orange-500 hover:bg-orange-500/10"}`}
+                      className={`transition-all p-2.5 rounded-xl hover:bg-opacity-20 ${player.status === "BANNED" ? "text-green-500 hover:bg-green-500/10" : "text-orange-500 hover:bg-orange-500/10"}`}
                       title={player.status === "BANNED" ? "Débannir" : "Bannir"}
                     >
-                      {player.status === "BANNED" ? <ShieldCheck className="w-5 h-5" /> : <Ban className="w-5 h-5" />}
+                      {player.status === "BANNED" ? <ShieldCheck className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
                     </button>
                     <button 
                       onClick={() => handleDeletePlayer(player.id)} 
-                      className="text-[var(--color-text-secondary)] hover:text-red-500 transition-all p-3 rounded-xl hover:bg-red-500/10"
+                      className="text-[var(--color-text-secondary)] hover:text-red-500 transition-all p-2.5 rounded-xl hover:bg-red-500/10"
                       title="Supprimer"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -210,6 +310,20 @@ export default function AdminPlayersPage() {
           </div>
         </div>
       </div>
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/png"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file && activePlayerForUpload) {
+            handleUploadSkin(activePlayerForUpload, file);
+          }
+          e.target.value = "";
+        }}
+      />
     </div>
   );
 }

@@ -49,6 +49,7 @@ model User {
   discordId     String?   @unique
   minecraftName      String?
   minecraftUuid      String?   @unique
+  customSkinUrl      String?
   mcVerificationCode String?   @unique
   isMcVerified       Boolean   @default(false)
   role               String    @default("MEMBER")
@@ -181,13 +182,16 @@ model Player {
   id            String   @id @default(cuid())
   minecraftName String   @unique
   hwid          String?  // Hardware ID for launcher ban tracking
-  uuid          String?  // Mojang UUID
+  uuid          String?  @unique // Mojang UUID
+  customSkinUrl String?
   status        String   @default("ACTIVE") // ACTIVE, BANNED, LEFT
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   cards         TradingCard[]
   bans          Ban[]    // Historique des bans du joueur
+
+  @@index([uuid])
 }
 
 model Ban {
