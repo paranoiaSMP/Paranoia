@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Sun, Moon, ChevronDown, Video, FileText } from 'lucide-react';
+import { Sun, Moon, ChevronDown, Video, FileText, Ticket } from 'lucide-react';
 import { FloatingDock } from '@/components/ui/floating-dock';
 import { IconHome, IconShoppingCart, IconCards, IconDeviceGamepad2, IconUsers } from '@tabler/icons-react';
 import './Navbar.css';
@@ -94,6 +94,14 @@ export default function Navbar() {
                 >
                   <FileText className="w-4 h-4 opacity-70 shrink-0" />
                   <span>Candidature</span>
+                </Link>
+                <Link 
+                  href="/tickets" 
+                  onClick={() => setCommOpen(false)}
+                  className="flex items-center gap-2.5 p-2.5 text-xs font-semibold text-[var(--text-color)] hover:bg-white/5 rounded-xl transition-colors mt-1"
+                >
+                  <Ticket className="w-4 h-4 text-purple-400 shrink-0" />
+                  <span>Support / Tickets</span>
                 </Link>
               </div>
             )}
