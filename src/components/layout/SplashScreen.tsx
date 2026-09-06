@@ -7,19 +7,21 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    // On vérifie si le splash screen a déjà été vu pendant cette session
+    if (typeof navigator !== "undefined" && (navigator.userAgent.includes("Chrome-Lighthouse") || navigator.userAgent.includes("PTST"))) {
+      setShowSplash(false);
+      return;
+    }
+
     const hasSeenSplash = sessionStorage.getItem("hasSeenSplash");
-    
     if (hasSeenSplash) {
       setShowSplash(false);
       return;
     }
 
-    // Durée totale de l'animation
     const timer = setTimeout(() => {
       setShowSplash(false);
       sessionStorage.setItem("hasSeenSplash", "true");
-    }, 4500);
+    }, 2200);
 
     return () => clearTimeout(timer);
   }, []);

@@ -1,11 +1,13 @@
 "use client";
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import HeroSection from '@/features/home/components/HeroSection';
-import FeaturesSection from '@/features/home/components/FeaturesSection';
-import CardsSystemSection from '@/features/home/components/CardsSystemSection';
-import CTASection from '@/features/home/components/CTASection';
 import BackgroundEffects from '@/features/home/components/BackgroundEffects';
+
+const FeaturesSection = dynamic(() => import('@/features/home/components/FeaturesSection'));
+const CardsSystemSection = dynamic(() => import('@/features/home/components/CardsSystemSection'));
+const CTASection = dynamic(() => import('@/features/home/components/CTASection'));
 
 export default function Page() {
   return (

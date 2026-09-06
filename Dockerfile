@@ -18,6 +18,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ENV NODE_ENV=production
 ENV DATABASE_URL="postgresql://paranoia:paranoia_password@localhost:8543/paranoia_db"
 ENV NEXT_TELEMETRY_DISABLED=1
 

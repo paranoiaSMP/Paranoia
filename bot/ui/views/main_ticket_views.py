@@ -12,6 +12,11 @@ class MainTicketLaunchView(discord.ui.View):
     async def open_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(MainTicketModal())
 
+    @discord.ui.button(label="Postuler Vidéaste", style=discord.ButtonStyle.secondary, emoji="🎥", custom_id="btn_open_videaste_ticket")
+    async def open_videaste_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+        from ui.views.videaste_modal import VideasteModal
+        await interaction.response.send_modal(VideasteModal())
+
 
 class MainTicketStaffView(discord.ui.View):
     def __init__(self, user_id: int, ticket_id: str, category: str, pseudo_mc: str, details: str):

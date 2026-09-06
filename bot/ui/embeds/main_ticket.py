@@ -4,17 +4,17 @@ from core.config import Config
 def create_main_ticket_panel_embed() -> discord.Embed:
     description = (
         "Bienvenue dans le système de tickets de Paranoia Studio.\n\n"
-        "**À quoi servent les tickets ?**\n"
+        "**📩 Support & Assistance**\n"
         "— Signaler un joueur ou un comportement inapproprié\n"
         "— Signaler un problème technique ou un bug\n"
         "— Poser une question au staff\n"
-        "— Faire une suggestion pour améliorer le serveur\n"
-        "— Demander de l’aide sur le serveur ou le Discord\n\n"
-        "**Comment ça fonctionne ?**\n"
-        "1. Appuie sur le bouton \"Ouvrir un ticket\" ci-dessous.\n"
-        "2. Décris clairement ta demande.\n"
-        "3. Un membre du staff prendra ta demande en charge dans les meilleurs délais.\n\n"
-        "Merci de fournir un maximum d’informations afin de faciliter le traitement de ton ticket."
+        "— Faire une suggestion pour le serveur\n"
+        "— Obtenir de l'aide générale\n\n"
+        "**🎥 Candidature Vidéaste / Partenaire**\n"
+        "— Tu crées du contenu sur YouTube, Twitch ou TikTok ?\n"
+        "— Postule directement pour rejoindre l'équipe des créateurs Paranoia !\n\n"
+        "**Comment faire ?**\n"
+        "Clique sur le bouton correspondant ci-dessous selon ta demande."
     )
     embed = discord.Embed(
         title="───── SYSTÈME DE TICKETS ─────",
