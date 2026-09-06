@@ -1,5 +1,3 @@
-from idlelib import query
-
 import discord
 from discord import app_commands, file
 from discord.ext import commands

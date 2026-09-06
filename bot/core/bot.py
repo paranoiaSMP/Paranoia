@@ -13,6 +13,9 @@ class ParanoiaBot(commands.Bot):
         await self.load_all_cogs()
         await self.tree.sync()
 
+    async def on_ready(self):
+        print(f"[SUCCESS] Bot connecté : {self.user} (ID: {self.user.id})", flush=True)
+
     async def load_all_cogs(self):
         for root, _, files in os.walk("./cogs"):
             for filename in files:
