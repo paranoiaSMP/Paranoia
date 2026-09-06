@@ -105,10 +105,27 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Partie invalide ou terminée" }, { status: 400 });
   }
 
+  if (action === "wait_crash") {
+    const flightMs = (Math.log(state.crashPoint) / 0.075) * 1000;
+    if (flightMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, Math.min(flightMs, 60000)));
+    }
+    return NextResponse.json({
+      crashed: true,
+      crashPoint: state.crashPoint,
+    });
+  }
+
   if (action === "cashout") {
     const claimMultiplier = parseFloat(multiplier);
     if (isNaN(claimMultiplier) || claimMultiplier < 1.01) {
       return NextResponse.json({ error: "Multiplicateur invalide" }, { status: 400 });
+    }
+
+    const elapsed = (Date.now() - state.startedAt) / 1000;
+    const maxPossible = Math.pow(Math.E, 0.075 * (elapsed + 0.75));
+    if (claimMultiplier > maxPossible) {
+      return NextResponse.json({ error: "Multiplicateur impossible" }, { status: 400 });
     }
 
     if (claimMultiplier > state.crashPoint) {

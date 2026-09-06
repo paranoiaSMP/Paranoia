@@ -10,8 +10,7 @@ import {
   Keyboard, 
   HelpCircle,
   Coins,
-  ArrowLeft,
-  Sparkles
+  ArrowLeft
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -20,7 +19,30 @@ interface Card {
   rank: string;
 }
 
+type RoundPhase = "BETTING" | "PLAYER_TURN" | "DEALER_TURN" | "FINISHED";
+
 const QUICK_CHIPS = [10, 50, 100, 250, 500, 1000];
+
+function calculateHand(cards: Card[]): number {
+  let total = 0;
+  let aces = 0;
+  for (const c of cards) {
+    if (c.rank === "?" || c.suit === "?") continue;
+    if (c.rank === "A") {
+      aces++;
+      total += 11;
+    } else if (["K", "Q", "J", "10"].includes(c.rank)) {
+      total += 10;
+    } else {
+      total += parseInt(c.rank, 10);
+    }
+  }
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
+  }
+  return total;
+}
 
 export default function BlackjackClient({
   initialCoins,
@@ -31,12 +53,12 @@ export default function BlackjackClient({
 }) {
   const [coins, setCoins] = useState(initialCoins);
   const [bet, setBet] = useState(50);
+  const [phase, setPhase] = useState<RoundPhase>("BETTING");
+  const [outcome, setOutcome] = useState<"dealer_won" | "player_won" | "push" | "player_blackjack" | null>(null);
+  
   const [token, setToken] = useState<string | null>(null);
   const [playerHand, setPlayerHand] = useState<Card[]>([]);
   const [dealerHand, setDealerHand] = useState<Card[]>([]);
-  const [playerScore, setPlayerScore] = useState(0);
-  const [dealerScore, setDealerScore] = useState(0);
-  const [status, setStatus] = useState<"idle" | "playing" | "dealer_won" | "player_won" | "push" | "player_blackjack">("idle");
   const [canDouble, setCanDouble] = useState(false);
   const [loading, setLoading] = useState(false);
   const [payout, setPayout] = useState(0);
@@ -61,8 +83,8 @@ export default function BlackjackClient({
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = "triangle";
-    osc.frequency.setValueAtTime(350, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.08);
+    osc.frequency.setValueAtTime(360, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.08);
 
     gain.gain.setValueAtTime(0.15, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
@@ -117,8 +139,6 @@ export default function BlackjackClient({
     osc.stop(ctx.currentTime + 0.25);
   };
 
-  const isGameActive = status === "playing";
-
   const handleDeal = async () => {
     if (!isAuthenticated) {
       toast.error("Veuillez vous connecter pour jouer.");
@@ -135,6 +155,7 @@ export default function BlackjackClient({
 
     setLoading(true);
     setPayout(0);
+    setOutcome(null);
     playCardSound();
 
     try {
@@ -147,24 +168,28 @@ export default function BlackjackClient({
 
       if (!res.ok) {
         toast.error(data.error || "Erreur de distribution.");
+        setLoading(false);
         return;
       }
 
       setToken(data.token);
       setPlayerHand(data.playerHand);
       setDealerHand(data.dealerHand);
-      setPlayerScore(data.playerScore);
-      setDealerScore(data.dealerScore);
-      setStatus(data.status);
-      setCanDouble(data.status === "playing");
       setCoins(data.paraCoins);
       setPayout(data.payout || 0);
 
       if (data.status === "player_blackjack") {
+        setPhase("FINISHED");
+        setOutcome("player_blackjack");
         playWinSound();
         toast.success(`BLACKJACK ! +${data.payout} PC`, { icon: "🃏" });
       } else if (data.status === "push") {
+        setPhase("FINISHED");
+        setOutcome("push");
         toast("Égalité ! Mise remboursée.", { icon: "🤝" });
+      } else {
+        setPhase("PLAYER_TURN");
+        setCanDouble(true);
       }
     } catch {
       toast.error("Erreur réseau.");
@@ -174,7 +199,7 @@ export default function BlackjackClient({
   };
 
   const handleHit = async () => {
-    if (!token || loading || !isGameActive) return;
+    if (!token || loading || phase !== "PLAYER_TURN") return;
     setLoading(true);
     playCardSound();
 
@@ -188,22 +213,26 @@ export default function BlackjackClient({
 
       if (!res.ok) {
         toast.error(data.error || "Erreur.");
+        setLoading(false);
         return;
       }
 
       setToken(data.token);
       setPlayerHand(data.playerHand);
-      setDealerHand(data.dealerHand);
-      setPlayerScore(data.playerScore);
-      setDealerScore(data.dealerScore);
-      setStatus(data.status);
       setCanDouble(false);
 
-      if (data.paraCoins !== undefined) setCoins(data.paraCoins);
-
       if (data.status === "dealer_won") {
+        setDealerHand(data.dealerHand);
+        setPhase("FINISHED");
+        setOutcome("dealer_won");
         playLoseSound();
         toast.error("Bust (> 21) ! Vous perdez.");
+      } else {
+        const score = calculateHand(data.playerHand);
+        if (score === 21) {
+          executeDealerTurn("stand", data.token);
+          return;
+        }
       }
     } catch {
       toast.error("Erreur réseau.");
@@ -212,32 +241,48 @@ export default function BlackjackClient({
     }
   };
 
-  const handleStand = async () => {
-    if (!token || loading || !isGameActive) return;
+  const executeDealerTurn = async (actionType: "stand" | "double", currentToken: string) => {
+    setPhase("DEALER_TURN");
     setLoading(true);
-    playCardSound();
 
     try {
       const res = await fetch("/api/games/blackjack", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "stand", token }),
+        body: JSON.stringify({ action: actionType, token: currentToken }),
       });
       const data = await res.json();
 
       if (!res.ok) {
         toast.error(data.error || "Erreur.");
+        setPhase("PLAYER_TURN");
+        setLoading(false);
         return;
       }
 
       setToken(null);
       setPlayerHand(data.playerHand);
-      setDealerHand(data.dealerHand);
-      setPlayerScore(data.playerScore);
-      setDealerScore(data.dealerScore);
-      setStatus(data.status);
+
+      const finalDealerHand: Card[] = data.dealerHand;
+      const initialDealerCards: Card[] = [finalDealerHand[0], finalDealerHand[1]];
+
+      setDealerHand(initialDealerCards);
+      playCardSound();
+
+      let delay = 700;
+      for (let i = 2; i < finalDealerHand.length; i++) {
+        const nextCard = finalDealerHand[i];
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        setDealerHand((prev) => [...prev, nextCard]);
+        playCardSound();
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       setCoins(data.paraCoins);
       setPayout(data.payout || 0);
+      setOutcome(data.status);
+      setPhase("FINISHED");
 
       if (data.status === "player_won") {
         playWinSound();
@@ -250,58 +295,24 @@ export default function BlackjackClient({
       }
     } catch {
       toast.error("Erreur réseau.");
+      setPhase("FINISHED");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDouble = async () => {
-    if (!token || loading || !canDouble || !isGameActive) return;
+  const handleStand = () => {
+    if (!token || loading || phase !== "PLAYER_TURN") return;
+    executeDealerTurn("stand", token);
+  };
+
+  const handleDouble = () => {
+    if (!token || loading || !canDouble || phase !== "PLAYER_TURN") return;
     if (coins < bet) {
       toast.error("Solde insuffisant pour doubler.");
       return;
     }
-
-    setLoading(true);
-    playCardSound();
-
-    try {
-      const res = await fetch("/api/games/blackjack", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "double", token }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data.error || "Erreur.");
-        return;
-      }
-
-      setToken(null);
-      setPlayerHand(data.playerHand);
-      setDealerHand(data.dealerHand);
-      setPlayerScore(data.playerScore);
-      setDealerScore(data.dealerScore);
-      setStatus(data.status);
-      setCanDouble(false);
-      setCoins(data.paraCoins);
-      setPayout(data.payout || 0);
-
-      if (data.status === "player_won") {
-        playWinSound();
-        toast.success(`Victoire doublée ! +${data.payout} PC`);
-      } else if (data.status === "push") {
-        toast("Égalité ! Double mise rendue.", { icon: "🤝" });
-      } else {
-        playLoseSound();
-        toast.error("Battu par la banque.");
-      }
-    } catch {
-      toast.error("Erreur réseau.");
-    } finally {
-      setLoading(false);
-    }
+    executeDealerTurn("double", token);
   };
 
   useEffect(() => {
@@ -310,22 +321,28 @@ export default function BlackjackClient({
 
       if (e.code === "Space") {
         e.preventDefault();
-        if (!isGameActive && !loading) handleDeal();
+        if (phase === "BETTING" || phase === "FINISHED") {
+          if (!loading) handleDeal();
+        }
       } else if (e.code === "KeyH") {
         e.preventDefault();
-        if (isGameActive && !loading) handleHit();
+        if (phase === "PLAYER_TURN" && !loading) handleHit();
       } else if (e.code === "KeyS") {
         e.preventDefault();
-        if (isGameActive && !loading) handleStand();
+        if (phase === "PLAYER_TURN" && !loading) handleStand();
       } else if (e.code === "KeyD") {
         e.preventDefault();
-        if (isGameActive && canDouble && !loading) handleDouble();
+        if (phase === "PLAYER_TURN" && canDouble && !loading) handleDouble();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isGameActive, loading, canDouble, bet, coins]);
+  }, [phase, loading, canDouble, bet, coins]);
+
+  const playerScore = calculateHand(playerHand);
+  const dealerScore = calculateHand(dealerHand);
+  const hasHiddenDealerCard = dealerHand.some((c) => c.rank === "?" || c.suit === "?");
 
   return (
     <div className="min-h-screen text-[var(--text-color)] pt-4 pb-20 px-2 sm:px-6 max-w-7xl mx-auto">
@@ -350,7 +367,6 @@ export default function BlackjackClient({
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
             className="w-10 h-10 rounded-xl bg-[var(--surface-bg)] border-2 border-[var(--card-border)] flex items-center justify-center text-[var(--nav-item-color)] hover:text-white transition-colors"
-            title="Son"
           >
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
           </button>
@@ -358,7 +374,6 @@ export default function BlackjackClient({
           <button
             onClick={() => setShowHelp(!showHelp)}
             className="w-10 h-10 rounded-xl bg-[var(--surface-bg)] border-2 border-[var(--card-border)] flex items-center justify-center text-[var(--nav-item-color)] hover:text-white transition-colors"
-            title="Règles"
           >
             <HelpCircle className="w-4 h-4" />
           </button>
@@ -390,27 +405,27 @@ export default function BlackjackClient({
                   max={50000}
                   step={10}
                   value={bet}
-                  disabled={isGameActive}
+                  disabled={phase === "PLAYER_TURN" || phase === "DEALER_TURN"}
                   onChange={(e) => setBet(Math.max(10, parseInt(e.target.value) || 10))}
                   className="w-full bg-transparent px-3.5 py-2.5 text-sm font-black font-mono text-purple-300 focus:outline-none disabled:opacity-50"
                 />
                 <div className="flex items-center gap-1 pr-2 shrink-0">
                   <button
-                    disabled={isGameActive}
+                    disabled={phase === "PLAYER_TURN" || phase === "DEALER_TURN"}
                     onClick={() => setBet((b) => Math.max(10, Math.floor(b / 2)))}
                     className="px-2 py-1 text-xs font-bold bg-purple-950/40 hover:bg-purple-900/60 text-purple-300 border border-purple-500/20 rounded-lg transition-colors disabled:opacity-40"
                   >
                     ½
                   </button>
                   <button
-                    disabled={isGameActive}
+                    disabled={phase === "PLAYER_TURN" || phase === "DEALER_TURN"}
                     onClick={() => setBet((b) => Math.min(coins, b * 2))}
                     className="px-2 py-1 text-xs font-bold bg-purple-950/40 hover:bg-purple-900/60 text-purple-300 border border-purple-500/20 rounded-lg transition-colors disabled:opacity-40"
                   >
                     2×
                   </button>
                   <button
-                    disabled={isGameActive}
+                    disabled={phase === "PLAYER_TURN" || phase === "DEALER_TURN"}
                     onClick={() => setBet(Math.min(50000, coins))}
                     className="px-2 py-1 text-xs font-bold bg-purple-950/40 hover:bg-purple-900/60 text-purple-300 border border-purple-500/20 rounded-lg transition-colors disabled:opacity-40"
                   >
@@ -424,7 +439,7 @@ export default function BlackjackClient({
               {QUICK_CHIPS.map((chip) => (
                 <button
                   key={chip}
-                  disabled={isGameActive}
+                  disabled={phase === "PLAYER_TURN" || phase === "DEALER_TURN"}
                   onClick={() => setBet(chip)}
                   className={`py-2 text-xs font-bold rounded-xl border-2 transition-all ${bet === chip ? 'bg-purple-600 border-purple-400 text-white shadow-[0_0_12px_rgba(168,85,247,0.4)]' : 'bg-black/40 border-[var(--card-border)] hover:border-purple-500/40 text-[var(--nav-item-color)] hover:text-white'} disabled:opacity-40`}
                 >
@@ -435,7 +450,7 @@ export default function BlackjackClient({
           </div>
 
           <div className="mt-6 pt-4 border-t border-[var(--card-border)]">
-            {isGameActive ? (
+            {phase === "PLAYER_TURN" ? (
               <div className="flex flex-col gap-2.5">
                 <button
                   onClick={handleHit}
@@ -466,13 +481,17 @@ export default function BlackjackClient({
                   </button>
                 )}
               </div>
+            ) : phase === "DEALER_TURN" ? (
+              <div className="w-full py-4 text-center justify-center text-sm font-black tracking-wide text-purple-300 bg-purple-950/40 border-2 border-purple-500/30 rounded-xl animate-pulse">
+                Le croupier joue...
+              </div>
             ) : (
               <button
                 onClick={handleDeal}
                 disabled={loading || bet > coins || bet < 10}
                 className="btn-neo-primary w-full py-4 text-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-base font-black tracking-wide"
               >
-                <span>{loading ? "Mélange..." : "Parier"}</span>
+                <span>{loading ? "Distribution..." : "Parier"}</span>
                 <span className="text-xs px-2 py-0.5 rounded bg-black/30 text-purple-200">Espace</span>
               </button>
             )}
@@ -506,7 +525,7 @@ export default function BlackjackClient({
               </span>
               {dealerScore > 0 && (
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                  {status === "playing" ? `${dealerScore}` : dealerScore}
+                  {hasHiddenDealerCard ? `${dealerScore} + ?` : dealerScore}
                 </span>
               )}
             </div>
@@ -526,7 +545,7 @@ export default function BlackjackClient({
 
           <div className="relative z-20 my-4 flex flex-col items-center justify-center text-center">
             <AnimatePresence>
-              {status === "player_blackjack" && (
+              {phase === "FINISHED" && outcome === "player_blackjack" && (
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -536,7 +555,7 @@ export default function BlackjackClient({
                   BLACKJACK ! +{payout} PC
                 </motion.div>
               )}
-              {status === "player_won" && (
+              {phase === "FINISHED" && outcome === "player_won" && (
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -546,7 +565,7 @@ export default function BlackjackClient({
                   GAGNÉ ! +{payout} PC
                 </motion.div>
               )}
-              {status === "push" && (
+              {phase === "FINISHED" && outcome === "push" && (
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -556,7 +575,7 @@ export default function BlackjackClient({
                   ÉGALITÉ (Mise restituée)
                 </motion.div>
               )}
-              {status === "dealer_won" && (
+              {phase === "FINISHED" && outcome === "dealer_won" && (
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -622,7 +641,7 @@ export default function BlackjackClient({
               <li>• <strong>Tirer (Hit) :</strong> recevez une carte supplémentaire.</li>
               <li>• <strong>Rester (Stand) :</strong> gardez votre main actuelle.</li>
               <li>• <strong>Doubler (Double) :</strong> doublez votre mise, recevez exactement une carte puis passez la main.</li>
-              <li>• Le croupier tire obligatoirement jusqu'à atteindre au moins 17.</li>
+              <li>• Le croupier tire obligatoirement jusqu'à atteindre au moins 17 avec suspense tour par tour.</li>
               <li>• En cas d'égalité, votre mise est intégralement remboursée.</li>
             </ul>
             <button
