@@ -5,16 +5,13 @@ import Link from "next/link";
 import { 
   Volume2, 
   VolumeX, 
-  ShieldCheck, 
   HelpCircle, 
   Coins, 
   ArrowLeft,
   Disc,
   CheckCircle2,
   Sparkles,
-  Radio,
-  History,
-  TrendingUp
+  History
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { 
@@ -321,11 +318,6 @@ export default function RouletteClient({
         </Link>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-purple-600/10 border border-purple-500/30 px-3 py-1.5 rounded-xl text-purple-300 text-xs font-bold">
-            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span className="hidden sm:inline">Roulette Live</span>
-            <span className="font-mono text-white">({bets.length} paris)</span>
-          </div>
 
           <div className="flex items-center gap-2.5 bg-[var(--surface-bg)] border-2 border-[var(--card-border)] px-4 py-1.5 rounded-xl shadow-sm">
             <Coins className="w-4 h-4 text-purple-400" />
@@ -681,13 +673,6 @@ export default function RouletteClient({
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-[var(--nav-item-color)] px-1 pt-2 border-t border-[var(--card-border)]">
-          <div className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-purple-400" />
-            <span>Roulette CS:GO Format • Provably Fair certifié</span>
-          </div>
-          <span>Avantage maison : 6.67%</span>
-        </div>
       </div>
 
       {showHelp && (
