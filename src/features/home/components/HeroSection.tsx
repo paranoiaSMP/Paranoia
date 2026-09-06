@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import { Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const BackgroundGradientAnimation = dynamic(
-  () => import('@/components/ui/background-gradient-animation').then(m => m.BackgroundGradientAnimation),
-  { ssr: false }
-);
 
 const FLIP_WORDS = ["SMP", "STUDIO", "TCG", "Launcher"];
 
@@ -23,17 +17,21 @@ export default function HeroSection() {
 
   return (
     <section className="relative z-10 flex flex-col items-center justify-center min-h-[85vh] text-center px-4 pt-20">
-      <BackgroundGradientAnimation
-        gradientBackgroundStart="var(--hero-grad-start)"
-        gradientBackgroundEnd="var(--hero-grad-end)"
-        firstColor="var(--hero-color-1)"
-        secondColor="var(--hero-color-2)"
-        thirdColor="var(--hero-color-3)"
-        fourthColor="var(--hero-color-4)"
-        fifthColor="var(--hero-color-5)"
-        pointerColor="var(--hero-color-ptr)"
-        containerClassName="absolute inset-0 -z-10 opacity-40 [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_80%,transparent)]"
-      />
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none select-none">
+        <div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] sm:w-[900px] h-[350px] sm:h-[500px] rounded-full opacity-60 dark:opacity-40 animate-pulse pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(168, 85, 247, 0.35) 0%, rgba(122, 10, 173, 0.15) 45%, transparent 70%)',
+            animationDuration: '6s'
+          }}
+        />
+        <div 
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] h-[200px] sm:h-[280px] rounded-full opacity-50 dark:opacity-30 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(217, 70, 239, 0.25) 0%, transparent 70%)'
+          }}
+        />
+      </div>
 
       <div className="max-w-4xl mx-auto relative z-10">
         <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-outfit font-black mb-4 sm:mb-6 tracking-tight leading-[1.1] text-balance flex flex-col items-center justify-center sm:block" style={{ color: 'var(--text-color)' }}>

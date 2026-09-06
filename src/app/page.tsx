@@ -12,7 +12,6 @@ const CTASection = dynamic(() => import('@/features/home/components/CTASection')
 export default function Page() {
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <div className="fixed inset-0 bg-noise opacity-20 pointer-events-none z-0"></div>
       <BackgroundEffects />
       
       <div className="relative z-10">
