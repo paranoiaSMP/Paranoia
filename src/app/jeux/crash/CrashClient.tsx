@@ -12,19 +12,40 @@ import {
   Rocket,
   Flame,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Users,
+  Radio
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 const QUICK_CHIPS = [10, 50, 100, 250, 500, 1000];
 
+interface CrashPlayer {
+  userId: string;
+  name: string;
+  image?: string | null;
+  minecraftName?: string | null;
+  bet: number;
+  cashedOut: boolean;
+  cashoutMultiplier?: number;
+  payout?: number;
+}
+
+interface CrashClientProps {
+  initialCoins: number;
+  isAuthenticated: boolean;
+  currentUserId: string | null;
+  currentMinecraftName: string | null;
+  currentUserName: string | null;
+}
+
 export default function CrashClient({
   initialCoins,
   isAuthenticated,
-}: {
-  initialCoins: number;
-  isAuthenticated: boolean;
-}) {
+  currentUserId,
+  currentMinecraftName,
+  currentUserName,
+}: CrashClientProps) {
   const [coins, setCoins] = useState(initialCoins);
   const [bet, setBet] = useState(50);
   const [autoCashout, setAutoCashout] = useState<string>("2.00");
@@ -33,44 +54,37 @@ export default function CrashClient({
   const [countdown, setCountdown] = useState(5.0);
   const [multiplier, setMultiplier] = useState(1.00);
   const [crashPoint, setCrashPoint] = useState<number | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [players, setPlayers] = useState<CrashPlayer[]>([]);
   const [history, setHistory] = useState<number[]>([1.42, 2.15, 1.10, 5.80, 1.95, 12.40, 1.05]);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showHelp, setShowHelp] = useState(false);
-  const [payout, setPayout] = useState(0);
-
-  const [betPlaced, setBetPlaced] = useState(false);
-  const [cashedOut, setCashedOut] = useState(false);
   const [queuedForNextRound, setQueuedForNextRound] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
-  const betPlacedRef = useRef(betPlaced);
-  betPlacedRef.current = betPlaced;
-  const cashedOutRef = useRef(cashedOut);
-  cashedOutRef.current = cashedOut;
-  const tokenRef = useRef(token);
-  tokenRef.current = token;
+  const playersRef = useRef(players);
+  playersRef.current = players;
+  const queuedRef = useRef(queuedForNextRound);
+  queuedRef.current = queuedForNextRound;
   const betRef = useRef(bet);
   betRef.current = bet;
   const multiplierRef = useRef(multiplier);
   multiplierRef.current = multiplier;
-  const queuedRef = useRef(queuedForNextRound);
-  queuedRef.current = queuedForNextRound;
   const autoCashoutRef = useRef({ enabled: autoCashoutEnabled, value: parseFloat(autoCashout) });
   autoCashoutRef.current = { enabled: autoCashoutEnabled, value: parseFloat(autoCashout) };
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animFrameId = useRef<number | null>(null);
-  const startTimeRef = useRef<number>(0);
-  const spectatorPointRef = useRef<number | null>(null);
-  const spectatorCrashTimeRef = useRef<number>(0);
-  const abortCtrlRef = useRef<AbortController | null>(null);
+  const flightStartTimeRef = useRef<number>(0);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const engineOscRef = useRef<OscillatorNode | null>(null);
   const engineGainRef = useRef<GainNode | null>(null);
+
+  const currentPlayer = players.find((p) => p.userId === currentUserId);
+  const hasPlacedBet = !!currentPlayer;
+  const hasCashedOut = !!currentPlayer?.cashedOut;
 
   const initAudio = () => {
     if (!audioCtxRef.current) {
@@ -163,38 +177,6 @@ export default function CrashClient({
     osc.stop(ctx.currentTime + 0.35);
   };
 
-  const handleCrash = useCallback((point: number) => {
-    if (phaseRef.current === "CRASHED") return;
-    setPhase("CRASHED");
-    setCrashPoint(point);
-    setMultiplier(point);
-    stopEngineSound();
-    playCrashSound();
-    setHistory((prev) => [point, ...prev.slice(0, 9)]);
-
-    if (betPlacedRef.current && !cashedOutRef.current) {
-      toast.error(`Crashé @ ${point.toFixed(2)}× - Mise perdue`);
-    }
-
-    setTimeout(() => {
-      setPhase("BETTING");
-      setCountdown(5.0);
-      setMultiplier(1.00);
-      setCrashPoint(null);
-      setToken(null);
-      tokenRef.current = null;
-      setCashedOut(false);
-      setPayout(0);
-
-      if (queuedRef.current) {
-        setQueuedForNextRound(false);
-        submitBet(betRef.current);
-      } else {
-        setBetPlaced(false);
-      }
-    }, 3500);
-  }, [soundEnabled]);
-
   const submitBet = async (amount: number) => {
     if (!isAuthenticated) {
       toast.error("Veuillez vous connecter pour jouer.");
@@ -210,113 +192,159 @@ export default function CrashClient({
       const res = await fetch("/api/games/crash", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "start", bet: amount }),
+        body: JSON.stringify({ action: "bet", bet: amount }),
       });
       const data = await res.json();
 
       if (!res.ok) {
         toast.error(data.error || "Erreur lors de la mise");
-        setBetPlaced(false);
         setIsSubmitting(false);
         return;
       }
 
       setCoins(data.paraCoins);
-      setToken(data.token);
-      tokenRef.current = data.token;
-      setBetPlaced(true);
       toast.success(`Mise de ${amount} PC validée !`);
     } catch {
       toast.error("Erreur réseau");
-      setBetPlaced(false);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleCashout = async () => {
-    if (phaseRef.current !== "FLYING" || !tokenRef.current || cashedOutRef.current) return;
-    const currentM = multiplierRef.current;
+    if (phaseRef.current !== "FLYING" || !hasPlacedBet || hasCashedOut) return;
 
     try {
       const res = await fetch("/api/games/crash", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "cashout",
-          token: tokenRef.current,
-          multiplier: currentM.toFixed(2),
-        }),
+        body: JSON.stringify({ action: "cashout" }),
       });
       const data = await res.json();
 
-      if (data.crashed) {
-        handleCrash(data.crashPoint);
-      } else if (data.success) {
-        setCashedOut(true);
-        setPayout(data.payout);
+      if (data.success) {
         setCoins(data.paraCoins);
         playCashoutSound();
-        toast.success(`Encaissé ! +${data.payout} PC (${data.cashoutMultiplier}×)`);
+        toast.success(`Encaissé ! +${data.payout} PC (${data.multiplier}×)`);
+      } else {
+        toast.error(data.error || "Erreur d'encaissement");
       }
     } catch {
       toast.error("Erreur réseau");
     }
   };
 
-  const startFlight = useCallback(() => {
-    setPhase("FLYING");
-    setCashedOut(false);
-    setMultiplier(1.00);
-    setPayout(0);
-    setCrashPoint(null);
-    startTimeRef.current = performance.now();
-    startEngineSound();
-
-    if (tokenRef.current) {
-      abortCtrlRef.current = new AbortController();
-      fetch("/api/games/crash", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "wait_crash", token: tokenRef.current }),
-        signal: abortCtrlRef.current.signal,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.crashed) {
-            handleCrash(data.crashPoint);
-          }
-        })
-        .catch((err) => {
-          if (err.name !== "AbortError") {
-            handleCrash(multiplierRef.current);
-          }
-        });
-    } else {
-      const randInt = Math.random() * 1000;
-      const cp = randInt < 35 ? 1.00 : Math.max(1.01, Math.min(1000, Math.floor(((1 - 0.04) / (1 - Math.random())) * 100) / 100));
-      spectatorPointRef.current = cp;
-      const flightDuration = (Math.log(cp) / 0.075) * 1000;
-      spectatorCrashTimeRef.current = performance.now() + flightDuration;
-    }
-  }, [handleCrash, soundEnabled]);
-
   useEffect(() => {
-    if (phase !== "BETTING") return;
+    let eventSource: EventSource | null = null;
 
-    const interval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 0.1) {
-          clearInterval(interval);
-          startFlight();
-          return 0;
+    const connectSSE = () => {
+      eventSource = new EventSource("/api/games/crash/events");
+
+      eventSource.addEventListener("INIT", (e) => {
+        const data = JSON.parse(e.data);
+        setPhase(data.phase);
+        setCountdown(data.countdown);
+        setMultiplier(data.multiplier);
+        setCrashPoint(data.crashPoint);
+        setPlayers(data.players);
+        setHistory(data.history);
+
+        if (data.phase === "FLYING" && data.startedAt) {
+          flightStartTimeRef.current = performance.now() - Math.max(0, Date.now() - data.startedAt);
+          startEngineSound();
         }
-        return parseFloat((prev - 0.1).toFixed(1));
       });
-    }, 100);
 
-    return () => clearInterval(interval);
-  }, [phase, startFlight]);
+      eventSource.addEventListener("PHASE_CHANGE", (e) => {
+        const data = JSON.parse(e.data);
+        setPhase(data.phase);
+        setCountdown(data.countdown);
+        setPlayers(data.players);
+
+        if (data.phase === "FLYING") {
+          flightStartTimeRef.current = performance.now() - Math.max(0, Date.now() - (data.startedAt || Date.now()));
+          setMultiplier(1.00);
+          setCrashPoint(null);
+          startEngineSound();
+        } else if (data.phase === "BETTING") {
+          stopEngineSound();
+          setCrashPoint(null);
+          setMultiplier(1.00);
+
+          if (queuedRef.current) {
+            setQueuedForNextRound(false);
+            submitBet(betRef.current);
+          }
+        }
+      });
+
+      eventSource.addEventListener("TICK", (e) => {
+        const data = JSON.parse(e.data);
+        setCountdown(data.countdown);
+      });
+
+      eventSource.addEventListener("BET_PLACED", (e) => {
+        const newPlayer: CrashPlayer = JSON.parse(e.data);
+        setPlayers((prev) => {
+          const idx = prev.findIndex((p) => p.userId === newPlayer.userId);
+          if (idx >= 0) {
+            const next = [...prev];
+            next[idx] = newPlayer;
+            return next;
+          }
+          return [...prev, newPlayer];
+        });
+      });
+
+      eventSource.addEventListener("PLAYER_CASHOUT", (e) => {
+        const data = JSON.parse(e.data);
+        setPlayers((prev) =>
+          prev.map((p) => {
+            if (p.userId === data.userId) {
+              return {
+                ...p,
+                cashedOut: true,
+                cashoutMultiplier: data.multiplier,
+                payout: data.payout,
+              };
+            }
+            return p;
+          })
+        );
+
+        if (data.userId !== currentUserId && soundEnabled) {
+          playCashoutSound();
+        }
+      });
+
+      eventSource.addEventListener("CRASHED", (e) => {
+        const data = JSON.parse(e.data);
+        setPhase("CRASHED");
+        setCrashPoint(data.crashPoint);
+        setMultiplier(data.crashPoint);
+        setHistory(data.history);
+        stopEngineSound();
+        playCrashSound();
+
+        const player = playersRef.current.find((p) => p.userId === currentUserId);
+        if (player && !player.cashedOut) {
+          toast.error(`Crashé @ ${data.crashPoint.toFixed(2)}× - Mise perdue`);
+        }
+      });
+
+      eventSource.onerror = () => {
+        eventSource?.close();
+        setTimeout(connectSSE, 3000);
+      };
+    };
+
+    connectSSE();
+
+    return () => {
+      stopEngineSound();
+      if (eventSource) eventSource.close();
+    };
+  }, [currentUserId, soundEnabled]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -356,21 +384,17 @@ export default function CrashClient({
       ctx.stroke();
 
       if (phaseRef.current === "FLYING" || phaseRef.current === "CRASHED") {
-        const elapsed = (performance.now() - startTimeRef.current) / 1000;
+        const elapsed = Math.max(0, (performance.now() - flightStartTimeRef.current) / 1000);
         const currentM = Math.max(1.00, Math.pow(Math.E, 0.075 * elapsed));
 
         if (phaseRef.current === "FLYING") {
           setMultiplier(parseFloat(currentM.toFixed(2)));
           updateEngineSound(currentM);
 
-          if (!tokenRef.current && spectatorCrashTimeRef.current > 0 && performance.now() >= spectatorCrashTimeRef.current) {
-            spectatorCrashTimeRef.current = 0;
-            handleCrash(spectatorPointRef.current || currentM);
-          }
-
+          const curP = playersRef.current.find((p) => p.userId === currentUserId);
           if (
-            betPlacedRef.current &&
-            !cashedOutRef.current &&
+            curP &&
+            !curP.cashedOut &&
             autoCashoutRef.current.enabled &&
             !isNaN(autoCashoutRef.current.value) &&
             currentM >= autoCashoutRef.current.value
@@ -472,18 +496,13 @@ export default function CrashClient({
     return () => {
       if (animFrameId.current) cancelAnimationFrame(animFrameId.current);
     };
-  }, [handleCrash]);
+  }, [currentUserId]);
 
-  useEffect(() => {
-    return () => {
-      stopEngineSound();
-      if (abortCtrlRef.current) abortCtrlRef.current.abort();
-    };
-  }, []);
+  const totalPool = players.reduce((sum, p) => sum + p.bet, 0);
 
   return (
-    <div className="min-h-screen text-[var(--text-color)] pt-4 pb-20 px-2 sm:px-6 max-w-7xl mx-auto">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="min-h-screen text-[var(--text-color)] pt-4 pb-20 px-2 sm:px-6 max-w-7xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
         <Link
           href="/jeux"
           className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--nav-item-color)] hover:text-white transition-colors bg-[var(--surface-bg)] hover:bg-white/5 px-3.5 py-2 rounded-xl border-2 border-[var(--card-border)]"
@@ -493,6 +512,12 @@ export default function CrashClient({
         </Link>
 
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-purple-600/10 border border-purple-500/30 px-3 py-1.5 rounded-xl text-purple-300 text-xs font-bold">
+            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            <span className="hidden sm:inline">Salle Multijoueur</span>
+            <span className="font-mono text-white">({players.length})</span>
+          </div>
+
           <div className="flex items-center gap-2.5 bg-[var(--surface-bg)] border-2 border-[var(--card-border)] px-4 py-1.5 rounded-xl shadow-sm">
             <Coins className="w-4 h-4 text-purple-400" />
             <span className="text-xs font-bold text-[var(--nav-item-color)]">Solde:</span>
@@ -542,27 +567,27 @@ export default function CrashClient({
                   max={50000}
                   step={10}
                   value={bet}
-                  disabled={betPlaced && phase === "BETTING"}
+                  disabled={hasPlacedBet && phase === "BETTING"}
                   onChange={(e) => setBet(Math.max(10, parseInt(e.target.value) || 10))}
                   className="w-full bg-transparent px-3.5 py-2.5 text-sm font-black font-mono text-purple-300 focus:outline-none disabled:opacity-50"
                 />
                 <div className="flex items-center gap-1 pr-2 shrink-0">
                   <button
-                    disabled={betPlaced && phase === "BETTING"}
+                    disabled={hasPlacedBet && phase === "BETTING"}
                     onClick={() => setBet((b) => Math.max(10, Math.floor(b / 2)))}
                     className="px-2 py-1 text-xs font-bold bg-purple-950/40 hover:bg-purple-900/60 text-purple-300 border border-purple-500/20 rounded-lg transition-colors disabled:opacity-40"
                   >
                     ½
                   </button>
                   <button
-                    disabled={betPlaced && phase === "BETTING"}
+                    disabled={hasPlacedBet && phase === "BETTING"}
                     onClick={() => setBet((b) => Math.min(coins, b * 2))}
                     className="px-2 py-1 text-xs font-bold bg-purple-950/40 hover:bg-purple-900/60 text-purple-300 border border-purple-500/20 rounded-lg transition-colors disabled:opacity-40"
                   >
                     2×
                   </button>
                   <button
-                    disabled={betPlaced && phase === "BETTING"}
+                    disabled={hasPlacedBet && phase === "BETTING"}
                     onClick={() => setBet(Math.min(50000, coins))}
                     className="px-2 py-1 text-xs font-bold bg-purple-950/40 hover:bg-purple-900/60 text-purple-300 border border-purple-500/20 rounded-lg transition-colors disabled:opacity-40"
                   >
@@ -576,7 +601,7 @@ export default function CrashClient({
               {QUICK_CHIPS.map((chip) => (
                 <button
                   key={chip}
-                  disabled={betPlaced && phase === "BETTING"}
+                  disabled={hasPlacedBet && phase === "BETTING"}
                   onClick={() => setBet(chip)}
                   className={`py-2 text-xs font-bold rounded-xl border-2 transition-all ${bet === chip ? 'bg-purple-600 border-purple-400 text-white shadow-[0_0_12px_rgba(168,85,247,0.4)]' : 'bg-black/40 border-[var(--card-border)] hover:border-purple-500/40 text-[var(--nav-item-color)] hover:text-white'} disabled:opacity-40`}
                 >
@@ -616,10 +641,10 @@ export default function CrashClient({
 
           <div className="mt-6 pt-4 border-t border-[var(--card-border)]">
             {phase === "BETTING" ? (
-              betPlaced ? (
+              hasPlacedBet ? (
                 <div className="w-full py-3.5 px-4 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/40 text-emerald-300 flex items-center justify-center gap-2 font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)]">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                  <span>Mise validée : {bet} PC</span>
+                  <span>Mise validée : {currentPlayer?.bet} PC</span>
                 </div>
               ) : (
                 <button
@@ -632,20 +657,20 @@ export default function CrashClient({
                 </button>
               )
             ) : phase === "FLYING" ? (
-              betPlaced && !cashedOut ? (
+              hasPlacedBet && !hasCashedOut ? (
                 <button
                   onClick={handleCashout}
                   className="w-full py-4 rounded-xl font-outfit font-black uppercase tracking-wider text-base bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black border-2 border-amber-300/40 shadow-[0_4px_25px_rgba(245,158,11,0.5)] active:scale-[0.98] transition-all cursor-pointer flex flex-col items-center justify-center leading-tight"
                 >
                   <span>Encaisser</span>
                   <span className="text-xs font-mono font-black mt-0.5">
-                    +{Math.floor(bet * multiplier)} PC ({multiplier.toFixed(2)}×)
+                    +{Math.floor((currentPlayer?.bet || bet) * multiplier)} PC ({multiplier.toFixed(2)}×)
                   </span>
                 </button>
-              ) : cashedOut ? (
+              ) : hasCashedOut ? (
                 <div className="w-full py-3.5 px-4 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/40 text-emerald-300 flex items-center justify-center gap-2 font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)]">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                  <span>Encaissé : +{payout} PC</span>
+                  <span>Encaissé : +{currentPlayer?.payout} PC</span>
                 </div>
               ) : (
                 <button
@@ -660,15 +685,15 @@ export default function CrashClient({
                 </button>
               )
             ) : (
-              betPlaced && !cashedOut ? (
+              hasPlacedBet && !hasCashedOut ? (
                 <div className="w-full py-3.5 px-4 rounded-xl bg-red-500/20 border-2 border-red-500/40 text-red-300 flex items-center justify-center gap-2 font-bold text-sm">
                   <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />
-                  <span>Perdu (-{bet} PC)</span>
+                  <span>Perdu (-{currentPlayer?.bet} PC)</span>
                 </div>
-              ) : cashedOut ? (
+              ) : hasCashedOut ? (
                 <div className="w-full py-3.5 px-4 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/40 text-emerald-300 flex items-center justify-center gap-2 font-bold text-sm">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                  <span>Gagné : +{payout} PC</span>
+                  <span>Gagné : +{currentPlayer?.payout} PC</span>
                 </div>
               ) : (
                 <button
@@ -719,9 +744,9 @@ export default function CrashClient({
                   <span className="font-outfit font-black text-sm uppercase tracking-widest text-purple-300">
                     Décollage imminent
                   </span>
-                  {betPlaced ? (
+                  {hasPlacedBet ? (
                     <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full">
-                      ✓ Mise de {bet} PC validée
+                      ✓ Mise de {currentPlayer?.bet} PC validée
                     </span>
                   ) : (
                     <span className="text-xs text-[var(--nav-item-color)]">
@@ -736,14 +761,14 @@ export default function CrashClient({
                   <span className="font-outfit font-black text-6xl sm:text-7xl lg:text-8xl tracking-tight text-white drop-shadow-[0_0_35px_rgba(168,85,247,0.7)]">
                     {multiplier.toFixed(2)}×
                   </span>
-                  {betPlaced && !cashedOut ? (
+                  {hasPlacedBet && !hasCashedOut ? (
                     <span className="text-xs font-bold font-mono uppercase tracking-widest text-purple-300 mt-2 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/30">
-                      Gain actuel : +{Math.floor(bet * multiplier)} PC
+                      Gain actuel : +{Math.floor((currentPlayer?.bet || bet) * multiplier)} PC
                     </span>
-                  ) : cashedOut ? (
+                  ) : hasCashedOut ? (
                     <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold text-sm mt-3 shadow-lg">
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>ENCAISSÉ ! +{payout} PC</span>
+                      <span>ENCAISSÉ ! +{currentPlayer?.payout} PC</span>
                     </div>
                   ) : (
                     <span className="text-xs font-bold uppercase tracking-widest text-[var(--nav-item-color)] mt-2">
@@ -772,10 +797,114 @@ export default function CrashClient({
           <div className="relative z-10 flex items-center justify-between text-xs text-[var(--nav-item-color)] px-2 pt-2 border-t border-[var(--card-border)]">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-purple-400" />
-              <span>Provably Fair • Courbe mathématique certifiée</span>
+              <span>Multiplayer Synchronisé • Provably Fair</span>
             </div>
             <span>House Edge : 4%</span>
           </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border-2 border-[var(--card-border)] bg-[var(--surface-bg)] overflow-hidden shadow-xl">
+        <div className="p-4 border-b border-[var(--card-border)] flex items-center justify-between bg-black/30">
+          <div className="flex items-center gap-2.5">
+            <Users className="w-5 h-5 text-purple-400" />
+            <h3 className="font-outfit font-black text-sm uppercase tracking-wider text-white">
+              Joueurs en direct
+            </h3>
+            <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              {players.length}
+            </span>
+          </div>
+
+          <div className="text-xs font-bold text-[var(--nav-item-color)]">
+            Total en jeu :{" "}
+            <span className="font-mono text-purple-300 font-black">
+              {totalPool.toLocaleString("fr-FR")} PC
+            </span>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          {players.length === 0 ? (
+            <div className="py-12 text-center text-xs text-[var(--nav-item-color)] flex flex-col items-center gap-2">
+              <Rocket className="w-8 h-8 text-purple-500/30 animate-pulse" />
+              <span>Aucun joueur n'a encore misé pour cette manche. Placez la première mise !</span>
+            </div>
+          ) : (
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-[var(--card-border)] bg-black/20 text-[var(--nav-item-color)] font-bold uppercase tracking-wider text-[10px]">
+                  <th className="py-3 px-4">Joueur</th>
+                  <th className="py-3 px-4">Mise</th>
+                  <th className="py-3 px-4">Multiplicateur</th>
+                  <th className="py-3 px-4 text-right">Gain</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--card-border)]/50">
+                {players.map((p) => {
+                  const isMe = p.userId === currentUserId;
+                  const mcHeadUrl = `https://mc-heads.net/avatar/${p.minecraftName || p.name || 'MHF_Steve'}/28`;
+
+                  return (
+                    <tr
+                      key={p.userId}
+                      className={`transition-colors ${isMe ? 'bg-purple-900/15 font-bold' : 'hover:bg-white/5'} ${
+                        p.cashedOut ? 'bg-emerald-950/15' : ''
+                      }`}
+                    >
+                      <td className="py-3 px-4 flex items-center gap-2.5">
+                        <img
+                          src={mcHeadUrl}
+                          alt={p.name}
+                          className="w-7 h-7 rounded-lg border border-purple-500/30 bg-black/40 shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                        <div className="flex items-center gap-1.5">
+                          <span className={`font-mono ${isMe ? 'text-purple-200 font-black' : 'text-white'}`}>
+                            {p.name}
+                          </span>
+                          {isMe && (
+                            <span className="text-[10px] bg-purple-600/40 text-purple-200 px-1.5 py-0.5 rounded border border-purple-400/40 font-sans uppercase">
+                              Vous
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 font-mono text-purple-300 font-bold">
+                        {p.bet.toLocaleString("fr-FR")} PC
+                      </td>
+                      <td className="py-3 px-4 font-mono font-bold">
+                        {p.cashedOut ? (
+                          <span className="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
+                            {p.cashoutMultiplier?.toFixed(2)}×
+                          </span>
+                        ) : phase === "CRASHED" ? (
+                          <span className="text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/30">
+                            Crashé
+                          </span>
+                        ) : phase === "FLYING" ? (
+                          <span className="text-amber-400 animate-pulse">En vol...</span>
+                        ) : (
+                          <span className="text-[var(--nav-item-color)]">Prêt</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono font-black">
+                        {p.cashedOut ? (
+                          <span className="text-emerald-400">+{p.payout?.toLocaleString("fr-FR")} PC</span>
+                        ) : phase === "CRASHED" ? (
+                          <span className="text-red-400/70">0 PC</span>
+                        ) : (
+                          <span className="text-[var(--nav-item-color)]">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
@@ -783,15 +912,15 @@ export default function CrashClient({
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[var(--surface-bg)] border-2 border-[var(--card-border)] rounded-2xl p-6 max-w-md w-full shadow-2xl">
             <h3 className="text-lg font-outfit font-black text-white mb-3">
-              Règles du jeu Crash
+              Règles du jeu Crash Multijoueur
             </h3>
             <ul className="text-xs text-[var(--nav-item-color)] space-y-2 leading-relaxed">
+              <li>• Vous jouez dans la <strong>même salle en temps réel</strong> avec tous les joueurs de Paranoia.</li>
               <li>• Compte à rebours de 5 secondes pour placer votre mise.</li>
               <li>• La fusée décolle avec un multiplicateur démarrant à <strong>1.00×</strong>.</li>
-              <li>• Plus la fusée vole longtemps, plus le multiplicateur grimpe exponentiellement.</li>
-              <li>• Cliquez sur <strong>Encaisser</strong> à tout moment pour sécuriser vos gains.</li>
-              <li>• Si la fusée explose avant votre retrait, la mise est perdue.</li>
-              <li>• Vous pouvez définir un <strong>Auto Cashout</strong> pour encaisser automatiquement.</li>
+              <li>• Tous les joueurs voient la même courbe monter et les encaissements en direct.</li>
+              <li>• Cliquez sur <strong>Encaisser</strong> avant l'explosion pour remporter votre mise multipliée.</li>
+              <li>• Vous pouvez définir un <strong>Auto Cashout</strong> pour sécuriser vos gains automatiquement.</li>
             </ul>
             <button
               onClick={() => setShowHelp(false)}

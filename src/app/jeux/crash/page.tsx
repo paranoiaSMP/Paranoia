@@ -15,13 +15,26 @@ export default async function CrashPage() {
   const userId = session?.user?.id;
 
   let paraCoins = 0;
+  let minecraftName: string | null = null;
+  let userName: string | null = null;
+
   if (userId) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { paraCoins: true },
+      select: { paraCoins: true, minecraftName: true, name: true },
     });
     paraCoins = user?.paraCoins || 0;
+    minecraftName = user?.minecraftName || null;
+    userName = user?.name || null;
   }
 
-  return <CrashClient initialCoins={paraCoins} isAuthenticated={!!userId} />;
+  return (
+    <CrashClient
+      initialCoins={paraCoins}
+      isAuthenticated={!!userId}
+      currentUserId={userId || null}
+      currentMinecraftName={minecraftName}
+      currentUserName={userName}
+    />
+  );
 }
