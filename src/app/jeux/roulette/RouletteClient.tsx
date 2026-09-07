@@ -8,7 +8,6 @@ import {
   HelpCircle, 
   Coins, 
   ArrowLeft,
-  Disc,
   CheckCircle2,
   Sparkles,
   History,
@@ -496,14 +495,7 @@ export default function RouletteClient({
                   Faites vos jeux : <span className="font-mono text-white text-base">{countdown.toFixed(1)}s</span>
                 </span>
               </div>
-            ) : phase === "SPINNING" ? (
-              <div className="flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 px-4 py-1.5 rounded-xl shadow-sm">
-                <Disc className="w-4 h-4 text-purple-400 animate-spin" />
-                <span className="font-outfit font-black text-sm uppercase tracking-wider text-purple-300">
-                  La boule ralentit sur les numéros...
-                </span>
-              </div>
-            ) : (
+            ) : phase === "SPINNING" ? null : (
               <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-4 py-1.5 rounded-xl shadow-sm">
                 <Sparkles className="w-4 h-4 text-emerald-400" />
                 <span className="font-outfit font-black text-sm uppercase tracking-wider text-emerald-300">
