@@ -27,6 +27,7 @@ class Config:
     ROLE_VIDEASTE_ID = _clean_int(os.getenv("ROLE_VIDEASTE_ID"))
     TICKET_CATEGORY_ID = _clean_int(os.getenv("TICKET_CATEGORY_ID"))
     TICKET_LOG_CHANNEL_ID = _clean_int(os.getenv("TICKET_LOG_CHANNEL_ID"))
+    TIKTOK_CHANNEL_ID = _clean_int(os.getenv("TIKTOK_CHANNEL_ID"))
 
     COLOR_SUCCESS = 0x22c55e
     COLOR_ERROR = 0xef4444
