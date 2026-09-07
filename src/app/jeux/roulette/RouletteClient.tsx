@@ -32,10 +32,9 @@ const NUMBER_GRID_ROWS = [
   [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34]
 ];
 
-const POCKET_RADIUS_PCT = 0.53;
-const TRACK_RADIUS_PCT = 0.86;
+const NUMBERS_RADIUS_PCT = 0.562;
 
-function getPocketCoordinates(num: number, rPct: number = POCKET_RADIUS_PCT): { x: number; y: number } {
+function getPocketCoordinates(num: number, rPct: number = NUMBERS_RADIUS_PCT): { x: number; y: number } {
   const idx = EUROPEAN_WHEEL.indexOf(num);
   const deg = (idx >= 0 ? idx : 0) * (360 / 37);
   const rad = (deg * Math.PI) / 180;
@@ -86,7 +85,7 @@ export default function RouletteClient({
     }
   };
 
-  const playRollingTick = (isSlow: boolean) => {
+  const playRollingTick = (isSlow: boolean, progress: number) => {
     if (!soundEnabled) return;
     initAudio();
     const ctx = audioCtxRef.current;
@@ -96,18 +95,19 @@ export default function RouletteClient({
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = isSlow ? "triangle" : "sine";
-      const freq = isSlow ? 450 : 850;
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(isSlow ? 180 : 300, ctx.currentTime + 0.02);
 
-      const vol = isSlow ? 0.08 : 0.035;
+      const freq = isSlow ? Math.max(220, 520 - progress * 300) : 850;
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(120, freq * 0.4), ctx.currentTime + 0.025);
+
+      const vol = isSlow ? Math.min(0.12, 0.04 + progress * 0.08) : 0.035;
       gain.gain.setValueAtTime(vol, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.025);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.022);
+      osc.stop(ctx.currentTime + 0.028);
     } catch {}
   };
 
@@ -121,16 +121,16 @@ export default function RouletteClient({
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";
-      osc.frequency.setValueAtTime(320, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + 0.07);
+      osc.frequency.setValueAtTime(340, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.08);
 
-      gain.gain.setValueAtTime(0.18, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.085);
+      osc.stop(ctx.currentTime + 0.095);
     } catch {}
   };
 
@@ -161,17 +161,15 @@ export default function RouletteClient({
     if (animFrameId.current) cancelAnimationFrame(animFrameId.current);
 
     const targetIdx = EUROPEAN_WHEEL.indexOf(targetNum);
-    const targetBaseAngle = (targetIdx >= 0 ? targetIdx : 0) * (360 / 37);
-    const jitter = (Math.random() * 5 - 2.5);
-    const targetFinalAngle = targetBaseAngle + jitter;
+    const targetFinalAngle = (targetIdx >= 0 ? targetIdx : 0) * (360 / 37);
 
     const startAngle = ballAngleRef.current;
-    const turns = 8;
+    const turns = 6;
     const normalizedDelta = ((targetFinalAngle - (startAngle % 360)) % 360 + 360) % 360;
     const totalDelta = turns * 360 + normalizedDelta;
     const finalAngle = startAngle + totalDelta;
 
-    const duration = 5500;
+    const duration = 8000;
     const startTime = performance.now();
     lastTickAngleRef.current = startAngle;
     setIsBallSpinning(true);
@@ -180,24 +178,14 @@ export default function RouletteClient({
     const step = () => {
       const elapsed = performance.now() - startTime;
       const p = Math.min(1, elapsed / duration);
-      const eased = 1 - Math.pow(1 - p, 3.2);
+      const eased = 1 - Math.pow(1 - p, 4.2);
       const currentAngle = startAngle + totalDelta * eased;
       ballAngleRef.current = currentAngle;
 
-      let rPct = TRACK_RADIUS_PCT;
-      if (p < 0.45) {
-        rPct = TRACK_RADIUS_PCT;
-      } else if (p < 0.78) {
-        const u = (p - 0.45) / 0.33;
-        const smoothProgress = (1 - Math.cos(u * Math.PI)) / 2;
-        rPct = TRACK_RADIUS_PCT - (TRACK_RADIUS_PCT - POCKET_RADIUS_PCT) * smoothProgress;
-      } else if (p < 0.95) {
-        const hopDamp = 1 - (p - 0.78) / 0.17;
-        const fretHop = Math.abs(Math.sin((currentAngle * 37 / 2) * Math.PI / 180));
-        rPct = POCKET_RADIUS_PCT + 0.035 * fretHop * hopDamp;
-      } else {
-        rPct = POCKET_RADIUS_PCT;
-      }
+      const fretBump = (p > 0.55 && p < 0.98) 
+        ? 0.012 * Math.abs(Math.sin((currentAngle * 37 / 2) * Math.PI / 180)) * (1 - p) 
+        : 0;
+      const rPct = NUMBERS_RADIUS_PCT + fretBump;
 
       const rad = (currentAngle * Math.PI) / 180;
       const x = 50 + (rPct * 50) * Math.sin(rad);
@@ -206,14 +194,14 @@ export default function RouletteClient({
 
       if (Math.abs(currentAngle - lastTickAngleRef.current) >= (360 / 37)) {
         lastTickAngleRef.current = currentAngle;
-        playRollingTick(p > 0.6);
+        playRollingTick(p > 0.55, p);
       }
 
       if (p < 1) {
         animFrameId.current = requestAnimationFrame(step);
       } else {
         ballAngleRef.current = finalAngle;
-        setBallPos(getPocketCoordinates(targetNum, POCKET_RADIUS_PCT));
+        setBallPos(getPocketCoordinates(targetNum, NUMBERS_RADIUS_PCT));
         setIsBallSpinning(false);
         setActiveHighlightNum(targetNum);
         playBallLandingThud();
@@ -463,12 +451,12 @@ export default function RouletteClient({
 
                 {highlightCoords && (
                   <div
-                    className={`absolute w-7 h-7 sm:w-8 sm:h-8 rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2 border-2 animate-pulse ${
+                    className={`absolute w-6 h-6 sm:w-7 sm:h-7 rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2 border-2 animate-pulse ${
                       highlightColor === 'green'
-                        ? 'border-emerald-400 bg-emerald-400/20 shadow-[0_0_15px_rgba(52,211,153,0.8)]'
+                        ? 'border-emerald-400 bg-emerald-400/25 shadow-[0_0_15px_rgba(52,211,153,0.9)]'
                         : highlightColor === 'red'
-                        ? 'border-red-400 bg-red-400/20 shadow-[0_0_15px_rgba(248,113,113,0.8)]'
-                        : 'border-zinc-300 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.6)]'
+                        ? 'border-red-400 bg-red-400/25 shadow-[0_0_15px_rgba(248,113,113,0.9)]'
+                        : 'border-zinc-300 bg-white/15 shadow-[0_0_15px_rgba(255,255,255,0.7)]'
                     }`}
                     style={{
                       left: `${highlightCoords.x}%`,
@@ -487,10 +475,10 @@ export default function RouletteClient({
                   }}
                 >
                   <div className="relative w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
-                    <div className="absolute w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-black/70 blur-[1.5px] translate-y-1 translate-x-0.5" />
+                    <div className="absolute w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-black/80 blur-[1px] translate-y-0.5 translate-x-0.5" />
                     
-                    <div className={`w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 rounded-full bg-gradient-to-br from-white via-slate-100 to-slate-400 shadow-[0_0_8px_rgba(255,255,255,0.9),inset_-1px_-1px_3px_rgba(0,0,0,0.5),inset_1px_1px_2px_rgba(255,255,255,1)] border border-white/80 ${
-                      isBallSpinning ? 'shadow-[0_0_14px_rgba(255,255,255,1)]' : ''
+                    <div className={`w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 rounded-full bg-gradient-to-br from-white via-slate-100 to-slate-400 shadow-[0_0_8px_rgba(255,255,255,0.9),inset_-1px_-1px_3px_rgba(0,0,0,0.5),inset_1px_1px_2px_rgba(255,255,255,1)] border border-white/90 ${
+                      isBallSpinning ? 'shadow-[0_0_14px_rgba(255,255,255,1)] scale-105' : ''
                     }`} />
                   </div>
                 </div>
@@ -512,7 +500,7 @@ export default function RouletteClient({
               <div className="flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 px-4 py-1.5 rounded-xl shadow-sm">
                 <Disc className="w-4 h-4 text-purple-400 animate-spin" />
                 <span className="font-outfit font-black text-sm uppercase tracking-wider text-purple-300">
-                  La boule tourne sur les numéros...
+                  La boule ralentit sur les numéros...
                 </span>
               </div>
             ) : (

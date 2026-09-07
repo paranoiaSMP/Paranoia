@@ -98,7 +98,7 @@ class RouletteEngine {
 
     this.timer = setTimeout(() => {
       this.startResolvedPhase();
-    }, 5500);
+    }, 8000);
   }
 
   private async startResolvedPhase() {
