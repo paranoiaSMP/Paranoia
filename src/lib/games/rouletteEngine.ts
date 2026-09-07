@@ -5,9 +5,12 @@ import {
   RoulettePhase, 
   RouletteBet, 
   RoulettePublicState, 
-  ROULETTE_ORDER, 
+  RouletteListener,
+  BetType,
+  EUROPEAN_WHEEL,
   getNumberColor, 
-  getMultiplier 
+  isBetWinning,
+  getBetMultiplier 
 } from "./rouletteTypes";
 
 export * from "./rouletteTypes";
@@ -17,9 +20,9 @@ class RouletteEngine {
   private phase: RoulettePhase = "BETTING";
   private countdown: number = 12.0;
   private winningNumber: number | null = null;
-  private winningOffset: number | null = null;
+  private winningAngle: number | null = null;
   private bets: Map<string, RouletteBet> = new Map();
-  private history: number[] = [2, 11, 0, 7, 14, 3, 5, 8, 1];
+  private history: number[] = [26, 3, 35, 12, 0, 32, 15, 19, 4];
   private listeners: Set<RouletteListener> = new Set();
   private timer: NodeJS.Timeout | null = null;
 
@@ -48,7 +51,7 @@ class RouletteEngine {
       phase: this.phase,
       countdown: parseFloat(this.countdown.toFixed(1)),
       winningNumber: (this.phase !== "BETTING" || isInternal) ? this.winningNumber : null,
-      winningOffset: (this.phase !== "BETTING" || isInternal) ? this.winningOffset : null,
+      winningAngle: (this.phase !== "BETTING" || isInternal) ? this.winningAngle : null,
       bets: Array.from(this.bets.values()),
       history: this.history,
     };
@@ -61,7 +64,7 @@ class RouletteEngine {
     this.phase = "BETTING";
     this.countdown = 12.0;
     this.winningNumber = null;
-    this.winningOffset = null;
+    this.winningAngle = null;
     this.bets.clear();
 
     this.broadcast("PHASE_CHANGE", this.getState());
@@ -79,13 +82,17 @@ class RouletteEngine {
 
   private startSpinningPhase() {
     this.phase = "SPINNING";
-    this.winningNumber = crypto.randomInt(0, 15);
-    this.winningOffset = crypto.randomInt(-28, 29);
+    this.winningNumber = crypto.randomInt(0, 37);
+    
+    const pocketIndex = EUROPEAN_WHEEL.indexOf(this.winningNumber);
+    const pocketAngle = (360 - (pocketIndex * (360 / 37))) % 360;
+    const jitter = (crypto.randomInt(0, 70) - 35) / 10;
+    this.winningAngle = pocketAngle + jitter;
 
     this.broadcast("SPIN", {
       roundId: this.roundId,
       winningNumber: this.winningNumber,
-      winningOffset: this.winningOffset,
+      winningAngle: this.winningAngle,
       winningColor: getNumberColor(this.winningNumber),
     });
 
@@ -98,34 +105,36 @@ class RouletteEngine {
     if (this.timer) clearTimeout(this.timer);
 
     this.phase = "RESOLVED";
-    const winColor = getNumberColor(this.winningNumber!);
-    const mult = getMultiplier(winColor);
+    const winNum = this.winningNumber!;
+    const winColor = getNumberColor(winNum);
 
-    this.history = [this.winningNumber!, ...this.history.slice(0, 14)];
+    this.history = [winNum, ...this.history.slice(0, 14)];
 
-    const payouts: { userId: string; payout: number; profit: number }[] = [];
+    const userPayoutMap = new Map<string, number>();
 
     for (const bet of this.bets.values()) {
-      if (bet.color === winColor) {
+      if (isBetWinning(bet.betType, winNum)) {
+        const mult = getBetMultiplier(bet.betType);
         const payout = bet.amount * mult;
-        payouts.push({
-          userId: bet.userId,
-          payout,
-          profit: payout - bet.amount,
-        });
-
-        try {
-          await prisma.user.update({
-            where: { id: bet.userId },
-            data: { paraCoins: { increment: payout } },
-          });
-        } catch {}
+        userPayoutMap.set(bet.userId, (userPayoutMap.get(bet.userId) || 0) + payout);
       }
+    }
+
+    const payouts: { userId: string; payout: number }[] = [];
+
+    for (const [userId, totalPayout] of userPayoutMap.entries()) {
+      payouts.push({ userId, payout: totalPayout });
+      try {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { paraCoins: { increment: totalPayout } },
+        });
+      } catch {}
     }
 
     this.broadcast("RESOLVED", {
       roundId: this.roundId,
-      winningNumber: this.winningNumber,
+      winningNumber: winNum,
       winningColor: winColor,
       history: this.history,
       payouts,
