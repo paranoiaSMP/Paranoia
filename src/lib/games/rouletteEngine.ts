@@ -8,6 +8,7 @@ import {
   RouletteListener,
   BetType,
   EUROPEAN_WHEEL,
+  RED_NUMBERS,
   getNumberColor, 
   isBetWinning,
   getBetMultiplier 
@@ -82,7 +83,17 @@ class RouletteEngine {
 
   private startSpinningPhase() {
     this.phase = "SPINNING";
-    this.winningNumber = crypto.randomInt(0, 37);
+    const RED_ARRAY = Array.from(RED_NUMBERS);
+    const BLACK_ARRAY = EUROPEAN_WHEEL.filter((n) => n !== 0 && !RED_NUMBERS.has(n));
+
+    const roll = crypto.randomInt(0, 110);
+    if (roll < 10) {
+      this.winningNumber = 0;
+    } else if (roll < 60) {
+      this.winningNumber = RED_ARRAY[crypto.randomInt(0, RED_ARRAY.length)];
+    } else {
+      this.winningNumber = BLACK_ARRAY[crypto.randomInt(0, BLACK_ARRAY.length)];
+    }
     
     const pocketIndex = EUROPEAN_WHEEL.indexOf(this.winningNumber);
     const pocketAngle = (360 - (pocketIndex * (360 / 37))) % 360;
