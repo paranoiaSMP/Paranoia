@@ -131,8 +131,8 @@ class TikTokSniper(commands.GroupCog, group_name="tiktok"):
                 if now_live and not was_live:
                     target["is_live"] = True
                     embed = discord.Embed(
-                        title=f"🔴 {live_data['nickname']} est EN DIRECT sur TikTok !",
-                        description=live_data["title"] or "Rejoignez le live dès maintenant !",
+                        title=f"{live_data['nickname']} est en direct sur TikTok",
+                        description=live_data["title"] or "Rejoignez le live dès maintenant.",
                         color=0xFE2C55,
                         url=live_data["url"]
                     )
@@ -143,9 +143,9 @@ class TikTokSniper(commands.GroupCog, group_name="tiktok"):
                     embed.set_footer(text="TikTok Live Sniper • Paranoia")
 
                     view = discord.ui.View()
-                    view.add_item(discord.ui.Button(label="Rejoindre le Live 🔴", url=live_data["url"], style=discord.ButtonStyle.link))
+                    view.add_item(discord.ui.Button(label="Rejoindre le Live", url=live_data["url"], style=discord.ButtonStyle.link))
 
-                    content = f"🔴 **{live_data['nickname']}** est en direct sur TikTok ! {role_ping}".strip()
+                    content = f"**{live_data['nickname']}** est en direct sur TikTok. {role_ping}".strip()
                     try:
                         await channel.send(content=content, embed=embed, view=view)
                     except Exception:
@@ -165,8 +165,8 @@ class TikTokSniper(commands.GroupCog, group_name="tiktok"):
                 elif vid_id and vid_id != last_vid:
                     target["last_video_id"] = vid_id
                     embed = discord.Embed(
-                        title=f"📹 Nouveau TikTok de @{username} !",
-                        description=video_data["title"] or "Nouvelle vidéo disponible !",
+                        title=f"Nouveau TikTok de @{username}",
+                        description=video_data["title"] or "Nouvelle vidéo disponible.",
                         color=0x25F4EE,
                         url=video_data["url"]
                     )
@@ -175,9 +175,9 @@ class TikTokSniper(commands.GroupCog, group_name="tiktok"):
                     embed.set_footer(text="TikTok Video Sniper • Paranoia")
 
                     view = discord.ui.View()
-                    view.add_item(discord.ui.Button(label="Regarder la vidéo 🎬", url=video_data["url"], style=discord.ButtonStyle.link))
+                    view.add_item(discord.ui.Button(label="Regarder la vidéo", url=video_data["url"], style=discord.ButtonStyle.link))
 
-                    content = f"📹 Nouvelle vidéo de **@{username}** ! {role_ping}".strip()
+                    content = f"Nouvelle vidéo de **@{username}**. {role_ping}".strip()
                     try:
                         await channel.send(content=content, embed=embed, view=view)
                     except Exception:
@@ -204,7 +204,7 @@ class TikTokSniper(commands.GroupCog, group_name="tiktok"):
             existing["channel_id"] = channel.id
             existing["role_id"] = role.id if role else None
             save_targets(self.targets)
-            return await interaction.followup.send(f"✅ Configuration mise à jour pour **@{clean_user}** dans {channel.mention}.")
+            return await interaction.followup.send(f"Configuration mise à jour pour **@{clean_user}** dans {channel.mention}.")
 
         live_data = await asyncio.to_thread(sync_get_live_status, clean_user)
         video_data = await asyncio.to_thread(sync_get_latest_video, clean_user)
@@ -221,10 +221,10 @@ class TikTokSniper(commands.GroupCog, group_name="tiktok"):
 
         role_info = f" (Ping: {role.mention})" if role else ""
         await interaction.followup.send(
-            f"🎯 **@{clean_user}** ajouté au sniper TikTok !\n"
-            f"📢 Salon: {channel.mention}{role_info}\n"
-            f"🎬 Dernière vidéo: `{target['last_video_id'] or 'En attente'}`\n"
-            f"🔴 Statut live: `{'En Live' if target['is_live'] else 'Hors ligne'}`"
+            f"**@{clean_user}** ajouté au sniper TikTok.\n"
+            f"Salon: {channel.mention}{role_info}\n"
+            f"Dernière vidéo: `{target['last_video_id'] or 'En attente'}`\n"
+            f"Statut live: `{'En direct' if target['is_live'] else 'Hors ligne'}`"
         )
 
     @app_commands.command(name="remove", description="Retirer un créateur TikTok de la surveillance")
@@ -234,23 +234,23 @@ class TikTokSniper(commands.GroupCog, group_name="tiktok"):
         before_len = len(self.targets)
         self.targets = [t for t in self.targets if t["username"].lower() != clean_user]
         if len(self.targets) == before_len:
-            return await interaction.response.send_message(f"❌ Le compte **@{clean_user}** n'est pas dans la liste.", ephemeral=True)
+            return await interaction.response.send_message(f"Le compte **@{clean_user}** n'est pas dans la liste.", ephemeral=True)
         save_targets(self.targets)
-        await interaction.response.send_message(f"🗑️ Le compte **@{clean_user}** a été retiré du sniper.", ephemeral=True)
+        await interaction.response.send_message(f"Le compte **@{clean_user}** a été retiré du sniper.", ephemeral=True)
 
     @app_commands.command(name="list", description="Lister les créateurs TikTok surveillés")
     async def list_targets(self, interaction: discord.Interaction):
         if not self.targets:
-            return await interaction.response.send_message("📭 Aucun compte TikTok n'est actuellement surveillé.", ephemeral=True)
+            return await interaction.response.send_message("Aucun compte TikTok n'est actuellement surveillé.", ephemeral=True)
 
         embed = discord.Embed(
-            title="🎯 Sniper TikTok - Comptes surveillés",
+            title="Sniper TikTok - Comptes surveillés",
             color=0xFE2C55
         )
         for t in self.targets:
             chan = f"<#{t['channel_id']}>"
             role = f"<@&{t['role_id']}>" if t.get("role_id") else "Aucun"
-            live = "🔴 En Live" if t.get("is_live") else "⚪ Hors ligne"
+            live = "En direct" if t.get("is_live") else "Hors ligne"
             vid = f"`{t.get('last_video_id') or 'N/A'}`"
             embed.add_field(
                 name=f"@{t['username']}",
@@ -264,7 +264,7 @@ class TikTokSniper(commands.GroupCog, group_name="tiktok"):
     async def check_now(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         await self.check_loop()
-        await interaction.followup.send(f"✅ Vérification terminée pour {len(self.targets)} compte(s).")
+        await interaction.followup.send(f"Vérification terminée pour {len(self.targets)} compte(s).")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(TikTokSniper(bot))
