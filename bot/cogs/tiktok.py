@@ -131,23 +131,26 @@ class TikTokSniper(commands.GroupCog, group_name="tiktok"):
                 if now_live and not was_live:
                     target["is_live"] = True
                     embed = discord.Embed(
-                        title=f"{live_data['nickname']} est en direct sur TikTok",
-                        description=live_data["title"] or "Rejoignez le live dès maintenant.",
-                        color=0xFE2C55,
+                        title="En direct sur TikTok",
+                        description=f"{live_data['title'] or 'Rejoignez le live dès maintenant.'}\n\n[Accéder au Live]({live_data['url']})",
+                        color=0xa855f7,
                         url=live_data["url"]
                     )
-                    if live_data.get("cover"):
-                        embed.set_image(url=live_data["cover"])
-                    if live_data.get("avatar"):
-                        embed.set_thumbnail(url=live_data["avatar"])
-                    embed.set_footer(text="TikTok Live Sniper • Paranoia")
+                    thumb_url = live_data.get("cover") or live_data.get("avatar")
+                    if thumb_url:
+                        embed.set_thumbnail(url=thumb_url)
+                    embed.set_author(
+                        name=f"{live_data['nickname']} (@{username})",
+                        icon_url=live_data.get("avatar") or None,
+                        url=live_data["url"]
+                    )
+                    embed.set_footer(text=Config.FOOTER_TEXT)
 
                     view = discord.ui.View()
                     view.add_item(discord.ui.Button(label="Rejoindre le Live", url=live_data["url"], style=discord.ButtonStyle.link))
 
-                    content = f"**{live_data['nickname']}** est en direct sur TikTok. {role_ping}".strip()
                     try:
-                        await channel.send(content=content, embed=embed, view=view)
+                        await channel.send(content=role_ping if role_ping else None, embed=embed, view=view)
                     except Exception:
                         pass
                     save_targets(self.targets)
@@ -165,21 +168,24 @@ class TikTokSniper(commands.GroupCog, group_name="tiktok"):
                 elif vid_id and vid_id != last_vid:
                     target["last_video_id"] = vid_id
                     embed = discord.Embed(
-                        title=f"Nouveau TikTok de @{username}",
-                        description=video_data["title"] or "Nouvelle vidéo disponible.",
-                        color=0x25F4EE,
+                        title="Nouvelle vidéo TikTok",
+                        description=f"{video_data['title'] or 'Nouvelle vidéo disponible.'}\n\n[Regarder la vidéo]({video_data['url']})",
+                        color=0xa855f7,
                         url=video_data["url"]
                     )
                     if video_data.get("thumbnail"):
-                        embed.set_image(url=video_data["thumbnail"])
-                    embed.set_footer(text="TikTok Video Sniper • Paranoia")
+                        embed.set_thumbnail(url=video_data["thumbnail"])
+                    embed.set_author(
+                        name=f"@{username}",
+                        url=video_data["url"]
+                    )
+                    embed.set_footer(text=Config.FOOTER_TEXT)
 
                     view = discord.ui.View()
                     view.add_item(discord.ui.Button(label="Regarder la vidéo", url=video_data["url"], style=discord.ButtonStyle.link))
 
-                    content = f"Nouvelle vidéo de **@{username}**. {role_ping}".strip()
                     try:
-                        await channel.send(content=content, embed=embed, view=view)
+                        await channel.send(content=role_ping if role_ping else None, embed=embed, view=view)
                     except Exception:
                         pass
                     save_targets(self.targets)
