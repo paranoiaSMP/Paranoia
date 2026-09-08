@@ -135,7 +135,7 @@ function MaintenanceToggle() {
   async function toggleMaintenance() {
     if (isMaintenance === null) return;
     const newValue = !isMaintenance;
-    
+
     if (newValue && !confirm("Êtes-vous sûr de vouloir fermer le site au public ? Seuls les admins y auront accès.")) {
       return;
     }

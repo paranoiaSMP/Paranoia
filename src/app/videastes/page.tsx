@@ -5,7 +5,6 @@ import { BoldGradient, GlowText, EasyBox, EasyBadge } from "@/components/easy-ta
 import { Video, ExternalLink, MonitorPlay } from "lucide-react";
 import Link from 'next/link';
 
-// Liste des créateurs (tu peux facilement ajouter ou modifier des créateurs ici)
 const createurs = [
   {
     id: 1,
@@ -36,12 +35,12 @@ const createurs = [
 export default function VideastesPage() {
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 relative overflow-hidden">
-      {/* Effets de fond */}
+      {}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-fuchsia-600/10 rounded-full blur-[150px] pointer-events-none"></div>
-      
+
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="text-center mb-16">
-         
+
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
             Nos <BoldGradient from="from-fuchsia-500" to="to-purple-600">Vidéastes</BoldGradient>
           </h1>
@@ -50,15 +49,15 @@ export default function VideastesPage() {
           </p>
         </div>
 
-        {/* Grille des créateurs */}
+        {}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {createurs.map((createur) => (
             <Link key={createur.id} href={createur.lien} target="_blank" rel="noopener noreferrer">
               <EasyBox className="h-full flex flex-col items-center text-center group cursor-pointer card-hover p-5 sm:p-8 relative overflow-hidden">
-                {/* Petit effet de fond au hover */}
+                {}
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-fuchsia-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                
-                {/* Icône de la plateforme dans le coin */}
+
+                {}
                 <div className="absolute top-4 right-4 text-[var(--muted-text)] group-hover:text-[var(--text-color)] transition-colors">
                   {createur.plateforme === 'youtube' ? (
                     <Video className="w-6 h-6 group-hover:text-red-500 transition-colors" />
@@ -67,7 +66,7 @@ export default function VideastesPage() {
                   )}
                 </div>
 
-                {/* Avatar (Tête Minecraft) */}
+                {}
                 <div className="relative mb-6">
                   <div className="absolute inset-0 bg-fuchsia-500/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100"></div>
                   <img 
@@ -78,7 +77,7 @@ export default function VideastesPage() {
                   />
                 </div>
 
-                {/* Infos */}
+                {}
                 <h2 className="text-2xl font-bold mb-1 group-hover:text-fuchsia-400 transition-colors">
                   {createur.nom}
                 </h2>
@@ -86,7 +85,7 @@ export default function VideastesPage() {
                   {createur.role}
                 </p>
 
-                {/* Bouton Voir la chaîne */}
+                {}
                 <div className="mt-auto pt-4 flex items-center justify-center gap-2 text-sm font-bold text-fuchsia-500 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
                   Voir la chaîne <ExternalLink className="w-4 h-4" />
                 </div>

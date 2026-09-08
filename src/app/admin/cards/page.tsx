@@ -10,6 +10,8 @@ import CardDisplay from "@/features/binder/components/CardDisplay";
 import { toBlob } from "html-to-image";
 import toast from 'react-hot-toast';
 import { cn } from "@/lib/utils";
+import AdminCardPreview from "./components/AdminCardPreview";
+import AdminCardCatalog from "./components/AdminCardCatalog";
 
 export default function AdminCardsPage() {
   const defaultProbas: Record<string, number> = {
@@ -21,14 +23,13 @@ export default function AdminCardsPage() {
     MYTHIC: 0.2
   };
 
-  const [activeTab, setActiveTab] = useState("editor"); // editor | list
+  const [activeTab, setActiveTab] = useState("editor"); 
   const [cards, setCards] = useState<any[]>([]);
   const [players, setPlayers] = useState<any[]>([]);
   const [editions, setEditions] = useState<any[]>([]);
   const [variants, setVariants] = useState<any[]>([]);
   const [templates, setTemplates] = useState<any[]>([]);
-  
-  // Editor State
+
   const [creatingCard, setCreatingCard] = useState(false);
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [cardPlayerId, setCardPlayerId] = useState("");
@@ -61,7 +62,7 @@ export default function AdminCardsPage() {
   const [showRarityBadge, setShowRarityBadge] = useState(true);
   const [showLevelText, setShowLevelText] = useState(true);
   const [showLevelIcon, setShowLevelIcon] = useState(true);
-  
+
   const [hideCharacter, setHideCharacter] = useState(false);
   const [hideRarityBox, setHideRarityBox] = useState(false);
   const [hideSideText, setHideSideText] = useState(false);
@@ -77,14 +78,14 @@ export default function AdminCardsPage() {
   const [variantBadgeUrl, setVariantBadgeUrl] = useState("");
   const [variantName, setVariantName] = useState("");
   const [parentCardId, setParentCardId] = useState("");
-  
+
   const [charPosX, setCharPosX] = useState(50);
   const [charPosY, setCharPosY] = useState(50);
   const [charScale, setCharScale] = useState<number | string>(100);
   const [bgPosX, setBgPosX] = useState(50);
   const [bgPosY, setBgPosY] = useState(50);
   const [bgScale, setBgScale] = useState<number | string>(100);
-  
+
   const [titlePos, setTitlePos] = useState({ x: 50, y: 75, scale: 100 });
   const [descPos, setDescPos] = useState({ x: 50, y: 92, scale: 100 });
   const [rarityBadgePos, setRarityBadgePos] = useState({ x: 15, y: 65, scale: 100 });
@@ -95,13 +96,12 @@ export default function AdminCardsPage() {
 
   const [isVariant, setIsVariant] = useState(false);
   const [cardCustomBadges, setCardCustomBadges] = useState<any[]>([]);
-  
-  // Variant Linking State
+
   const [cardVariantLinks, setCardVariantLinks] = useState<any[]>([]);
   const [selectedVariantProfileId, setSelectedVariantProfileId] = useState("");
   const [selectedTargetCardId, setSelectedTargetCardId] = useState("");
   const [isSavingLink, setIsSavingLink] = useState(false);
-  
+
   const [isCapturing, setIsCapturing] = useState(false);
   const [draggingItem, setDraggingItem] = useState<{type: string, id: string} | null>(null);
 
@@ -116,7 +116,7 @@ export default function AdminCardsPage() {
     setIsUploading(true);
     const formData = new FormData();
     formData.append('file', file);
-    
+
     const selectedPlayer = players.find(p => p.id === cardPlayerId);
     const playerName = selectedPlayer?.minecraftName || cardTitle;
     if (playerName) {
@@ -132,7 +132,7 @@ export default function AdminCardsPage() {
       if (!res.ok) throw new Error("Upload failed");
 
       const { url } = await res.json();
-      
+
       switch (uploadTarget) {
         case 'cardImageUrl': setCardImageUrl(url); break;
         case 'layer1Url': setLayer1Url(url); break;
@@ -164,7 +164,7 @@ export default function AdminCardsPage() {
 
     const selectedPlayer = players.find(p => p.id === cardPlayerId);
     const playerName = selectedPlayer?.minecraftName || cardTitle;
-    
+
     if (!playerName) {
       toast.error("Veuillez sélectionner un joueur ou définir un pseudo d'abord.");
       return;
@@ -181,22 +181,21 @@ export default function AdminCardsPage() {
         response = await fetch(`https://vzge.me/bust/512/${playerName}.png`);
       }
       if (!response.ok) throw new Error("Impossible de récupérer le skin.");
-      
+
       const blob = await response.blob();
       const file = new File([blob], `${playerName}_skin.png`, { type: 'image/png' });
-      
-      // 2. Upload it to R2
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('playerName', playerName);
-      
+
       const uploadRes = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
 
       if (!uploadRes.ok) throw new Error("Erreur lors de l'envoi sur Cloudflare R2.");
-      
+
       const { url } = await uploadRes.json();
       setCardImageUrl(url);
       toast.success("Le skin a été figé et sauvegardé avec succès !");
@@ -317,7 +316,7 @@ export default function AdminCardsPage() {
     setLayer1Url(card.layer1Url || "");
     setLayer2Url(card.layer2Url || "");
     setLayer3Url(card.layer3Url || "");
-    
+
     try {
       const attrs = typeof card.attributes === 'string' ? JSON.parse(card.attributes) : (card.attributes || {});
       setCardBorderColor(attrs.borderColor || "");
@@ -366,7 +365,7 @@ export default function AdminCardsPage() {
     try {
       setCardCustomBadges(typeof card.customBadges === 'string' ? JSON.parse(card.customBadges) : (card.customBadges || []));
     } catch { setCardCustomBadges([]); }
-    
+
     try {
       const pos = typeof card.characterPosition === 'string' ? JSON.parse(card.characterPosition) : card.characterPosition;
       setCharPosX(pos?.x ?? 50);
@@ -402,7 +401,7 @@ export default function AdminCardsPage() {
   const handleCreateCard = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!cardPlayerId) return toast.error("Sélectionnez un joueur");
-    
+
     setCreatingCard(true);
     try {
       const player = players.find(p => p.id === cardPlayerId);
@@ -462,14 +461,14 @@ export default function AdminCardsPage() {
 
     const motherCard = cards.find(c => c.id === editingCardId);
     const variantProfile = variants.find(v => v.id === selectedVariantProfileId);
-    
+
     if (!motherCard || !variantProfile) return;
-    
+
     setIsSavingLink(true);
     try {
       let attrs: any = {};
       try { attrs = typeof motherCard.attributes === 'string' ? JSON.parse(motherCard.attributes) : (motherCard.attributes || {}); } catch(e){}
-      
+
       attrs.parentCardId = editingCardId;
       attrs.variantBadgeUrl = variantProfile.iconUrl;
 
@@ -609,7 +608,7 @@ export default function AdminCardsPage() {
       const file = new File([blob], `card_${editingCardId}_discord.png`, { type: 'image/png' });
       const formData = new FormData();
       formData.append('file', file);
-      
+
       const selectedPlayer = players.find(p => p.id === cardPlayerId);
       const playerName = selectedPlayer?.minecraftName || cardTitle;
       if (playerName) {
@@ -685,16 +684,16 @@ export default function AdminCardsPage() {
 
       {activeTab === "editor" ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          {/* Form Side */}
+          {}
           <div className="lg:col-span-7 xl:col-span-8 space-y-10">
             <form onSubmit={handleCreateCard} className="space-y-10">
-                
-                {/* 1. Base Configuration */}
+
+                {}
                 <div className="bg-[var(--card-bg)] p-8 rounded-[2.5rem] border border-[var(--card-border)] space-y-8">
                     <h3 className="text-xl font-black text-[var(--text-color)] uppercase tracking-tighter flex items-center gap-3">
                         <Info className="w-5 h-5 text-purple-400" /> Configuration de base
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-6">
                             <div>
@@ -795,12 +794,12 @@ export default function AdminCardsPage() {
                     </div>
                 </div>
 
-                {/* 1.5. Advanced Layout & Text Options */}
+                {}
                 <div className="bg-[var(--card-bg)] p-8 rounded-[2.5rem] border border-[var(--card-border)] space-y-8">
                     <h3 className="text-xl font-black text-[var(--text-color)] uppercase tracking-tighter flex items-center gap-3">
                         <Settings2 className="w-5 h-5 text-purple-400" /> Options de Layout & Couleurs
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-4">
                             <h4 className="text-[10px] font-black text-[var(--color-text-secondary)] uppercase tracking-widest mb-4">Visibilité des éléments</h4>
@@ -860,12 +859,12 @@ export default function AdminCardsPage() {
                     </div>
                 </div>
 
-                {/* 2. Visual Identity & Effects */}
+                {}
                 <div className="bg-[var(--card-bg)] p-8 rounded-[2.5rem] border border-[var(--card-border)] space-y-8">
                     <h3 className="text-xl font-black text-[var(--text-color)] uppercase tracking-tighter flex items-center gap-3">
                         <Palette className="w-5 h-5 text-purple-400" /> Apparence & Effets
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-6">
                             <div>
@@ -880,7 +879,7 @@ export default function AdminCardsPage() {
                                     </button>
                                 </div>
                             </div>
-                            
+
                             {cardRarity === "MYTHIC" && (
                                 <div className="space-y-4 pt-4 border-t border-[var(--card-border)]">
                                     <label className="block text-[10px] font-black text-purple-400 uppercase tracking-widest mb-2.5 ml-1">Calques Mythiques (Optionnel)</label>
@@ -953,7 +952,7 @@ export default function AdminCardsPage() {
                             </div>
                         </div>
 
-                        {/* Variant linking selection if isVariant is true */}
+                        {}
                         {isVariant && (
                             <div className="md:col-span-2 p-6 bg-purple-900/10 border border-purple-500/20 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-4">
                                 <h4 className="text-sm font-black text-purple-400 uppercase tracking-widest flex items-center gap-2">
@@ -1131,106 +1130,70 @@ export default function AdminCardsPage() {
             </form>
           </div>
 
-          {/* Preview Panel */}
-          <div className="lg:col-span-5 xl:col-span-4 sticky top-24">
-            <div className="flex flex-col items-center gap-10">
-                <div id="live-preview-card" className="perspective-1000 transform hover:scale-[1.03] transition-all duration-700 drop-shadow-[0_40px_80px_rgba(0,0,0,0.9)]">
-                    <CardDisplay
-                        isEditing={true}
-                        onUpdateElement={handleUpdateElement}
-                        card={{
-                            id: "preview",
-                            title: cardTitle || players.find(p => p.id === cardPlayerId)?.minecraftName || "Pseudo Joueur",
-                            rarity: cardRarity, level: cardLevel, edition: cardEdition,
-                            description: cardDesc || "Description de la carte...",
-                            customBackground: cardCustomBg, imageUrl: cardImageUrl,
-                            layer1Url, layer2Url, layer3Url,
-                            customBadges: cardCustomBadges,
-                            characterPosition: { x: charPosX, y: charPosY, scale: charScale },
-                            attributes: JSON.stringify({
-                                borderColor: cardBorderColor, cardBgColor, cardGlowColor, factionColor, rarityBadgeColor,
-                                frameUrl: cardFrameUrl, titlePos, descPos, rarityBadgePos, levelTextPos,
-                                levelBadgePos, editionBadgePos, variantBadgePos,
-                                levelBadgeUrl, editionBadgeUrl, variantBadgeUrl,
-                                parentCardId, isFullArt, isHolo,
-                                hideCharacter, hideRarityBox, hideSideText, hideDescription,
-                                hideNameplate, hideRole, hideTitle, hideBottomText,
-                                effect: cardEffect, titleColor, descColor, levelColor,
-                                showTitle, showDesc, showRarityBadge, showLevelText, showLevelIcon
-                            }),
-                            player: { minecraftName: players.find(p => p.id === cardPlayerId)?.minecraftName || "" }
-                        }}
-                        size="lg"
-                    />
-                </div>
-                
-                <div className="w-full space-y-6">
-                    <div className="text-center space-y-4 bg-[var(--card-bg)]/60 border border-[var(--card-border)] p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-purple-500 to-transparent"></div>
-                        <p className="text-[10px] font-black text-purple-400 uppercase tracking-[0.4em] mb-2">Workspace Interactif</p>
-                        <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed font-medium">
-                            <span className="text-[var(--text-color)] font-bold">DRAG:</span> Déplacez les textes et images.
-                            <br/>
-                            <span className="text-[var(--text-color)] font-bold">WHEEL:</span> Redimensionnez les éléments.
-                        </p>
-                    </div>
-
-                    <button 
-                        onClick={handleCaptureDiscordImage}
-                        disabled={isCapturing}
-                        className="w-full py-5 bg-indigo-600/10 border border-indigo-500/30 text-indigo-400 font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-600 hover:text-[var(--text-color)] transition-all flex items-center justify-center gap-3 shadow-xl disabled:opacity-50"
-                    >
-                        {isCapturing ? <Loader2 className="w-6 h-6 animate-spin" /> : <ImagePlus className="w-6 h-6" />} 
-                        {isCapturing ? "Génération en cours..." : "Figer pour Discord"}
-                    </button>
-                </div>
-            </div>
-          </div>
+          <AdminCardPreview
+            cardTitle={cardTitle}
+            players={players}
+            cardPlayerId={cardPlayerId}
+            cardRarity={cardRarity}
+            cardLevel={cardLevel}
+            cardEdition={cardEdition}
+            cardDesc={cardDesc}
+            cardCustomBg={cardCustomBg}
+            cardImageUrl={cardImageUrl}
+            layer1Url={layer1Url}
+            layer2Url={layer2Url}
+            layer3Url={layer3Url}
+            cardCustomBadges={cardCustomBadges}
+            charPosX={charPosX}
+            charPosY={charPosY}
+            charScale={charScale}
+            cardBorderColor={cardBorderColor}
+            cardBgColor={cardBgColor}
+            cardGlowColor={cardGlowColor}
+            factionColor={factionColor}
+            rarityBadgeColor={rarityBadgeColor}
+            cardFrameUrl={cardFrameUrl}
+            titlePos={titlePos}
+            descPos={descPos}
+            rarityBadgePos={rarityBadgePos}
+            levelTextPos={levelTextPos}
+            levelBadgePos={levelBadgePos}
+            editionBadgePos={editionBadgePos}
+            variantBadgePos={variantBadgePos}
+            levelBadgeUrl={levelBadgeUrl}
+            editionBadgeUrl={editionBadgeUrl}
+            variantBadgeUrl={variantBadgeUrl}
+            parentCardId={parentCardId}
+            isFullArt={isFullArt}
+            isHolo={isHolo}
+            hideCharacter={hideCharacter}
+            hideRarityBox={hideRarityBox}
+            hideSideText={hideSideText}
+            hideDescription={hideDescription}
+            hideNameplate={hideNameplate}
+            hideRole={hideRole}
+            hideTitle={hideTitle}
+            hideBottomText={hideBottomText}
+            cardEffect={cardEffect}
+            titleColor={titleColor}
+            descColor={descColor}
+            levelColor={levelColor}
+            showTitle={showTitle}
+            showDesc={showDesc}
+            showRarityBadge={showRarityBadge}
+            showLevelText={showLevelText}
+            showLevelIcon={showLevelIcon}
+            onUpdateElement={handleUpdateElement}
+            isCapturing={isCapturing}
+            onCaptureDiscordImage={handleCaptureDiscordImage}
+          />
         </div>
       ) : (
-        /* Catalogue View */
-        <div className="space-y-12">
-            <div className="flex flex-wrap gap-6 items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <Search className="w-5 h-5 text-[var(--color-text-secondary)]" />
-                    <input type="text" placeholder="Rechercher une carte..." className="bg-[var(--icon-bg)] border border-[var(--card-border)] rounded-2xl px-6 py-3 text-sm text-[var(--text-color)] outline-none focus:border-purple-500 w-80 shadow-inner" />
-                </div>
-                <div className="flex gap-4">
-                    <button className="px-6 py-3 bg-[var(--icon-bg)] hover:bg-[var(--icon-bg)] border border-[var(--card-border)] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"><ImagePlus className="w-4 h-4" /> Générer les manquantes</button>
-                    <button className="px-6 py-3 bg-red-500/10 hover:bg-red-500 border border-red-500/20 text-red-500 hover:text-[var(--text-color)] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"><Trash2 className="w-4 h-4" /> Reset total</button>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-                {cards.map(card => (
-                    <div key={card.id} className="group bg-[var(--card-bg)] border border-[var(--card-border)] rounded-[2.5rem] p-7 hover:border-purple-500/30 transition-all relative overflow-hidden shadow-2xl hover:-translate-y-2">
-                        <div className="flex flex-col items-center text-center space-y-5">
-                            <div className="w-24 h-24 bg-[var(--surface-bg)] rounded-[2rem] border border-[var(--card-border)] flex items-center justify-center overflow-hidden shadow-inner group-hover:scale-110 transition-transform duration-500 relative">
-                                <img src={`https://vzge.me/bust/512/${card.title}.png`} className="w-20 h-20 object-contain z-10" alt="" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            </div>
-                            <div>
-                                <h4 className="text-[var(--text-color)] font-black uppercase tracking-tighter text-xl leading-tight mb-1">{card.title}</h4>
-                                <div className="flex flex-col gap-1 items-center">
-                                    <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest">{card.rarity}</span>
-                                    <span className="text-[8px] font-bold text-gray-600 uppercase tracking-[0.2em]">{card.edition} • {card.level}</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="flex gap-2 mt-8">
-                            <button onClick={() => startEditCard(card)} className="flex-1 py-3 bg-white text-black rounded-xl text-[10px] font-black transition-all hover:bg-purple-500 hover:text-[var(--text-color)] uppercase tracking-widest">ÉDITER</button>
-                            <button onClick={() => handleDeleteCard(card.id)} className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500 hover:text-[var(--text-color)] transition-all"><Trash2 className="w-4 h-4" /></button>
-                        </div>
-                    </div>
-                ))}
-                {cards.length === 0 && (
-                    <div className="col-span-full py-32 text-center border border-dashed border-[var(--card-border)] rounded-[3rem] bg-white/[0.01]">
-                        <p className="text-[var(--color-text-secondary)] italic font-bold uppercase tracking-[0.3em] text-xs">Le catalogue de cartes est vide</p>
-                    </div>
-                )}
-            </div>
-        </div>
+        <AdminCardCatalog
+          cards={cards}
+          onEditCard={startEditCard}
+          onDeleteCard={handleDeleteCard}
+        />
       )}
     </div>
   );

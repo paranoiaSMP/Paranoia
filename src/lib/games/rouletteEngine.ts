@@ -94,7 +94,7 @@ class RouletteEngine {
     } else {
       this.winningNumber = BLACK_ARRAY[crypto.randomInt(0, BLACK_ARRAY.length)];
     }
-    
+
     const pocketIndex = EUROPEAN_WHEEL.indexOf(this.winningNumber);
     const pocketAngle = (360 - (pocketIndex * (360 / 37))) % 360;
     const jitter = (crypto.randomInt(0, 70) - 35) / 10;

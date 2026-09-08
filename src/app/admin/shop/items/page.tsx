@@ -10,8 +10,7 @@ export default function AdminShopItemsPage() {
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
-  
-  // Form State
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     itemId: "",
@@ -46,12 +45,12 @@ export default function AdminShopItemsPage() {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      
+
       const res = await fetch("/api/upload", {
         method: "POST",
         body: fd
       });
-      
+
       if (res.ok) {
         const data = await res.json();
         setFormData(prev => ({ ...prev, [field]: data.url }));
@@ -85,7 +84,7 @@ export default function AdminShopItemsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editingId ? { id: editingId, ...formData } : formData)
       });
-      
+
       if (res.ok) {
         toast.success(editingId ? "Objet modifié !" : "Objet créé !");
         cancelEdit();
@@ -156,8 +155,8 @@ export default function AdminShopItemsPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
-        
-        {/* Form */}
+
+        {}
         <div className="xl:col-span-4 space-y-8">
           <div className="bg-[var(--card-bg)] p-8 rounded-[2.5rem] border border-[var(--card-border)] space-y-8 sticky top-24">
             <h3 className="text-xl font-black text-[var(--text-color)] uppercase tracking-tighter flex items-center gap-3">
@@ -170,7 +169,7 @@ export default function AdminShopItemsPage() {
                 <label className="block text-[10px] font-black text-[var(--color-text-secondary)] uppercase tracking-widest ml-1">ID Launcher (ex: cape_dragon) *</label>
                 <input type="text" value={formData.itemId} onChange={e => setFormData({...formData, itemId: e.target.value})} className="w-full bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-2xl px-4 py-3 text-[var(--text-color)] outline-none focus:border-indigo-500" required />
               </div>
-              
+
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-[var(--color-text-secondary)] uppercase tracking-widest ml-1">Nom Affiché *</label>
                 <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-2xl px-4 py-3 text-[var(--text-color)] outline-none focus:border-indigo-500" required />
@@ -252,7 +251,7 @@ export default function AdminShopItemsPage() {
                       <button onClick={() => startEdit(item)} className="p-2 bg-[var(--icon-bg)] rounded-xl text-indigo-400 hover:bg-indigo-600 hover:text-[var(--text-color)] transition-all shadow-lg"><Edit2 className="w-4 h-4" /></button>
                       <button onClick={() => handleDelete(item.id)} className="p-2 bg-red-500/10 rounded-xl text-red-500 hover:bg-red-600 hover:text-[var(--text-color)] transition-all shadow-lg"><Trash2 className="w-4 h-4" /></button>
                     </div>
-                    
+
                     <div className="flex gap-4">
                       <div className="w-20 h-20 shrink-0 bg-[var(--surface-bg)] rounded-2xl border border-[var(--card-border)] flex items-center justify-center p-2 overflow-hidden">
                         {item.imageUrl ? <img src={item.imageUrl} className="w-full h-full object-contain" /> : <Package className="w-8 h-8 text-gray-700" />}
@@ -266,7 +265,7 @@ export default function AdminShopItemsPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {item.description && (
                       <p className="mt-4 text-xs text-[var(--color-text-secondary)] line-clamp-2">
                         {item.description}

@@ -9,13 +9,13 @@ def create_demotion_embed(member: discord.Member, role: str, author: discord.Mem
     )
     embed.add_field(name="Ancien rôle", value=role, inline=True)
     embed.add_field(name="Géré par", value=author.mention, inline=True)
-    
+
     if reason:
         embed.add_field(name="Note", value=reason, inline=False)
-        
+
     embed.set_footer(text=Config.FOOTER_TEXT)
-    
+
     if member.display_avatar:
         embed.set_thumbnail(url=member.display_avatar.url)
-        
+
     return embed

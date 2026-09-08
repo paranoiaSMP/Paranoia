@@ -1,6 +1,5 @@
 import discord
 
-
 async def verifier_quete_statut(bot, interaction: discord.Interaction):
     if not bot.db:
         return await interaction.response.send_message("", ephemeral=True)

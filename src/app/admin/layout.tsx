@@ -60,7 +60,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {/* Decorative background for the panel */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-fuchsia-600/10 rounded-full blur-[100px] pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
-            
+
             <div className="relative z-10">
               {children}
             </div>

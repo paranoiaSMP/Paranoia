@@ -14,21 +14,20 @@ export default function CTASection() {
         className="relative rounded-3xl overflow-hidden flex flex-col md:flex-row items-stretch border-4 shadow-2xl"
         style={{ backgroundColor: 'var(--surface-bg)', borderColor: 'var(--card-border)' }}
       >
-        {/* Subtle noise texture */}
+        {}
         <div className="absolute inset-0 bg-noise opacity-20 pointer-events-none"></div>
-        
-        {/* Text Content */}
+
+        {}
         <div className="relative z-10 p-5 sm:p-8 md:p-16 flex-1 text-left flex flex-col items-start">
 
-          
           <h2 className="text-2xl sm:text-5xl md:text-6xl font-outfit font-black mb-4 sm:mb-6 text-balance leading-tight" style={{ color: 'var(--text-color)' }}>
             PARANOIA <span style={{ color: 'var(--logo-end)' }}>Launcher</span>
           </h2>
-          
+
           <p className="text-sm sm:text-lg mb-6 sm:mb-8 font-inter max-w-md leading-relaxed text-balance" style={{ color: 'var(--nav-item-color)' }}>
             Profitez d'une expérience de jeu fluide et sans compromis. Notre launcher personnalisé vous permet de rejoindre le serveur instantanément avec des performances maximales, sans aucune configuration préalable.
           </p>
-          
+
           <ul className="flex flex-col gap-3 sm:gap-4 mb-8 sm:mb-10 font-inter w-full">
             <li className="flex items-center gap-2.5 sm:gap-3 font-medium text-xs sm:text-base" style={{ color: 'var(--text-color)' }}>
               <div className="p-1 rounded-md shrink-0" style={{ backgroundColor: 'var(--feature-emerald-bg)' }}>
@@ -55,7 +54,7 @@ export default function CTASection() {
               Accès direct aux événements
             </li>
           </ul>
-          
+
           <div className="flex flex-col sm:flex-row items-stretch w-full sm:w-auto gap-4">
             {/* Disabled Coming Soon Button */}
             <div className="btn-neo-secondary cursor-not-allowed opacity-70 pointer-events-none flex justify-center w-full sm:w-auto text-center">
@@ -64,13 +63,13 @@ export default function CTASection() {
             </div>
           </div>
         </div>
-        
+
         {/* Visual Content (Stylized Futuristic Launcher Preview) */}
         <div className="relative w-full md:w-2/5 min-h-[220px] sm:min-h-[350px] flex items-stretch border-t-4 md:border-t-0 md:border-l-4 overflow-hidden" style={{ backgroundColor: 'var(--navbar-bg)', borderColor: 'var(--card-border)' }}>
           {/* Ambient Purple Glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full blur-[80px] opacity-30 bg-[var(--color-accent-purple,#9d0df2)] pointer-events-none"></div>
           <div className="absolute inset-0 bg-noise opacity-30 pointer-events-none"></div>
-          
+
           <div className="relative flex-1 flex items-center justify-center p-3 sm:p-8">
             <motion.div 
               whileHover={{ scale: 1.02 }}

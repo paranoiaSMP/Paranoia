@@ -168,14 +168,14 @@ export const InteractiveCard = ({ card, children, className = "", style: customS
           />
         </div>
       )}
-      {/* Subtle Texture Overlay */}
+      {}
       <div className="absolute inset-0 z-0 mix-blend-overlay opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] pointer-events-none rounded-xl" />
 
       <div className="relative z-10 w-full h-full" style={{ transformStyle: "preserve-3d" }}>
         {children}
       </div>
-      
-      {/* Reactive Holo Layer */}
+
+      {}
       {attrs.isHolo && (
         <div
           className="absolute inset-0 pointer-events-none z-[60] rounded-xl overflow-hidden mix-blend-color-dodge transition-opacity duration-300"
@@ -516,7 +516,7 @@ export default function CardDisplay({
           />
         ))}
 
-        {/* Editor Guides */}
+        {}
         {isEditing && attrs.showVGuide && (
           <div className="absolute top-0 bottom-0 left-1/2 w-[2px] bg-[var(--color-accent-purple)] shadow-[0_0_8px_var(--color-accent-purple)] z-[100] pointer-events-none" style={{ transform: 'translateX(-50%) translateZ(100px)' }} />
         )}
@@ -524,7 +524,7 @@ export default function CardDisplay({
           <div className="absolute left-0 right-0 top-1/2 h-[2px] bg-[var(--color-accent-purple)] shadow-[0_0_8px_var(--color-accent-purple)] z-[100] pointer-events-none" style={{ transform: 'translateY(-50%) translateZ(100px)' }} />
         )}
 
-        {/* Variant Suite Icon */}
+        {}
         {attrs.variantSuite && (
           <div className="absolute bottom-4 right-4 z-[80] flex items-center gap-2 bg-black/60 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full shadow-lg group/variant transition-all hover:scale-110" style={{ transform: 'translateZ(90px)' }}>
             <Sparkles className="w-3 h-3 text-indigo-400 animate-pulse" />
@@ -532,12 +532,12 @@ export default function CardDisplay({
           </div>
         )}
 
-        {/* Card Frame overlay */}
+        {}
         {attrs.frameUrl && (
           <img src={attrs.frameUrl} alt="Card Frame" loading={isEditing ? "eager" : "lazy"} decoding="async" className="absolute inset-0 w-full h-full object-cover pointer-events-none rounded-xl" style={{ transform: 'translateZ(10px)' }} />
         )}
 
-        {/* Special Effects Overlays */}
+        {}
         {specialEffect === 'Holo' && (
           <>
             <div className="absolute inset-0 z-[90] pointer-events-none rounded-xl overflow-hidden mix-blend-color-dodge" style={{

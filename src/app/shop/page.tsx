@@ -33,7 +33,7 @@ export default async function ShopPage() {
 
   return (
     <div className="max-w-7xl mx-auto py-12 animate-slide-up relative">
-      {/* Glow */}
+      {}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 rounded-full blur-[150px] opacity-10 pointer-events-none"
         style={{ background: 'var(--accent-purple)' }}></div>
 

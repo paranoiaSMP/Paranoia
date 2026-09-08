@@ -169,7 +169,6 @@ export default function AdminPlayersPage() {
     }
   };
 
-
   return (
     <div className="space-y-12">
       <div className="flex items-center gap-4 border-b border-[var(--card-border)] pb-6">
@@ -183,7 +182,7 @@ export default function AdminPlayersPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
-        {/* Form Column */}
+        {}
         <div className="xl:col-span-1">
           <div className="bg-[var(--card-bg)] p-8 rounded-3xl border border-[var(--card-border)] sticky top-8">
             <h3 className="text-xl font-bold text-[var(--text-color)] mb-6 flex items-center gap-2">
@@ -214,7 +213,7 @@ export default function AdminPlayersPage() {
           </div>
         </div>
 
-        {/* List Column */}
+        {}
         <div className="xl:col-span-2">
           <div className="bg-[var(--card-bg)] p-8 rounded-3xl border border-[var(--card-border)]">
             <h3 className="text-xl font-bold text-[var(--text-color)] mb-6">Joueurs Actuels ({players.length})</h3>

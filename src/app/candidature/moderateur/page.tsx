@@ -8,7 +8,7 @@ export default function ModCandidaturePage() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     discordName: "",
     minecraftName: "",
@@ -28,17 +28,17 @@ export default function ModCandidaturePage() {
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const res = await fetch('/api/candidature/moderateur', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Erreur lors de l'envoi");
-      
+
       setIsSuccess(true);
       toast.success("Candidature envoyée avec succès !");
     } catch (err: any) {
@@ -98,7 +98,7 @@ export default function ModCandidaturePage() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          
+
           {step === 1 && (
             <div className="space-y-8 animate-slide-up">
               <h2 className="text-3xl font-outfit font-black mb-8 flex items-center gap-4" style={{ color: 'var(--text-color)' }}>

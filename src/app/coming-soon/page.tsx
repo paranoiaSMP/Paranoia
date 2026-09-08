@@ -22,8 +22,8 @@ export default function ComingSoonPage() {
 
   return (
     <div className="min-h-screen bg-[#050508] text-white flex flex-col items-center justify-center relative overflow-hidden px-4">
-      
-      {/* Dynamic Mouse Gradient Follower */}
+
+      {}
       <motion.div 
         className="absolute w-[800px] h-[800px] rounded-full pointer-events-none z-0"
         style={{
@@ -36,7 +36,7 @@ export default function ComingSoonPage() {
         transition={{ type: "tween", ease: "backOut", duration: 1 }}
       />
 
-      {/* Grid Pattern */}
+      {}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px] opacity-20 z-0"></div>
 
       <motion.div 
@@ -45,7 +45,7 @@ export default function ComingSoonPage() {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="relative z-10 flex flex-col items-center w-full max-w-4xl"
       >
-        {/* Logo Container */}
+        {}
         <motion.div 
           initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -64,7 +64,7 @@ export default function ComingSoonPage() {
           />
         </motion.div>
 
-        {/* Text Content */}
+        {}
         <div className="text-center space-y-6 mb-16 relative">
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
@@ -94,7 +94,7 @@ export default function ComingSoonPage() {
           </motion.p>
         </div>
 
-        {/* Action Button */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -102,7 +102,7 @@ export default function ComingSoonPage() {
           className="flex flex-col items-center gap-4"
         >
           <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-gray-700 to-transparent mb-4"></div>
-          
+
           <button 
             onClick={() => signIn("discord")}
             className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-black border border-gray-800 rounded-2xl overflow-hidden hover:border-fuchsia-500/50 transition-all duration-300 shadow-[0_0_0_rgba(168,85,247,0)] hover:shadow-[0_0_40px_rgba(168,85,247,0.3)] hover:-translate-y-1"
@@ -115,7 +115,7 @@ export default function ComingSoonPage() {
           </button>
         </motion.div>
       </motion.div>
-      
+
     </div>
   );
 }

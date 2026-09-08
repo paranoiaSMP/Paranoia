@@ -11,7 +11,6 @@ class TicketLaunchView(discord.ui.View):
     async def open_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(VideasteModal())
 
-
 class TicketStaffView(discord.ui.View):
     def __init__(self, user_id: int, pseudo_mc: str, youtube: str, twitch: str, tiktok: str):
         super().__init__(timeout=None)

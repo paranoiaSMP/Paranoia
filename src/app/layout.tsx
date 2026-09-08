@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     siteName: 'Paranoia SMP',
     images: [
       {
-        url: '/Paranoia_logo.png', // Fallback to the logo for now
+        url: '/Paranoia_logo.png', 
         width: 800,
         height: 600,
       },

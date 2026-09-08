@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client'
 import { Pool, types } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 
-// Fix for BigInt serialization
 if (typeof BigInt !== 'undefined' && !(BigInt.prototype as any).toJSON) {
   (BigInt.prototype as any).toJSON = function () { return Number(this) }
 }
@@ -20,13 +19,13 @@ if (!globalForPrisma.pool) {
     connectionString,
     ssl: false,
     max: 10,
-    idleTimeoutMillis: 10000, // Reduced to prevent using connections closed by remote DB
+    idleTimeoutMillis: 10000, 
     connectionTimeoutMillis: 10000,
     allowExitOnIdle: true,
   })
 
   globalForPrisma.pool.on('error', (err) => {
-    // Suppress idle client errors so they don't crash the server
+
     console.error('Unexpected error on idle database client', err)
   })
 }

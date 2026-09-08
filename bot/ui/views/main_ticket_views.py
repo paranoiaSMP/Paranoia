@@ -17,7 +17,6 @@ class MainTicketLaunchView(discord.ui.View):
         from ui.views.videaste_modal import VideasteModal
         await interaction.response.send_modal(VideasteModal())
 
-
 class MainTicketStaffView(discord.ui.View):
     def __init__(self, user_id: int, ticket_id: str, category: str, pseudo_mc: str, details: str):
         super().__init__(timeout=None)

@@ -13,7 +13,7 @@ export default function Page() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       <BackgroundEffects />
-      
+
       <div className="relative z-10">
         <HeroSection />
         <FeaturesSection />

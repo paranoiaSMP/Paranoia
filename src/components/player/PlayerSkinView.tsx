@@ -37,24 +37,22 @@ export default function PlayerSkinView({
       ctx.clearRect(0, 0, size, size);
 
       if (type === "bust") {
-        // Render 2D head + upper body from 64x64 skin
+
         const headSize = Math.round(size * 0.65);
         const headOffset = Math.round((size - headSize) / 2);
 
-        // Head Base
         ctx.drawImage(img, 8, 8, 8, 8, headOffset, 0, headSize, headSize);
-        // Head Hat
+
         ctx.drawImage(img, 40, 8, 8, 8, headOffset, 0, headSize, headSize);
 
-        // Torso & shoulders
         const bodyWidth = Math.round(size * 0.85);
         const bodyHeight = size - headSize;
         const bodyX = Math.round((size - bodyWidth) / 2);
         ctx.drawImage(img, 20, 20, 8, 8, bodyX, headSize - 2, bodyWidth, bodyHeight + 2);
       } else {
-        // Head Base
+
         ctx.drawImage(img, 8, 8, 8, 8, 0, 0, size, size);
-        // Head Hat
+
         ctx.drawImage(img, 40, 8, 8, 8, 0, 0, size, size);
       }
     };

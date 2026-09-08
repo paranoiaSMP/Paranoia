@@ -17,9 +17,8 @@ export async function syncCosmeticsJson() {
 
     const prismaItems = await prisma.launcherShopItem.findMany();
 
-    // Map Prisma items to the expected JSON format
     const items = prismaItems.map((item) => {
-      // Map category to the accepted types: "cape", "wings", "halo", "hat", "particle", "emote"
+
       let type = "cape";
       if (item.category) {
         const cat = item.category.toLowerCase();
@@ -34,7 +33,7 @@ export async function syncCosmeticsJson() {
         name: item.name,
         previewUrl: item.imageUrl,
         ...(item.modelUrl ? { textureUrl: item.modelUrl } : {}),
-        rarity: "common", // default rarity
+        rarity: "common", 
         price: item.price,
       };
     });

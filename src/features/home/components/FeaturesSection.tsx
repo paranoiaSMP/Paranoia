@@ -64,9 +64,9 @@ export default function FeaturesSection() {
             transition={{ duration: 0.6, delay: i * 0.2 }}
             className="group relative cursor-pointer"
           >
-            {/* Chunky shadow base for physical depth */}
+            {}
             <div className="absolute inset-0 rounded-xl translate-y-2 translate-x-1 sm:translate-y-3 sm:translate-x-2 transition-transform duration-300 group-hover:translate-y-4 group-hover:translate-x-3" style={{ backgroundColor: 'var(--card-border)' }}></div>
-            
+
             <div 
               className="relative h-full rounded-xl p-4 sm:p-8 flex flex-col justify-between border-2 sm:border-4 transition-all duration-300 group-hover:-translate-y-2 group-active:translate-y-1"
               style={{ backgroundColor: 'var(--surface-bg)', borderColor: 'var(--card-border)' }}
@@ -78,16 +78,16 @@ export default function FeaturesSection() {
                 >
                   <feature.icon className="w-5 h-5 sm:w-7 sm:h-7" />
                 </div>
-                
+
                 <h3 className="text-lg sm:text-2xl font-bold font-outfit mb-2 sm:mb-4" style={{ color: 'var(--text-color)' }}>
                   {feature.title}
                 </h3>
-                
+
                 <p className="text-sm sm:text-base leading-relaxed font-inter" style={{ color: 'var(--nav-item-color)' }}>
                   {feature.desc}
                 </p>
               </div>
-              
+
               <div 
                 className="mt-4 sm:mt-8 px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-between border-2 transition-all duration-300 group-hover:scale-[1.02] shadow-sm"
                 style={{ 

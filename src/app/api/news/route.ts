@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // Récupérer les topics de type "news", "annonces", etc.
+
     const newsTopics = await prisma.topic.findMany({
       where: {
         category: {
@@ -15,11 +15,9 @@ export async function GET() {
       orderBy: {
         createdAt: 'desc'
       },
-      take: 10 // Limiter aux 10 dernières actualités
+      take: 10 
     });
 
-    // S'il n'y a pas encore d'actualités dans la base de données, 
-    // on renvoie l'exemple statique pour que le launcher affiche quelque chose en test.
     if (newsTopics.length === 0) {
       return NextResponse.json([
         {
@@ -40,11 +38,10 @@ export async function GET() {
       });
     }
 
-    // Sinon, on formate les données de la DB pour correspondre au contrat attendu par le launcher
     const formattedNews = newsTopics.map(topic => ({
       id: topic.id,
       title: topic.title,
-      // Création d'un extrait basique (on retire les balises HTML et on garde 120 caractères)
+
       excerpt: topic.content.replace(/<[^>]*>?/gm, '').substring(0, 120) + (topic.content.length > 120 ? '...' : ''),
       contentHtml: topic.content,
       publishedAt: topic.createdAt.toISOString(),

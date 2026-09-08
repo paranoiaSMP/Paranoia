@@ -16,7 +16,6 @@ export async function POST(req: Request) {
       return new NextResponse("Missing data", { status: 400 });
     }
 
-    // Désactiver tous les bans actifs pour ce joueur
     await prisma.ban.updateMany({
       where: { playerId: playerId, isActive: true },
       data: {
@@ -30,8 +29,6 @@ export async function POST(req: Request) {
       where: { id: playerId },
       data: { status: "ACTIVE" }
     });
-    
-    // TODO: Le serveur WebSocket enverra "BAN_REVOKED" s'il est connecté
 
     return NextResponse.json({ success: true });
   } catch (error) {

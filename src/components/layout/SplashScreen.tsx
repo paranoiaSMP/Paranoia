@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const ease = [0.16, 1, 0.3, 1] as const;
+
 export default function SplashScreen({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
 
@@ -26,9 +28,6 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
     return () => clearTimeout(timer);
   }, []);
 
-  // Courbe de bézier très douce style Apple
-  const ease = [0.16, 1, 0.3, 1];
-
   return (
     <>
       <AnimatePresence>
@@ -39,7 +38,6 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
             transition={{ duration: 0.8, ease: "easeInOut" }}
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden bg-black text-white"
           >
-            {/* Conteneur principal qui scale légèrement vers le haut */}
             <motion.div
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
@@ -47,9 +45,7 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
               className="flex flex-col items-center justify-center font-black"
               style={{ fontFamily: "'-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}
             >
-              
               <div className="flex items-center justify-center">
-                {/* La lettre P */}
                 <motion.h1
                   initial={{ y: 50, opacity: 0, filter: "blur(12px)", color: "#ffffff" }}
                   animate={{ y: 0, opacity: 1, filter: "blur(0px)", color: "#ffffff" }}
@@ -63,7 +59,6 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
                   P
                 </motion.h1>
 
-                {/* Le reste de ARANOIA qui glisse vers la droite */}
                 <motion.div
                   initial={{ width: 0, opacity: 0 }}
                   animate={{ width: "auto", opacity: 1 }}
@@ -83,7 +78,6 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
                 </motion.div>
               </div>
 
-              {/* STUDIO qui descend */}
               <div className="overflow-hidden mt-1 relative z-0">
                 <motion.div
                   initial={{ y: -100, opacity: 0 }}
@@ -104,9 +98,7 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
                   </motion.h2>
                 </motion.div>
               </div>
-
             </motion.div>
-
           </motion.div>
         )}
       </AnimatePresence>

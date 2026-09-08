@@ -69,7 +69,7 @@ const LAYERS: LayerDef[] = [
     className: "text-5xl md:text-7xl lg:text-9xl font-black font-outfit tracking-[0.15em] uppercase text-white drop-shadow-2xl text-center",
     name: "GTA logo",
     initialScale: 3.306,
-    revealDelay: 0.2, // Faster reveal since there are no images before it
+    revealDelay: 0.2, 
     initial: {
       opacity: 1,
       clipPath: "inset(0% 0% 100% 0%)",

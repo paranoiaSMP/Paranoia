@@ -7,11 +7,6 @@ class inventory(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
-
-
-    # Command Flex
-
     @app_commands.command(name="flex", description="Flex Ta meilleur carte")
     async def flex(self, interaction: discord.Interaction):
         if not self.bot.db:
@@ -25,7 +20,7 @@ class inventory(commands.Cog):
                 return await interaction.response.send_message("You are Not Register In the Database", ephemeral=True)
 
             cards_query = '''
-            SELECT uc.id as "userCardId", tc.title, tc.rarity, tc.edition, tc."imageUrl", 
+            SELECT uc.id as "userCardId", tc.title, tc.rarity, tc.edition, tc."imageUrl",
             tc."renderedImageUrl", tc.proba
             FROM "UserCard" uc
             JOIN "TradingCard" tc ON uc."tradingCardId" = tc.id
@@ -35,7 +30,6 @@ class inventory(commands.Cog):
 
             if not inventory:
                 return await interaction.response.send_message("Your inventory is empty! Open booster on our website.", ephemeral=True)
-            # Trie des carte
 
             rarity_order = {'MYTHIC': 0, 'LEGENDARY': 1, 'EPIC':2, 'RARE': 3, 'UNCOMMON': 4, 'COMMON': 5}
             sorted_inv = sorted(inventory, key=lambda c: (rarity_order.get(c['rarity'],99),c['proba']))
@@ -69,9 +63,3 @@ class inventory(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(inventory(bot))
-
-
-
-
-
-

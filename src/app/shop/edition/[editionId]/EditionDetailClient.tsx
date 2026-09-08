@@ -73,8 +73,8 @@ export default function EditionDetailClient({
 
   return (
     <div className="space-y-20">
-      
-      {/* Economy Overview */}
+
+      {}
       {isLoggedIn && (
         <div className="flex justify-center mb-12">
             <div className="bg-[#111118]/80 backdrop-blur-xl border border-white/10 px-8 py-4 rounded-3xl flex items-center gap-6 shadow-2xl">
@@ -87,7 +87,7 @@ export default function EditionDetailClient({
         </div>
       )}
 
-      {/* Purchase Boosters Section */}
+      {}
       {edition.isPurchasable && (
         <section className="space-y-10">
             <div className="text-center">
@@ -103,7 +103,7 @@ export default function EditionDetailClient({
                 {boxes.map((box) => (
                     <div key={box.id} className={`group relative p-8 rounded-[2rem] border ${box.border} ${box.bg} backdrop-blur-md transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]`}>
                         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem]"></div>
-                        
+
                         <div className={`mb-6 text-center ${box.color}`}>
                             <Zap className="w-12 h-12 mx-auto mb-2 drop-shadow-[0_0_10px_currentColor]" />
                             <span className="font-outfit font-black text-xl uppercase tracking-widest">{box.name}</span>

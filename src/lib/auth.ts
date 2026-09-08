@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
         try {
           const discordProfile = profile as any;
           let imageUrl = user.image;
-          
+
           if (discordProfile.avatar === null) {
             const defaultAvatarNumber = discordProfile.discriminator === "0" 
               ? Number(BigInt(discordProfile.id) >> 22n) % 6 
@@ -51,7 +51,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           const newName = discordProfile.global_name || discordProfile.username || user.name;
-          
+
           const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
           if (dbUser) {
             await prisma.user.update({
@@ -67,7 +67,7 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-   
+
     async jwt({ token, user, trigger, session, account }) {
       if (user) {
         token.id = user.id;

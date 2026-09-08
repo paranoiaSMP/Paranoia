@@ -440,7 +440,7 @@ export default function RouletteClient({
         <div className="flex flex-col items-center justify-center py-2 relative">
           <div className="relative flex items-center justify-center">
             <div className="relative w-72 h-72 sm:w-88 sm:h-88 md:w-[420px] md:h-[420px] rounded-full p-2 bg-gradient-to-b from-[#2a1d3b] via-[#161224] to-[#090810] border-4 border-amber-500/30 shadow-[0_0_50px_rgba(0,0,0,0.8),inset_0_0_30px_rgba(0,0,0,0.9)] flex items-center justify-center select-none">
-              
+
               <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center relative">
                 <img
                   src="/images/roulette-wheel.png"
@@ -475,7 +475,7 @@ export default function RouletteClient({
                 >
                   <div className="relative w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
                     <div className="absolute w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-black/80 blur-[1px] translate-y-0.5 translate-x-0.5" />
-                    
+
                     <div className={`w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 rounded-full bg-gradient-to-br from-white via-slate-100 to-slate-400 shadow-[0_0_8px_rgba(255,255,255,0.9),inset_-1px_-1px_3px_rgba(0,0,0,0.5),inset_1px_1px_2px_rgba(255,255,255,1)] border border-white/90 ${
                       isBallSpinning ? 'shadow-[0_0_14px_rgba(255,255,255,1)] scale-105' : ''
                     }`} />

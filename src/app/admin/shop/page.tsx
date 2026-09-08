@@ -8,8 +8,7 @@ import { cn } from "@/lib/utils";
 export default function AdminShopPage() {
   const [editions, setEditions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  
-  // Edition Form State
+
   const [editingEdition, setEditingEdition] = useState<string | null>(null);
   const [newEditionName, setNewEditionName] = useState("");
   const [newEditionIconUrl, setNewEditionIconUrl] = useState("");
@@ -18,7 +17,6 @@ export default function AdminShopPage() {
   const [newEditionShowInShop, setNewEditionShowInShop] = useState(false);
   const [newEditionIsPurchasable, setNewEditionIsPurchasable] = useState(false);
 
-  // Promo State
   const [promoActive, setPromoActive] = useState(false);
   const [promoTitle, setPromoTitle] = useState("");
   const [promoYear, setPromoYear] = useState("");
@@ -34,7 +32,7 @@ export default function AdminShopPage() {
       setLoading(true);
       const resE = await fetch("/api/editions");
       if (resE.ok) setEditions(await resE.json());
-      
+
       const resS = await fetch("/api/admin/settings?key=shop_promotion");
       if (resS.ok) {
         const data = await resS.json();
@@ -149,7 +147,7 @@ export default function AdminShopPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
-          {/* Edition Management */}
+          {}
           <div className="xl:col-span-7 space-y-8">
               <div className="bg-[var(--card-bg)] p-8 rounded-[2.5rem] border border-[var(--card-border)] space-y-8">
                   <h3 className="text-xl font-black text-[var(--text-color)] uppercase tracking-tighter flex items-center gap-3">
@@ -230,13 +228,13 @@ export default function AdminShopPage() {
               </div>
           </div>
 
-          {/* Shop Promotion Sidebar */}
+          {}
           <div className="xl:col-span-5 space-y-8">
               <div className="bg-emerald-950/10 border border-emerald-500/20 p-8 rounded-[2.5rem] space-y-8 sticky top-24">
                   <h3 className="text-xl font-black text-[var(--text-color)] uppercase tracking-tighter flex items-center gap-3">
                       <Megaphone className="w-5 h-5 text-emerald-400" /> Promotion Globale
                   </h3>
-                  
+
                   <form onSubmit={handleSavePromo} className="space-y-6">
                       <label className="flex items-center gap-3 cursor-pointer p-4 bg-[var(--surface-bg)] rounded-2xl border border-[var(--card-border)] w-fit group">
                           <input type="checkbox" className="custom-checkbox" checked={promoActive} onChange={e => setPromoActive(e.target.checked)} />

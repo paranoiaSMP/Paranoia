@@ -30,11 +30,11 @@ export default function Footer() {
     <footer className="relative bg-[#0a0a0a] text-[#888888] pt-20 overflow-hidden font-sans border-t border-[#1a1a1a]">
       <div className="max-w-[90rem] mx-auto px-6 lg:px-12 relative z-10">
         <div className="flex flex-col lg:flex-row justify-between gap-12 lg:gap-24 mb-16">
-          
-          {/* Links Grid */}
+
+          {}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-16 w-full lg:w-3/4">
-            
-            {/* Column 1 */}
+
+            {}
             <div>
               <h3 className="text-white font-bold mb-6 text-sm">Navigation</h3>
               <ul className="flex flex-col gap-4 text-sm font-medium">
@@ -45,7 +45,7 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Column 2 */}
+            {}
             <div>
               <h3 className="text-white font-bold mb-6 text-sm">Légal</h3>
               <ul className="flex flex-col gap-4 text-sm font-medium">
@@ -57,7 +57,7 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Column 3 */}
+            {}
             <div>
               <h3 className="text-white font-bold mb-6 text-sm">Ressources</h3>
               <ul className="flex flex-col gap-4 text-sm font-medium">
@@ -69,7 +69,7 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Column 4 */}
+            {}
             <div>
               <h3 className="text-white font-bold mb-6 text-sm">Communauté</h3>
               <ul className="flex flex-col gap-4 text-sm font-medium">
@@ -80,7 +80,7 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Column 5 */}
+            {}
             <div>
               <h3 className="text-white font-bold mb-6 text-sm">Réseaux</h3>
               <ul className="flex flex-col gap-4 text-sm font-medium">
@@ -90,10 +90,10 @@ export default function Footer() {
                 <li><Link href="#" className="hover:text-white transition-colors">Twitter</Link></li>
               </ul>
             </div>
-            
+
           </div>
-          
-          {/* Brand Column */}
+
+          {}
           <div className="w-full lg:w-1/4">
             <Link href="/" className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 relative bg-white rounded-md flex items-center justify-center overflow-hidden">
@@ -113,13 +113,13 @@ export default function Footer() {
 
         </div>
 
-        {/* Divider & Copyright */}
+        {}
         <div className="border-t border-[#1a1a1a] pt-8 pb-32 flex flex-col items-center justify-center text-sm font-medium relative z-10">
           <p>&copy; {new Date().getFullYear()} Paranoia. All rights reserved.</p>
         </div>
       </div>
 
-      {/* Giant Watermark Text (Like in the Compos image) */}
+      {}
       <div className="absolute bottom-[-10%] left-0 w-full overflow-hidden pointer-events-none select-none flex justify-center z-0">
         <span 
           className="text-[28vw] font-black leading-none tracking-tighter"

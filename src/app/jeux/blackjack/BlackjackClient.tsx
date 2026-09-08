@@ -55,7 +55,7 @@ export default function BlackjackClient({
   const [bet, setBet] = useState(50);
   const [phase, setPhase] = useState<RoundPhase>("BETTING");
   const [outcome, setOutcome] = useState<"dealer_won" | "player_won" | "push" | "player_blackjack" | null>(null);
-  
+
   const [token, setToken] = useState<string | null>(null);
   const [playerHand, setPlayerHand] = useState<Card[]>([]);
   const [dealerHand, setDealerHand] = useState<Card[]>([]);

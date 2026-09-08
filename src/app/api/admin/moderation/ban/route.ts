@@ -19,11 +19,10 @@ export async function POST(req: Request) {
     const player = await prisma.player.findUnique({ where: { id: playerId } });
     if (!player) return new NextResponse("Player not found", { status: 404 });
 
-    // Enregistrer le ban
     const ban = await prisma.ban.create({
       data: {
         playerId: player.id,
-        hwid: player.hwid, // On ban la machine associée
+        hwid: player.hwid, 
         reason: reason,
         bannedBy: session.user.name || "Staff Inconnu"
       }
@@ -33,9 +32,6 @@ export async function POST(req: Request) {
       where: { id: player.id },
       data: { status: "BANNED" }
     });
-
-    // TODO: Envoi du Packet Kick (RCON au serveur Minecraft)
-    // TODO: Envoi de l'event WSS "FORCE_TERMINATE" au Launcher
 
     return NextResponse.json({ success: true, ban });
   } catch (error) {

@@ -10,7 +10,7 @@ class DemoteCommand(commands.Cog):
     @app_commands.command(name="demote", description="Annonce le départ ou la rétrogradation d'un membre")
     @app_commands.default_permissions(administrator=True)
     async def demote(self, interaction: discord.Interaction, membre: discord.Member, rang_actuel: str, motif: str = None):
-        
+
         embed = create_demotion_embed(membre, rang_actuel, interaction.user, motif)
         await interaction.response.send_message(embed=embed)
 

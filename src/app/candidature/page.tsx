@@ -24,9 +24,9 @@ export default function CandidaturePage() {
 
   return (
     <div className="relative min-h-[80vh] flex flex-col items-center justify-center px-6 pt-24 pb-12 overflow-hidden">
-      {/* Background Noise & Grid */}
+      {}
       <div className="absolute inset-0 bg-noise opacity-20 mix-blend-overlay pointer-events-none"></div>
-      
+
       <div className="text-center mb-8 relative z-10 w-full max-w-3xl">
         <h1 className="text-2xl md:text-5xl font-outfit font-black text-[var(--text-color)] mb-3 tracking-tight">
           Rejoindre <span className="text-[var(--logo-end)] drop-shadow-[0_0_15px_rgba(179,102,255,0.3)]">PARANOIA</span>
@@ -34,8 +34,8 @@ export default function CandidaturePage() {
         <p className="text-[var(--nav-item-color)] font-medium text-base max-w-xl mx-auto mb-6">
           Prêt à survivre ? Remplis ce formulaire pour demander ton accès à la whitelist du serveur.
         </p>
-        
-        {/* Segmented Role Selector Tabs */}
+
+        {}
         <div className="inline-flex p-1.5 rounded-2xl border-2 gap-2 bg-[var(--navbar-bg)] shadow-md" style={{ borderColor: 'var(--card-border)' }}>
           <span className="px-6 py-2.5 rounded-xl font-outfit font-bold text-sm bg-[var(--color-accent-purple,#9d0df2)] text-white shadow-sm flex items-center gap-2">
             Candidature Joueur
@@ -48,7 +48,7 @@ export default function CandidaturePage() {
 
       <div className="relative z-10 w-full max-w-3xl">
         <div className="relative border-4 rounded-2xl shadow-2xl p-5 md:p-12" style={{ background: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-          {/* Top Progress Bar */}
+          {}
           <div className="absolute top-0 left-0 right-0 h-2 bg-[var(--card-border)] overflow-hidden rounded-t-xl">
             <div
               className="h-full transition-all duration-500 ease-out"
@@ -63,7 +63,7 @@ export default function CandidaturePage() {
                   <span className="flex items-center justify-center w-8 h-8 rounded border-2 text-sm bg-[var(--logo-end)] border-[var(--logo-end)] text-white">1</span>
                   Qui es-tu ?
                 </h2>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-bold uppercase tracking-wider text-[var(--nav-item-color)]">Pseudo Minecraft</label>
@@ -109,7 +109,7 @@ export default function CandidaturePage() {
                   <span className="flex items-center justify-center w-8 h-8 rounded border-2 text-sm bg-[var(--logo-end)] border-[var(--logo-end)] text-white">2</span>
                   Ton Profil de Survie
                 </h2>
-                
+
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-bold uppercase tracking-wider text-[var(--nav-item-color)]">Tes motivations</label>
@@ -140,7 +140,7 @@ export default function CandidaturePage() {
                   <button type="button" onClick={() => setStep(1)} className="flex items-center gap-2 text-sm font-bold text-[var(--nav-item-color)] hover:text-[var(--text-color)] transition-colors">
                     <ChevronLeft className="w-5 h-5" /> Retour
                   </button>
-                  
+
                   <button type="button" onClick={() => setStep(3)} className="group relative inline-block">
                     <div className="absolute inset-0 rounded-xl translate-y-1.5 translate-x-1.5 transition-all duration-150 bg-[var(--logo-end)] opacity-50 border border-[var(--logo-end)]"></div>
                     <div className="relative px-8 py-3 rounded-xl font-bold text-sm border-2 transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:-translate-x-0.5 group-active:translate-y-1.5 group-active:translate-x-1.5 flex items-center justify-center gap-2 border-[var(--logo-end)] text-[var(--text-color)]" style={{ background: 'var(--surface-bg)' }}>
@@ -157,7 +157,7 @@ export default function CandidaturePage() {
                   <span className="flex items-center justify-center w-8 h-8 rounded border-2 text-sm bg-[var(--logo-end)] border-[var(--logo-end)] text-white">3</span>
                   Dernière vérification
                 </h2>
-                
+
                 <div className="border-2 rounded-xl p-6 space-y-4" style={{ background: 'var(--surface-bg)', borderColor: 'var(--card-border)' }}>
                   <div className="flex items-baseline gap-3">
                     <span className="text-sm font-bold uppercase tracking-wider text-[var(--nav-item-color)]">Joueur:</span>
@@ -181,7 +181,7 @@ export default function CandidaturePage() {
                   <button type="button" onClick={() => setStep(2)} className="flex items-center gap-2 text-sm font-bold text-[var(--nav-item-color)] hover:text-[var(--text-color)] transition-colors">
                     <ChevronLeft className="w-5 h-5" /> Retour
                   </button>
-                  
+
                   <button type="submit" className="group relative inline-block">
                     <div className="absolute inset-0 rounded-xl translate-y-1.5 translate-x-1.5 transition-all duration-150 bg-[var(--logo-end)] opacity-50 border border-[var(--logo-end)]"></div>
                     <div className="relative px-8 py-3 rounded-xl font-bold text-sm border-2 transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:-translate-x-0.5 group-active:translate-y-1.5 group-active:translate-x-1.5 flex items-center justify-center gap-2 bg-[var(--logo-end)] border-[var(--logo-end)] text-white">

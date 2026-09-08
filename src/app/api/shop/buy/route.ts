@@ -12,7 +12,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    // Temporary: Block all payments
     return NextResponse.json({ error: "Les achats sont temporairement désactivés." }, { status: 403 });
 
     const { amount } = await req.json();

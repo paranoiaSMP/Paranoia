@@ -4,7 +4,6 @@ from discord.ext import commands
 
 from cogs.quests.statut import verifier_quete_statut
 
-
 class QuestBoardView(discord.ui.View):
     def __init__(self, bot):
         super().__init__(timeout=120)
@@ -12,9 +11,7 @@ class QuestBoardView(discord.ui.View):
 
     @discord.ui.button(label="Vérifier le statut /Parasmp", style=discord.ButtonStyle.primary, emoji="🏷️")
     async def btn_statut(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Quand on clique, ça lance la fonction qui est dans l'autre fichier
         await verifier_quete_statut(self.bot, interaction)
-
 
 class QuestMenu(commands.Cog):
     def __init__(self, bot):
@@ -37,7 +34,6 @@ class QuestMenu(commands.Cog):
 
         view = QuestBoardView(self.bot)
         await interaction.response.send_message(embed=embed, view=view)
-
 
 async def setup(bot):
     await bot.add_cog(QuestMenu(bot))

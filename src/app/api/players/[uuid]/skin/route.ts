@@ -38,7 +38,6 @@ export async function POST(
     const uploadDir = path.join(process.cwd(), "public", "uploads", "skins");
     await fs.mkdir(uploadDir, { recursive: true });
 
-    // Look for existing player to remove old custom skin file
     const existingPlayer = await prisma.player.findFirst({
       where: {
         OR: [

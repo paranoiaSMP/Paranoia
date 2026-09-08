@@ -26,6 +26,3 @@ def create_ticket_staff_embed(user: discord.User | discord.Member, pseudo_mc: st
     embed.set_thumbnail(url=f"https://vzge.me/face/512/{pseudo_mc}.png")
     embed.set_footer(text=Config.FOOTER_TEXT)
     return embed
-
-
-

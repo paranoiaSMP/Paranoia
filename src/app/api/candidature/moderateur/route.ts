@@ -34,8 +34,6 @@ export async function POST(req: Request) {
       }
     });
 
-    // Optionnel : Envoyer un webhook Discord ici si le serveur a un channel configuré
-
     return NextResponse.json({ success: true, id: application.id });
   } catch (error: any) {
     console.error('Mod Application Error:', error);

@@ -187,7 +187,7 @@ export default function AdminTicketsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--card-border)] pb-6">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-fuchsia-500/20 rounded-2xl text-fuchsia-400">
@@ -211,7 +211,7 @@ export default function AdminTicketsPage() {
         </button>
       </div>
 
-      {/* Stats Counter Bar */}
+      {}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div 
           onClick={() => setStatusFilter("ALL")}
@@ -258,7 +258,7 @@ export default function AdminTicketsPage() {
         </div>
       </div>
 
-      {/* Filter & Search Bar */}
+      {}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" />
@@ -272,9 +272,9 @@ export default function AdminTicketsPage() {
         </div>
       </div>
 
-      {/* Main Grid: List + Detail */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Tickets List */}
+        {}
         <div className={cn("space-y-3", selectedTicket ? "lg:col-span-5" : "lg:col-span-12")}>
           {filteredTickets.length === 0 ? (
             <div className="p-8 text-center rounded-2xl bg-[var(--surface-bg)] border border-[var(--card-border)] text-[var(--color-text-secondary)] text-sm">
@@ -324,10 +324,10 @@ export default function AdminTicketsPage() {
           )}
         </div>
 
-        {/* Selected Ticket Thread */}
+        {}
         {selectedTicket && (
           <div className="lg:col-span-7 bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-2xl p-6 flex flex-col h-[700px] shadow-xl">
-            {/* Header */}
+            {}
             <div className="flex items-start justify-between gap-4 pb-4 border-b border-[var(--card-border)]">
               <div>
                 <div className="flex items-center gap-2">
@@ -380,7 +380,7 @@ export default function AdminTicketsPage() {
               </div>
             </div>
 
-            {/* Messages */}
+            {}
             <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-2">
               {selectedTicket.details && (
                 <div className="p-3.5 rounded-xl bg-black/20 border border-[var(--card-border)] text-xs text-[var(--color-text-secondary)] space-y-1">
@@ -445,7 +445,7 @@ export default function AdminTicketsPage() {
               })}
             </div>
 
-            {/* Reply Input */}
+            {}
             {selectedTicket.status !== "CLOSED" ? (
               <form onSubmit={handleSendReply} className="pt-3 border-t border-[var(--card-border)] flex gap-2">
                 <input

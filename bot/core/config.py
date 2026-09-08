@@ -3,12 +3,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 def _clean_str(val: str | None) -> str:
     if not val:
         return ""
     return val.strip().strip('"').strip("'")
-
 
 def _clean_int(val: str | None, default: int = 0) -> int:
     cleaned = _clean_str(val)
@@ -18,7 +16,6 @@ def _clean_int(val: str | None, default: int = 0) -> int:
         return int(cleaned)
     except ValueError:
         return default
-
 
 class Config:
     DISCORD_TOKEN = _clean_str(os.getenv("DISCORD_TOKEN"))

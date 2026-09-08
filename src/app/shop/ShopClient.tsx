@@ -89,7 +89,7 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
 
   return (
     <div className="w-full relative z-10">
-      
+
       {editions.length > 0 && (
         <div className="mb-20 space-y-12">
           {editions.map((ed, idx) => (
@@ -107,7 +107,7 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
                     {ed.iconUrl && <img src={ed.iconUrl} alt={ed.name} className="w-12 h-12 md:w-16 md:h-16 object-contain" />}
                     {ed.name}
                   </h2>
-                  
+
                   <div className="flex flex-wrap gap-4">
                     <button 
                       onClick={() => router.push(`/shop/edition/${ed.id}`)}
@@ -122,7 +122,6 @@ export default function ShopClient({ initialBalance, isLoggedIn, editions = [] }
           ))}
         </div>
       )}
-
 
       {successMsg && (
         <div className="mb-12 p-6 bg-green-500/10 border border-green-500/30 rounded-2xl text-green-400 flex items-center justify-center gap-3 animate-fade-in shadow-[0_0_30px_rgba(34,197,94,0.15)] backdrop-blur-md">

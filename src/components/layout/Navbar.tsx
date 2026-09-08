@@ -29,10 +29,9 @@ export default function Navbar() {
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
 
-  // Fermer le menu mobile quand on change de page
   useEffect(() => {
     setMobileMenuOpen(false);
-    setCommOpen(false); // Fermer aussi le dropdown communauté
+    setCommOpen(false); 
   }, [pathname]);
 
   const toggleTheme = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +56,7 @@ export default function Navbar() {
               />
             </div>
           </Link>
-          
+
           <ul className={`nav-links hidden md:flex`}>
           <li className="nav-link-first"><Link href="/" className="nav-item font-medium">Accueil</Link></li>
           <li><Link href="/shop" className="nav-item font-semibold">Boutique</Link></li>
@@ -68,7 +67,7 @@ export default function Navbar() {
             </Link>
           </li>
           <li><Link href="/launcher" className="nav-item font-bold">Launcher</Link></li>
-          
+
           <li className="relative">
             <button 
               onClick={() => setCommOpen(!commOpen)} 

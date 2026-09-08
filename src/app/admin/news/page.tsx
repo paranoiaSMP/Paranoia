@@ -10,7 +10,7 @@ export default function AdminNewsPage() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -39,7 +39,7 @@ export default function AdminNewsPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.title || !formData.content) {
       toast.error("Veuillez remplir le titre et le contenu");
       return;
@@ -73,7 +73,7 @@ export default function AdminNewsPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Voulez-vous vraiment supprimer cette actualité ?")) return;
-    
+
     try {
       const res = await fetch(`/api/admin/news?id=${id}`, {
         method: "DELETE"

@@ -203,7 +203,7 @@ export default function TicketsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-slide-up">
-      {/* Hero Panel Box matching Discord Embed */}
+      {}
       <div className="relative overflow-hidden rounded-[2.5rem] border border-[var(--card-border)] bg-[var(--card-bg)] shadow-2xl mb-12">
         <div className="relative w-full h-48 sm:h-72 md:h-80 overflow-hidden">
           <Image
@@ -272,7 +272,6 @@ export default function TicketsPage() {
 
       {/* Content Layout: Tickets List + Active Ticket View */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left: Tickets List */}
         <div className={cn("space-y-4", selectedTicket ? "lg:col-span-5" : "lg:col-span-12")}>
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold font-outfit text-[var(--text-color)] flex items-center gap-2">
@@ -280,7 +279,7 @@ export default function TicketsPage() {
               Vos Tickets ({tickets.length})
             </h2>
             <button
-              onClick={fetchTickets}
+              onClick={() => fetchTickets()}
               className="text-xs text-[var(--color-text-secondary)] hover:text-fuchsia-400 font-bold transition-colors"
             >
               Actualiser

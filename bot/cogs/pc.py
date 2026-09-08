@@ -32,6 +32,5 @@ class ParaCoin(commands.Cog):
         else:
             await interaction.response.send_message("Tu n'es pas enregistrer sur le site ", ephemeral=True)
 
-
 async def setup(bot):
     await bot.add_cog(ParaCoin(bot))

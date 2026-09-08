@@ -8,8 +8,6 @@ export default withAuth(
     const isComingSoonPage = req.nextUrl.pathname === "/coming-soon";
     const isAdmin = token && token.role === "ADMIN";
 
-    // Site is open, no coming soon redirects anymore
-
     if (token && !token.minecraftName && !isSetupPage) {
       return NextResponse.redirect(new URL("/setup", req.url));
     }

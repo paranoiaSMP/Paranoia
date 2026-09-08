@@ -6,8 +6,7 @@ import { authOptions } from "@/lib/auth";
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    // Ideally we should check if session.user.role === 'ADMIN', but keeping it simple based on existing structure.
-    
+
     const news = await prisma.topic.findMany({
       where: {
         category: {

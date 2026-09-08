@@ -40,7 +40,6 @@ export async function POST(req: Request) {
     }
     const { title, playerName, playerId, rarity, level, edition, proba, description, customBackground, customBadges, characterPosition, imageUrl, layer1Url, layer2Url, layer3Url, renderedImageUrl, attributes, isVariant } = parsed.data;
 
-
     const parsedProba = parseFloat(String(proba ?? 100));
     const validProba = isNaN(parsedProba) ? 100 : parsedProba;
     const parsedBadges = Array.isArray(customBadges) ? JSON.stringify(customBadges) : "[]";
@@ -118,14 +117,13 @@ export async function PUT(req: Request) {
     }
 
     const body = await req.json();
-    
-    // Partial validation for PUT since sometimes it's just an image update
+
     const putSchema = cardSchema.partial().extend({ id: z.string() });
     const parsed = putSchema.safeParse(body);
     if (!parsed.success) {
       return new NextResponse("Invalid input", { status: 400 });
     }
-    
+
     const { id, title, playerName, playerId, rarity, level, edition, proba, description, customBackground, customBadges, characterPosition, imageUrl, layer1Url, layer2Url, layer3Url, renderedImageUrl, attributes, isVariant } = parsed.data;
 
     if (renderedImageUrl !== undefined && !playerId && !rarity) {

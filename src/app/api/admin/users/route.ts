@@ -90,7 +90,6 @@ export async function DELETE(req: Request) {
       return new NextResponse("Vous ne pouvez pas supprimer votre propre compte", { status: 400 });
     }
 
-    // Delete all related data first, then the user
     await prisma.$transaction([
       prisma.userCard.deleteMany({ where: { userId } }),
       prisma.userBox.deleteMany({ where: { userId } }),

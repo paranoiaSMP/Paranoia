@@ -20,7 +20,6 @@ export function isValidMinecraftSkin(buffer: Buffer): boolean {
 
   if (!isPng) return false;
 
-  // IHDR width and height (big-endian 32-bit uints at bytes 16 and 20)
   const width = buffer.readUInt32BE(16);
   const height = buffer.readUInt32BE(20);
 
@@ -41,13 +40,11 @@ export async function syncMojangUsername(rawUuid: string): Promise<string | null
     const data: MojangProfileResponse = await res.json();
     if (!data?.name) return null;
 
-    // Update Player record if present
     await prisma.player.updateMany({
       where: { uuid: cleanUuid },
       data: { minecraftName: data.name },
     });
 
-    // Update User record if present
     await prisma.user.updateMany({
       where: { minecraftUuid: cleanUuid },
       data: { minecraftName: data.name },
