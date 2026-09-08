@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "bot": "tsx bot/index.ts"
+    "bot": "python -u Bot/main.py"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
