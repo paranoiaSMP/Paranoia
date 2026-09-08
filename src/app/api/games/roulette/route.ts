@@ -2,24 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
-import { rouletteEngine, BetType } from "@/lib/games/rouletteEngine";
-
-const VALID_BET_TYPES = new Set([
-  "red", "black", "green",
-  "even", "odd",
-  "low", "high",
-  "dozen_1", "dozen_2", "dozen_3"
-]);
-
-function isValidBetType(betType: any): betType is BetType {
-  if (typeof betType !== "string") return false;
-  if (VALID_BET_TYPES.has(betType)) return true;
-  if (betType.startsWith("num_")) {
-    const num = parseInt(betType.replace("num_", ""), 10);
-    return !isNaN(num) && num >= 0 && num <= 36;
-  }
-  return false;
-}
+import { rouletteEngine, RouletteColor } from "@/lib/games/rouletteEngine";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -29,8 +12,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const { action, amount } = body;
-  const betType = body.betType || body.color;
+  const { action, color, amount } = body;
 
   if (action === "bet") {
     const betAmount = parseInt(amount, 10);
@@ -38,8 +20,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Mise invalide (min: 10, max: 50 000)" }, { status: 400 });
     }
 
-    if (!isValidBetType(betType)) {
-      return NextResponse.json({ error: "Type de mise invalide" }, { status: 400 });
+    if (!["red", "green", "black"].includes(color)) {
+      return NextResponse.json({ error: "Couleur invalide" }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({
@@ -56,8 +38,7 @@ export async function POST(req: Request) {
       name: user.minecraftName || user.name || "Joueur",
       image: user.image,
       minecraftName: user.minecraftName,
-      betType,
-      color: (betType === "red" || betType === "black" || betType === "green") ? betType : undefined,
+      color: color as RouletteColor,
       amount: betAmount,
     });
 

@@ -6,12 +6,9 @@ import {
   RouletteBet, 
   RoulettePublicState, 
   RouletteListener,
-  BetType,
-  EUROPEAN_WHEEL,
-  RED_NUMBERS,
+  ROULETTE_ORDER, 
   getNumberColor, 
-  isBetWinning,
-  getBetMultiplier 
+  getMultiplier 
 } from "./rouletteTypes";
 
 export * from "./rouletteTypes";
@@ -21,9 +18,9 @@ class RouletteEngine {
   private phase: RoulettePhase = "BETTING";
   private countdown: number = 12.0;
   private winningNumber: number | null = null;
-  private winningAngle: number | null = null;
+  private winningOffset: number | null = null;
   private bets: Map<string, RouletteBet> = new Map();
-  private history: number[] = [26, 3, 35, 12, 0, 32, 15, 19, 4];
+  private history: number[] = [2, 11, 0, 7, 14, 3, 5, 8, 1];
   private listeners: Set<RouletteListener> = new Set();
   private timer: NodeJS.Timeout | null = null;
 
@@ -52,7 +49,7 @@ class RouletteEngine {
       phase: this.phase,
       countdown: parseFloat(this.countdown.toFixed(1)),
       winningNumber: (this.phase !== "BETTING" || isInternal) ? this.winningNumber : null,
-      winningAngle: (this.phase !== "BETTING" || isInternal) ? this.winningAngle : null,
+      winningOffset: (this.phase !== "BETTING" || isInternal) ? this.winningOffset : null,
       bets: Array.from(this.bets.values()),
       history: this.history,
     };
@@ -65,7 +62,7 @@ class RouletteEngine {
     this.phase = "BETTING";
     this.countdown = 12.0;
     this.winningNumber = null;
-    this.winningAngle = null;
+    this.winningOffset = null;
     this.bets.clear();
 
     this.broadcast("PHASE_CHANGE", this.getState());
@@ -83,69 +80,53 @@ class RouletteEngine {
 
   private startSpinningPhase() {
     this.phase = "SPINNING";
-    const RED_ARRAY = Array.from(RED_NUMBERS);
-    const BLACK_ARRAY = EUROPEAN_WHEEL.filter((n) => n !== 0 && !RED_NUMBERS.has(n));
-
-    const roll = crypto.randomInt(0, 110);
-    if (roll < 10) {
-      this.winningNumber = 0;
-    } else if (roll < 60) {
-      this.winningNumber = RED_ARRAY[crypto.randomInt(0, RED_ARRAY.length)];
-    } else {
-      this.winningNumber = BLACK_ARRAY[crypto.randomInt(0, BLACK_ARRAY.length)];
-    }
-
-    const pocketIndex = EUROPEAN_WHEEL.indexOf(this.winningNumber);
-    const pocketAngle = (360 - (pocketIndex * (360 / 37))) % 360;
-    const jitter = (crypto.randomInt(0, 70) - 35) / 10;
-    this.winningAngle = pocketAngle + jitter;
+    this.winningNumber = crypto.randomInt(0, 15);
+    this.winningOffset = crypto.randomInt(-28, 29);
 
     this.broadcast("SPIN", {
       roundId: this.roundId,
       winningNumber: this.winningNumber,
-      winningAngle: this.winningAngle,
+      winningOffset: this.winningOffset,
       winningColor: getNumberColor(this.winningNumber),
     });
 
     this.timer = setTimeout(() => {
       this.startResolvedPhase();
-    }, 8000);
+    }, 5500);
   }
 
   private async startResolvedPhase() {
     if (this.timer) clearTimeout(this.timer);
 
     this.phase = "RESOLVED";
-    const winNum = this.winningNumber!;
-    const winColor = getNumberColor(winNum);
+    const winColor = getNumberColor(this.winningNumber!);
+    const mult = getMultiplier(winColor);
 
-    this.history = [winNum, ...this.history.slice(0, 14)];
+    this.history = [this.winningNumber!, ...this.history.slice(0, 14)];
 
-    const userPayoutMap = new Map<string, number>();
+    const payouts: { userId: string; payout: number; profit: number }[] = [];
 
     for (const bet of this.bets.values()) {
-      if (isBetWinning(bet.betType, winNum)) {
-        const mult = getBetMultiplier(bet.betType);
+      if (bet.color === winColor) {
         const payout = bet.amount * mult;
-        userPayoutMap.set(bet.userId, (userPayoutMap.get(bet.userId) || 0) + payout);
-      }
-    }
-
-    const payouts: { userId: string; payout: number }[] = [];
-
-    for (const [userId, totalPayout] of userPayoutMap.entries()) {
-      payouts.push({ userId, payout: totalPayout });
-      try {
-        await prisma.user.update({
-          where: { id: userId },
-          data: { paraCoins: { increment: totalPayout } },
+        payouts.push({
+          userId: bet.userId,
+          payout,
+          profit: payout - bet.amount,
         });
-      } catch {}
+
+        try {
+          await prisma.user.update({
+            where: { id: bet.userId },
+            data: { paraCoins: { increment: payout } },
+          });
+        } catch {}
+      }
     }
 
     this.broadcast("RESOLVED", {
       roundId: this.roundId,
-      winningNumber: winNum,
+      winningNumber: this.winningNumber,
       winningColor: winColor,
       history: this.history,
       payouts,
