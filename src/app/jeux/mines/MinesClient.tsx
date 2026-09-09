@@ -287,7 +287,7 @@ export default function MinesClient({ initialCoins, isAuthenticated }: MinesClie
                 </div>
                 <div>
                   <h2 className="font-outfit font-black text-base text-white">MINES 5×5</h2>
-                  <p className="text-[11px] text-[var(--nav-item-color)]">Évitez la TNT, trouvez les émeraudes</p>
+                  <p className="text-[11px] text-[var(--nav-item-color)]">Évitez la TNT, trouvez les lingots de Netherite</p>
                 </div>
               </div>
               <div className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-mono text-[10px] font-bold">
@@ -452,10 +452,10 @@ export default function MinesClient({ initialCoins, isAuthenticated }: MinesClie
               let tileClass = "bg-[#14141e] border-[#2b2b3d] hover:border-purple-500/60 hover:bg-[#1a1a28]";
 
               if (isRevealed) {
-                tileClass = "bg-gradient-to-b from-emerald-900/60 to-[#0b2416] border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]";
+                tileClass = "bg-gradient-to-b from-purple-950/60 to-[#120f1a] border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)]";
                 content = (
                   <div className="flex flex-col items-center justify-center animate-in zoom-in-75 duration-200">
-                    <img src="/Emerald.png" alt="Émeraude" className="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-[0_2px_8px_rgba(16,185,129,0.6)]" />
+                    <img src="/netherite.png" alt="Lingot de Netherite" className="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-[0_2px_8px_rgba(168,85,247,0.6)]" />
                   </div>
                 );
               } else if (isHit) {
@@ -473,10 +473,10 @@ export default function MinesClient({ initialCoins, isAuthenticated }: MinesClie
                   </div>
                 );
               } else if (isGameOver && !isMine) {
-                tileClass = "bg-[#121b16]/60 border-emerald-900/40 opacity-40";
+                tileClass = "bg-[#181220]/60 border-purple-900/40 opacity-40";
                 content = (
                   <div className="flex flex-col items-center justify-center">
-                    <img src="/Emerald.png" alt="Émeraude" className="w-6 h-6 sm:w-7 sm:h-7 object-contain opacity-50" />
+                    <img src="/netherite.png" alt="Lingot de Netherite" className="w-6 h-6 sm:w-7 sm:h-7 object-contain opacity-50" />
                   </div>
                 );
               } else {

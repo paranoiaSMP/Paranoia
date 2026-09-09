@@ -57,7 +57,7 @@ const GAMES = [
     id: "mines",
     title: "Mines",
     tagline: "Démineur à gains",
-    desc: "Révélez les émeraudes sur une grille 5×5 sans sauter sur la TNT. Encaissez à tout moment.",
+    desc: "Révélez les lingots de Netherite sur une grille 5×5 sans sauter sur la TNT. Encaissez à tout moment.",
     href: "/jeux/mines",
     icon: Bomb,
     badge: "Disponible",

@@ -7,7 +7,7 @@ export const revalidate = 0;
 
 export const metadata = {
   title: "Mines 5×5 | Jeux PARANOIA",
-  description: "Démineur à gains Paranoia Studio. Révélez les émeraudes et évitez la TNT pour multiplier vos ParaCoins.",
+  description: "Démineur à gains Paranoia Studio. Révélez les lingots de Netherite et évitez la TNT pour multiplier vos ParaCoins.",
 };
 
 export default async function MinesPage() {
