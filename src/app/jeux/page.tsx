@@ -126,26 +126,120 @@ const UPCOMING_GAMES = [
   },
 ];
 
-export default async function JeuxPage() {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
+interface ActivityItem {
+  id: string;
+  name: string;
+  game: string;
+  detail: string;
+  amount: string;
+  icon: typeof Rocket;
+  iconBg: string;
+  textColor: string;
+}
 
+export default async function JeuxPage() {
   let paraCoins = 0;
   let userCardsCount = 0;
+  let catalogCount = 0;
+  let editionsCount = 4;
+  let boostersLastHour = 0;
+  let recentActivities: ActivityItem[] = [];
 
-  if (userId) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        paraCoins: true,
-        inventory: { select: { id: true } },
+  try {
+    const session = await getServerSession(authOptions).catch(() => null);
+    const userId = session?.user?.id;
+
+    if (userId) {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          paraCoins: true,
+          inventory: { select: { id: true } },
+        },
+      }).catch(() => null);
+
+      paraCoins = user?.paraCoins || 0;
+      userCardsCount = user?.inventory?.length || 0;
+    }
+
+    const [publishedCards, editions, hourCards, latestPacks] = await Promise.all([
+      prisma.tradingCard.count({ where: { isPublished: true } }).catch(() => 0),
+      prisma.edition.count().catch(() => 4),
+      prisma.userCard.count({
+        where: { obtainedAt: { gte: new Date(Date.now() - 3600 * 1000) } },
+      }).catch(() => 0),
+      prisma.userCard.findMany({
+        take: 4,
+        orderBy: { obtainedAt: "desc" },
+        include: {
+          user: { select: { minecraftName: true, name: true } },
+          tradingCard: { select: { title: true, rarity: true } },
+        },
+      }).catch(() => []),
+    ]);
+
+    catalogCount = publishedCards;
+    editionsCount = editions || 4;
+    boostersLastHour = hourCards;
+
+    if (latestPacks && latestPacks.length > 0) {
+      recentActivities = latestPacks.map((pack, idx) => ({
+        id: `pack-${pack.id || idx}`,
+        name: pack.user?.minecraftName || pack.user?.name || "Joueur",
+        game: "Booster TCG",
+        detail: pack.tradingCard?.title || "Carte obtenue",
+        amount: pack.tradingCard?.rarity || "COMMUNE",
+        icon: Layers,
+        iconBg: "bg-purple-500/15 border-purple-500/30 text-purple-400",
+        textColor: pack.tradingCard?.rarity === "MYTHIC" ? "text-red-400" : "text-purple-300",
+      }));
+    }
+  } catch {}
+
+  if (recentActivities.length === 0) {
+    recentActivities = [
+      {
+        id: "default-1",
+        name: "Crash",
+        game: "Multiplicateur",
+        detail: "Fusée en temps réel",
+        amount: "x100+",
+        icon: Rocket,
+        iconBg: "bg-blue-500/15 border-blue-500/30 text-blue-400",
+        textColor: "text-emerald-400",
       },
-    });
-    paraCoins = user?.paraCoins || 0;
-    userCardsCount = user?.inventory?.length || 0;
+      {
+        id: "default-2",
+        name: "Mines",
+        game: "Grille 5×5",
+        detail: "Netherite vs TNT",
+        amount: "Évolutif",
+        icon: Bomb,
+        iconBg: "bg-red-500/15 border-red-500/30 text-red-400",
+        textColor: "text-emerald-400",
+      },
+      {
+        id: "default-3",
+        name: "Roulette",
+        game: "Roue de la chance",
+        detail: "Rouge, Noir ou Vert",
+        amount: "x14 max",
+        icon: Disc,
+        iconBg: "bg-violet-500/15 border-violet-500/30 text-violet-400",
+        textColor: "text-purple-300",
+      },
+      {
+        id: "default-4",
+        name: "Blackjack",
+        game: "Table 21",
+        detail: "Battez le Croupier",
+        amount: "3:2",
+        icon: Spade,
+        iconBg: "bg-amber-500/15 border-amber-500/30 text-amber-400",
+        textColor: "text-amber-300",
+      },
+    ];
   }
-
-  const catalogCount = await prisma.tradingCard.count().catch(() => 124) || 124;
 
   return (
     <div className="relative min-h-screen text-white px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6 pb-24">
@@ -206,14 +300,14 @@ export default async function JeuxPage() {
               <div className="flex flex-wrap gap-2.5 mb-6">
                 <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/35 border border-white/5 text-xs font-bold text-slate-200">
                   <BookOpen className="w-4 h-4 text-purple-400" />
-                  {catalogCount} cartes au catalogue
+                  {catalogCount > 0 ? `${catalogCount} cartes publiées` : "Collection TCG"}
                 </span>
                 <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/35 border border-white/5 text-xs font-bold text-slate-200">
                   <PackageOpen className="w-4 h-4 text-purple-400" />
-                  4 types de boosters
+                  {editionsCount} types de boosters
                 </span>
                 <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/35 border border-white/5 text-xs font-bold text-slate-200">
-                  <span className="text-red-400 font-black">Mythique</span> dès 0.2%
+                  <span className="text-red-400 font-black">Mythique</span> jusqu&apos;à 5%
                 </span>
               </div>
 
@@ -232,10 +326,12 @@ export default async function JeuxPage() {
                   <Layers className="w-4 h-4 text-purple-400" />
                   Ma collection · {userCardsCount}
                 </Link>
-                <span className="inline-flex items-center gap-2 text-xs font-bold text-zinc-400 ml-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-[pulse-dot_1.4s_infinite_ease-in-out]" />
-                  12 boosters ouverts cette heure
-                </span>
+                {boostersLastHour > 0 && (
+                  <span className="inline-flex items-center gap-2 text-xs font-bold text-zinc-400 ml-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-[pulse-dot_1.4s_infinite_ease-in-out]" />
+                    {boostersLastHour} carte{boostersLastHour > 1 ? "s" : ""} tirée{boostersLastHour > 1 ? "s" : ""} cette heure
+                  </span>
+                )}
               </div>
             </div>
 
@@ -264,57 +360,31 @@ export default async function JeuxPage() {
             </div>
 
             <div className="flex flex-col gap-2.5">
-              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-black/30 border border-white/5">
-                <span className="w-9 h-9 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
-                  <Rocket className="w-4 h-4" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-white truncate">Kaelith · Crash</p>
-                  <p className="text-[11px] font-medium text-zinc-400">Encaissé à x4.12</p>
-                </div>
-                <span className="font-outfit text-sm font-black text-emerald-400">+2 060</span>
-              </div>
-
-              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-black/30 border border-white/5">
-                <span className="w-9 h-9 rounded-lg bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
-                  <Layers className="w-4 h-4" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-white truncate">Milo_ · Booster Mythique</p>
-                  <p className="text-[11px] font-medium text-zinc-400">Carte variante obtenue</p>
-                </div>
-                <span className="font-outfit text-[11px] font-black text-red-400 tracking-wider">MYTHIQUE</span>
-              </div>
-
-              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-black/30 border border-white/5">
-                <span className="w-9 h-9 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
-                  <Bomb className="w-4 h-4" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-white truncate">Zephyra · Mines</p>
-                  <p className="text-[11px] font-medium text-zinc-400">9 lingots · x6.40</p>
-                </div>
-                <span className="font-outfit text-sm font-black text-emerald-400">+3 200</span>
-              </div>
-
-              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-black/30 border border-white/5">
-                <span className="w-9 h-9 rounded-lg bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0">
-                  <Disc className="w-4 h-4" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-white truncate">Nyxo · Roulette</p>
-                  <p className="text-[11px] font-medium text-zinc-400">Vert · x14</p>
-                </div>
-                <span className="font-outfit text-sm font-black text-emerald-400">+1 400</span>
-              </div>
+              {recentActivities.map((act) => {
+                const Icon = act.icon;
+                return (
+                  <div key={act.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-black/30 border border-white/5">
+                    <span className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${act.iconBg}`}>
+                      <Icon className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-white truncate">{act.name} · {act.game}</p>
+                      <p className="text-[11px] font-medium text-zinc-400 truncate">{act.detail}</p>
+                    </div>
+                    <span className={`font-outfit text-xs sm:text-sm font-black tracking-wider ${act.textColor}`}>
+                      {act.amount}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           <Link
-            href="/jeux"
+            href="/cards"
             className="flex items-center justify-between pt-3 border-t border-white/5 text-xs font-black text-purple-400 hover:text-purple-300 transition-colors"
           >
-            <span>Voir le classement de la semaine</span>
+            <span>Voir le catalogue des cartes</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
