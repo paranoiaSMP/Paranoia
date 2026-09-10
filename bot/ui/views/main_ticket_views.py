@@ -2,20 +2,33 @@ import discord
 import asyncio
 from core.config import Config
 from core.ticket_logger import generate_ticket_log
-from ui.views.main_ticket_modal import MainTicketModal
+from ui.views.main_ticket_modal import (
+    GeneralSupportModal,
+    ReportPlayerModal,
+    AppealModal
+)
 
 class MainTicketLaunchView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="Ouvrir un ticket", style=discord.ButtonStyle.primary, emoji="📩", custom_id="btn_open_main_ticket")
-    async def open_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(MainTicketModal())
+    @discord.ui.button(label="Ticket Support", style=discord.ButtonStyle.primary, emoji="🛠️", custom_id="btn_open_general_ticket", row=0)
+    async def open_support_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_modal(GeneralSupportModal())
 
-    @discord.ui.button(label="Postuler Vidéaste", style=discord.ButtonStyle.secondary, emoji="🎥", custom_id="btn_open_videaste_ticket")
+    @discord.ui.button(label="Signaler un joueur", style=discord.ButtonStyle.danger, emoji="🚨", custom_id="btn_open_report_ticket", row=0)
+    async def open_report_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_modal(ReportPlayerModal())
+
+    @discord.ui.button(label="Postuler Vidéaste", style=discord.ButtonStyle.secondary, emoji="🎥", custom_id="btn_open_videaste_ticket", row=1)
     async def open_videaste_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
         from ui.views.videaste_modal import VideasteModal
         await interaction.response.send_modal(VideasteModal())
+
+    @discord.ui.button(label="Faire un appel", style=discord.ButtonStyle.secondary, emoji="⚖️", custom_id="btn_open_appeal_ticket", row=1)
+    async def open_appeal_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_modal(AppealModal())
+
 
 class MainTicketStaffView(discord.ui.View):
     def __init__(self, user_id: int, ticket_id: str, category: str, pseudo_mc: str, details: str):
