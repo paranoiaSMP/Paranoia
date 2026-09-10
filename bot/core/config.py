@@ -22,6 +22,7 @@ class Config:
     DATABASE_URL = _clean_str(os.getenv("DATABASE_URL"))
     ROLE_STAFF_ID = _clean_int(os.getenv("ROLE_STAFF_ID"))
     ROLE_VIDEASTE_ID = _clean_int(os.getenv("ROLE_VIDEASTE_ID"))
+    ROLE_VOCAL_ID = _clean_int(os.getenv("ROLE_VOCAL_ID"))
     TICKET_CATEGORY_ID = _clean_int(os.getenv("TICKET_CATEGORY_ID"))
     TICKET_LOG_CHANNEL_ID = _clean_int(os.getenv("TICKET_LOG_CHANNEL_ID"))
     TIKTOK_CHANNEL_ID = _clean_int(os.getenv("TIKTOK_CHANNEL_ID"))
