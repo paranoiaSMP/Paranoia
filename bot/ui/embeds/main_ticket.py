@@ -1,6 +1,128 @@
 import discord
 from core.config import Config
 
+def create_main_ticket_panel_v2_payload() -> dict:
+    return {
+        "flags": 32768,
+        "content": None,
+        "embeds": [],
+        "components": [
+            {
+                "type": 12,
+                "items": [
+                    {
+                        "media": {
+                            "url": "https://files.catbox.moe/g1etwk.png"
+                        }
+                    }
+                ]
+            },
+            {
+                "type": 17,
+                "accent_color": 11032055,
+                "components": [
+                    {
+                        "type": 10,
+                        "content": "# Contact Support\nVous souhaitez entrer en contact avec l'équipe de **Paranoia Studio** ?\nSuivez les indications ci-dessous et sélectionnez la catégorie adaptée à votre situation.\n\n*Ce salon est strictement réservé aux demandes d'assistance légitimes. Tout abus sera sanctionné.*"
+                    },
+                    {
+                        "type": 14,
+                        "spacing": 1,
+                        "divider": True
+                    },
+                    {
+                        "type": 10,
+                        "content": "### 🛠️ Support Général & Technique\nUne question sur le serveur, un problème avec le launcher, la boutique ou un bug en jeu ?"
+                    },
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 2,
+                                "style": 1,
+                                "label": "Ticket Support",
+                                "emoji": {"name": "🛠️"},
+                                "custom_id": "btn_open_general_ticket"
+                            }
+                        ]
+                    },
+                    {
+                        "type": 14,
+                        "spacing": 1,
+                        "divider": True
+                    },
+                    {
+                        "type": 10,
+                        "content": "### 🚨 Signalement Joueur (Report)\nUn joueur enfreint le règlement (cheat, grief, propos inappropriés ou comportement toxique) ?"
+                    },
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 2,
+                                "style": 4,
+                                "label": "Signaler un joueur",
+                                "emoji": {"name": "🚨"},
+                                "custom_id": "btn_open_report_ticket"
+                            }
+                        ]
+                    },
+                    {
+                        "type": 14,
+                        "spacing": 1,
+                        "divider": True
+                    },
+                    {
+                        "type": 10,
+                        "content": "### 🎥 Candidature Vidéaste & Partenariat\nTu crées du contenu sur YouTube, Twitch ou TikTok ? Postule pour intégrer le programme créateur officiel."
+                    },
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 2,
+                                "style": 1,
+                                "label": "Postuler Vidéaste",
+                                "emoji": {"name": "🎥"},
+                                "custom_id": "btn_open_videaste_ticket"
+                            }
+                        ]
+                    },
+                    {
+                        "type": 14,
+                        "spacing": 1,
+                        "divider": True
+                    },
+                    {
+                        "type": 10,
+                        "content": "### ⚖️ Contestation de Sanction (Appeals)\nTu as reçu une sanction (ban, mute) et tu souhaites déposer une demande de révision argumentée ?"
+                    },
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 2,
+                                "style": 2,
+                                "label": "Faire un appel",
+                                "emoji": {"name": "⚖️"},
+                                "custom_id": "btn_open_appeal_ticket"
+                            }
+                        ]
+                    },
+                    {
+                        "type": 14,
+                        "spacing": 1,
+                        "divider": True
+                    },
+                    {
+                        "type": 10,
+                        "content": "> 📌 **Important :** Ne mentionnez aucun membre du staff dans votre ticket afin de ne pas ralentir le traitement.\n> 🌐 **Recrutement Staff :** Les candidatures (Modérateur, Helper) s'effectuent sur [paranoiasmp.fr/candidature](https://paranoiasmp.fr/candidature)."
+                    }
+                ]
+            }
+        ]
+    }
+
 def create_main_ticket_panel_embed() -> discord.Embed:
     description = (
         "Vous souhaitez entrer en contact avec l'équipe de **Paranoia Studio** ?\n"
