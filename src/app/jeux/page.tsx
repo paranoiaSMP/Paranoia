@@ -162,13 +162,18 @@ export default async function JeuxPage() {
       userCardsCount = user?.inventory?.length || 0;
     }
 
-    const [publishedCards, editions, hourCards, latestPacks] = await Promise.all([
+    const [publishedCards, editions, hourCards, latestMythicCards] = await Promise.all([
       prisma.tradingCard.count({ where: { isPublished: true } }).catch(() => 0),
       prisma.edition.count().catch(() => 4),
       prisma.userCard.count({
         where: { obtainedAt: { gte: new Date(Date.now() - 3600 * 1000) } },
       }).catch(() => 0),
       prisma.userCard.findMany({
+        where: {
+          tradingCard: {
+            rarity: { in: ["MYTHIC", "MYTHIQUE", "mythic", "mythique"] },
+          },
+        },
         take: 4,
         orderBy: { obtainedAt: "desc" },
         include: {
@@ -182,61 +187,108 @@ export default async function JeuxPage() {
     editionsCount = editions || 4;
     boostersLastHour = hourCards;
 
-    if (latestPacks && latestPacks.length > 0) {
-      recentActivities = latestPacks.map((pack, idx) => ({
-        id: `pack-${pack.id || idx}`,
-        name: pack.user?.minecraftName || pack.user?.name || "Joueur",
-        game: "Booster TCG",
-        detail: pack.tradingCard?.title || "Carte obtenue",
-        amount: pack.tradingCard?.rarity || "COMMUNE",
-        icon: Layers,
-        iconBg: "bg-purple-500/15 border-purple-500/30 text-purple-400",
-        textColor: pack.tradingCard?.rarity === "MYTHIC" ? "text-red-400" : "text-purple-300",
-      }));
-    }
-  } catch {}
+    const realMythics: ActivityItem[] = (latestMythicCards || []).map((pack, idx) => ({
+      id: `mythic-${pack.id || idx}`,
+      name: pack.user?.minecraftName || pack.user?.name || "Joueur",
+      game: "Booster Mythique",
+      detail: pack.tradingCard?.title || "Carte mythique",
+      amount: "MYTHIQUE",
+      icon: Layers,
+      iconBg: "bg-red-500/15 border-red-500/30 text-red-400",
+      textColor: "text-[#ff4d4d]",
+    }));
 
-  if (recentActivities.length === 0) {
-    recentActivities = [
+    const mockActivities: ActivityItem[] = [
       {
-        id: "default-1",
-        name: "Crash",
-        game: "Multiplicateur",
-        detail: "Fusée en temps réel",
-        amount: "x100+",
+        id: "mock-crash",
+        name: "Kaelith",
+        game: "Crash",
+        detail: "Encaissé à x4.12",
+        amount: "+2 060",
         icon: Rocket,
         iconBg: "bg-blue-500/15 border-blue-500/30 text-blue-400",
-        textColor: "text-emerald-400",
+        textColor: "text-[#34d399]",
       },
       {
-        id: "default-2",
-        name: "Mines",
-        game: "Grille 5×5",
-        detail: "Netherite vs TNT",
-        amount: "Évolutif",
+        id: "mock-mythic",
+        name: "Milo_",
+        game: "Booster Mythique",
+        detail: "Carte variante obtenue",
+        amount: "MYTHIQUE",
+        icon: Layers,
+        iconBg: "bg-red-500/15 border-red-500/30 text-red-400",
+        textColor: "text-[#ff4d4d]",
+      },
+      {
+        id: "mock-mines",
+        name: "Zephyra",
+        game: "Mines",
+        detail: "9 lingots · x6.40",
+        amount: "+3 200",
         icon: Bomb,
         iconBg: "bg-red-500/15 border-red-500/30 text-red-400",
-        textColor: "text-emerald-400",
+        textColor: "text-[#34d399]",
       },
       {
-        id: "default-3",
-        name: "Roulette",
-        game: "Roue de la chance",
-        detail: "Rouge, Noir ou Vert",
-        amount: "x14 max",
+        id: "mock-roulette",
+        name: "Nyxo",
+        game: "Roulette",
+        detail: "Vert · x14",
+        amount: "+1 400",
         icon: Disc,
         iconBg: "bg-violet-500/15 border-violet-500/30 text-violet-400",
-        textColor: "text-purple-300",
+        textColor: "text-[#34d399]",
+      },
+    ];
+
+    if (realMythics.length > 0) {
+      const remainingSlots = 4 - realMythics.length;
+      const otherActivities = mockActivities.filter((a) => a.id !== "mock-mythic").slice(0, remainingSlots);
+      recentActivities = [...realMythics, ...otherActivities];
+    } else {
+      recentActivities = mockActivities;
+    }
+  } catch {
+    recentActivities = [
+      {
+        id: "mock-crash",
+        name: "Kaelith",
+        game: "Crash",
+        detail: "Encaissé à x4.12",
+        amount: "+2 060",
+        icon: Rocket,
+        iconBg: "bg-blue-500/15 border-blue-500/30 text-blue-400",
+        textColor: "text-[#34d399]",
       },
       {
-        id: "default-4",
-        name: "Blackjack",
-        game: "Table 21",
-        detail: "Battez le Croupier",
-        amount: "3:2",
-        icon: Spade,
-        iconBg: "bg-amber-500/15 border-amber-500/30 text-amber-400",
-        textColor: "text-amber-300",
+        id: "mock-mythic",
+        name: "Milo_",
+        game: "Booster Mythique",
+        detail: "Carte variante obtenue",
+        amount: "MYTHIQUE",
+        icon: Layers,
+        iconBg: "bg-red-500/15 border-red-500/30 text-red-400",
+        textColor: "text-[#ff4d4d]",
+      },
+      {
+        id: "mock-mines",
+        name: "Zephyra",
+        game: "Mines",
+        detail: "9 lingots · x6.40",
+        amount: "+3 200",
+        icon: Bomb,
+        iconBg: "bg-red-500/15 border-red-500/30 text-red-400",
+        textColor: "text-[#34d399]",
+      },
+      {
+        id: "mock-roulette",
+        name: "Nyxo",
+        game: "Roulette",
+        detail: "Vert · x14",
+        amount: "+1 400",
+        icon: Disc,
+        iconBg: "bg-violet-500/15 border-violet-500/30 text-violet-400",
+        textColor: "text-[#34d399]",
       },
     ];
   }
@@ -340,10 +392,10 @@ export default async function JeuxPage() {
                 <Image src="/StandardB.png" alt="Booster Standard" fill className="object-contain" />
               </div>
               <div className="w-[150px] h-[215px] relative z-10 drop-shadow-[0_22px_26px_rgba(0,0,0,0.7)] animate-[float-soft_6s_ease-in-out_infinite]">
-                <Image src="/LegendaireB.png" alt="Booster Légendaire" fill className="object-contain" />
+                <Image src="/MythiqueB.png" alt="Booster Mythique" fill className="object-contain" />
               </div>
               <div className="w-[110px] h-[158px] relative rotate-12 -translate-x-6 drop-shadow-[0_18px_22px_rgba(0,0,0,0.6)]">
-                <Image src="/MythiqueB.png" alt="Booster Mythique" fill className="object-contain" />
+                <Image src="/LegendaireB.png" alt="Booster Légendaire" fill className="object-contain" />
               </div>
             </div>
           </div>
