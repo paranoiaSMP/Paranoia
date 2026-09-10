@@ -15,13 +15,22 @@ export default async function BlackjackPage() {
   const userId = session?.user?.id;
 
   let paraCoins = 0;
+  let userName = "Joueur";
+
   if (userId) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { paraCoins: true },
+      select: { paraCoins: true, name: true, minecraftName: true },
     });
     paraCoins = user?.paraCoins || 0;
+    userName = user?.minecraftName || user?.name || session?.user?.name || "Joueur";
   }
 
-  return <BlackjackClient initialCoins={paraCoins} isAuthenticated={!!userId} />;
+  return (
+    <BlackjackClient
+      initialCoins={paraCoins}
+      userName={userName}
+      isAuthenticated={!!userId}
+    />
+  );
 }
