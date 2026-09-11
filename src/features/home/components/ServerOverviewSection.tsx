@@ -139,15 +139,15 @@ export default function ServerOverviewSection() {
           <div className="mt-4 pt-3 border-t border-white/5 flex flex-col gap-2 font-mono text-xs">
             <div className="flex justify-between text-slate-400">
               <span>Événement</span>
-              <span className="text-white font-bold">Samedi 21h</span>
+              <span className="text-white font-bold">Soon</span>
             </div>
             <div className="flex justify-between text-slate-400">
               <span>Discord</span>
-              <span className="text-white font-bold">1 240 membres</span>
+              <span className="text-white font-bold">Soon</span>
             </div>
             <div className="flex justify-between text-slate-400">
               <span>Version</span>
-              <span className="text-white font-bold">1.21.1</span>
+              <span className="text-white font-bold">Soon</span>
             </div>
           </div>
         </div>
