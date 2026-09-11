@@ -5,9 +5,8 @@ import dynamic from 'next/dynamic';
 import HeroSection from '@/features/home/components/HeroSection';
 import BackgroundEffects from '@/features/home/components/BackgroundEffects';
 
-const FeaturesSection = dynamic(() => import('@/features/home/components/FeaturesSection'));
-const CardsSystemSection = dynamic(() => import('@/features/home/components/CardsSystemSection'));
-const CTASection = dynamic(() => import('@/features/home/components/CTASection'));
+const ServerOverviewSection = dynamic(() => import('@/features/home/components/ServerOverviewSection'));
+const LauncherSection = dynamic(() => import('@/features/home/components/LauncherSection'));
 
 export default function Page() {
   return (
@@ -16,9 +15,8 @@ export default function Page() {
 
       <div className="relative z-10">
         <HeroSection />
-        <FeaturesSection />
-        <CardsSystemSection />
-        <CTASection />
+        <ServerOverviewSection />
+        <LauncherSection />
       </div>
     </div>
   );
