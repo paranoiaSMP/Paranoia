@@ -1,20 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Copy, Check } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { ArrowRight } from 'lucide-react';
 
 export default function ServerOverviewSection() {
-  const [copied, setCopied] = useState(false);
-
-  const copyIP = () => {
-    navigator.clipboard.writeText("play.paranoiasmp.fr");
-    setCopied(true);
-    toast.success("IP copiée dans le presse-papier !");
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   return (
     <section className="relative max-w-6xl mx-auto px-4 sm:px-6 mt-16 sm:mt-24">
@@ -166,25 +157,15 @@ export default function ServerOverviewSection() {
             <span className="font-mono text-[11px] tracking-widest text-slate-400 font-bold uppercase">
               REJOINDRE LE SERVEUR
             </span>
-            <p className="font-mono text-base font-bold text-white mt-2">
-              play.paranoiasmp.fr
+            <p className="font-mono text-base font-bold text-white mt-2 tracking-widest">
+              XXXXX
             </p>
           </div>
           <button
-            onClick={copyIP}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-outfit font-bold text-sm text-white bg-[#b366ff] hover:bg-[#c084fc] border-2 border-[#7a1fa2] shadow-[5px_5px_0px_0px_#7a1fa2] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[7px_7px_0px_0px_#7a1fa2] transition-all cursor-pointer"
+            disabled
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-outfit font-bold text-sm text-white bg-[#111118] border-2 border-[#7a1fa2] shadow-[5px_5px_0px_0px_#7a1fa2] cursor-not-allowed opacity-80"
           >
-            {copied ? (
-              <>
-                <Check className="w-4 h-4 text-white" />
-                <span>IP COPIÉE !</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                <span>COPIER L'IP DU SERVEUR</span>
-              </>
-            )}
+            Soon
           </button>
         </div>
       </div>
