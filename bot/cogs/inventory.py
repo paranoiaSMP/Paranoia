@@ -52,14 +52,28 @@ class inventory(commands.Cog):
             )
 
             image_url = best_card['renderedImageUrl'] or best_card['imageUrl']
+            file_to_send = None
             if image_url:
-                if image_url.startswith('/'):
-                    base_url = os.getenv("NEXTAUTH_URL", "http://localhost:3000")
-                    image_url = f"{base_url}{image_url}"
+                if image_url.startswith("https://") or (image_url.startswith("http://") and not ("localhost" in image_url or "127.0.0.1" in image_url)):
+                    embed.set_image(url=image_url)
+                else:
+                    filename = os.path.basename(image_url)
+                    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                    candidates = [
+                        os.path.join(base_dir, "public", "uploads", "cards", filename),
+                        os.path.join(base_dir, "public", "uploads", filename),
+                        os.path.join(os.getcwd(), "public", "uploads", "cards", filename),
+                        os.path.join(os.getcwd(), "public", "uploads", filename),
+                    ]
+                    local_path = next((p for p in candidates if os.path.exists(p)), None)
+                    if local_path:
+                        file_to_send = discord.File(local_path, filename="flex.png")
+                        embed.set_image(url="attachment://flex.png")
 
-                embed.set_image(url=image_url)
-
-            await interaction.response.send_message(embed=embed)
+            if file_to_send:
+                await interaction.response.send_message(embed=embed, file=file_to_send)
+            else:
+                await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(inventory(bot))

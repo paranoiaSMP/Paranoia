@@ -18,17 +18,25 @@ class ParaCoin(commands.Cog):
             record = await con.fetchrow(query,str(interaction.user.id))
 
         if record:
-            coin = record["paraCoin"]
+            coin = record["paraCoins"]
             embed = discord.Embed(
                 title="ParaCoin",
                 description=f"Tu as actuellement **{coin}PC**.",
                 color=0xfbbf24
             )
 
-            chemin_image = os.path.join("./assets/paracoin.png")
-            fichier_image = discord.File(chemin_image, filename="paracoin.png")
-            embed.set_thumbnail(url="attachment://paracoin.png")
-            await interaction.response.send_message(embed=embed, file=fichier_image)
+            candidates = [
+                os.path.join(os.getcwd(), "bot", "assets", "paracoin.png"),
+                os.path.join(os.getcwd(), "assets", "paracoin.png"),
+                os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "paracoin.png"),
+            ]
+            chemin_image = next((p for p in candidates if os.path.exists(p)), None)
+            if chemin_image:
+                fichier_image = discord.File(chemin_image, filename="paracoin.png")
+                embed.set_thumbnail(url="attachment://paracoin.png")
+                await interaction.response.send_message(embed=embed, file=fichier_image)
+            else:
+                await interaction.response.send_message(embed=embed)
         else:
             await interaction.response.send_message("Tu n'es pas enregistrer sur le site ", ephemeral=True)
 

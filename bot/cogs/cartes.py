@@ -21,6 +21,9 @@ RARITY_LABELS = {
     "COMMON": "Commune"
 }
 
+import io
+import aiohttp
+
 class CartesCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -30,6 +33,7 @@ class CartesCog(commands.Cog):
     async def cartes(self, interaction: discord.Interaction, pseudo_mc: str):
         await interaction.response.defer()
 
+        clean_pseudo = pseudo_mc.strip()
         cards = []
         if self.bot.db:
             try:
@@ -49,7 +53,7 @@ class CartesCog(commands.Cog):
                         ELSE 6
                     END ASC
                     """
-                    records = await con.fetch(query, pseudo_mc, f"%{pseudo_mc}%")
+                    records = await con.fetch(query, f"%{clean_pseudo}%", f"%{clean_pseudo}%")
                     for r in records:
                         cards.append(dict(r))
             except Exception:
@@ -58,20 +62,20 @@ class CartesCog(commands.Cog):
         if not cards:
             embed = discord.Embed(
                 title="🃏 Cartes Introuvables",
-                description=f"Aucune carte assignée à **{pseudo_mc}** n'a été trouvée.",
+                description=f"Aucune carte assignée à **{clean_pseudo}** n'a été trouvée.",
                 color=0xef4444
             )
-            embed.set_thumbnail(url=f"https://vzge.me/face/512/{pseudo_mc}.png")
+            embed.set_thumbnail(url=f"https://vzge.me/face/512/{clean_pseudo}.png")
             embed.set_footer(text="Paranoia Studio")
             await interaction.followup.send(embed=embed)
             return
 
         embed = discord.Embed(
-            title=f"🃏 Cartes de {pseudo_mc}",
+            title=f"🃏 Cartes de {clean_pseudo}",
             description=f"**{len(cards)}** carte(s) répertoriée(s) pour ce joueur :",
             color=0x7a0aad
         )
-        embed.set_thumbnail(url=f"https://vzge.me/face/512/{pseudo_mc}.png")
+        embed.set_thumbnail(url=f"https://vzge.me/face/512/{clean_pseudo}.png")
 
         for card in cards[:10]:
             rarity_text = RARITY_LABELS.get(card["rarity"], card["rarity"])
@@ -90,11 +94,41 @@ class CartesCog(commands.Cog):
 
         base_url = os.getenv("NEXTAUTH_URL", "http://localhost:3000").rstrip("/")
         first_img = cards[0].get("renderedImageUrl")
-        if not first_img or not first_img.startswith("http"):
-            first_img = f"{base_url}/api/og/card?id={cards[0]['id']}"
-        embed.set_image(url=first_img)
+        file_to_send = None
 
-        await interaction.followup.send(embed=embed)
+        if first_img and (first_img.startswith("https://") or first_img.startswith("http://")) and not ("localhost" in first_img or "127.0.0.1" in first_img):
+            embed.set_image(url=first_img)
+        else:
+            filename = os.path.basename(first_img) if first_img else f"card_{cards[0]['id']}.png"
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            candidates = [
+                os.path.join(base_dir, "public", "uploads", "cards", filename),
+                os.path.join(base_dir, "public", "uploads", filename),
+                os.path.join(os.getcwd(), "public", "uploads", "cards", filename),
+                os.path.join(os.getcwd(), "public", "uploads", filename),
+            ]
+            local_path = next((p for p in candidates if os.path.exists(p)), None)
+            if local_path:
+                file_to_send = discord.File(local_path, filename="carte.png")
+                embed.set_image(url="attachment://carte.png")
+            else:
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(f"{base_url}/api/og/card?id={cards[0]['id']}", timeout=aiohttp.ClientTimeout(total=4)) as resp:
+                            if resp.status == 200:
+                                data = await resp.read()
+                                file_to_send = discord.File(io.BytesIO(data), filename="carte.png")
+                                embed.set_image(url="attachment://carte.png")
+                except Exception:
+                    pass
+
+                if not file_to_send:
+                    embed.set_image(url=f"https://vzge.me/bust/512/{clean_pseudo}.png")
+
+        if file_to_send:
+            await interaction.followup.send(embed=embed, file=file_to_send)
+        else:
+            await interaction.followup.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(CartesCog(bot))

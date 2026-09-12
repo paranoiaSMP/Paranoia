@@ -2,6 +2,9 @@ import discord
 from discord.ext import commands
 import os
 
+import asyncpg
+from core.config import Config
+
 class ParanoiaBot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
@@ -12,8 +15,18 @@ class ParanoiaBot(commands.Bot):
         self.db = None
 
     async def setup_hook(self):
+        if Config.DATABASE_URL:
+            try:
+                self.db = await asyncpg.create_pool(Config.DATABASE_URL)
+            except Exception as e:
+                print(f"[ERROR] DB connection failed: {e}", flush=True)
         await self.load_all_cogs()
         await self.tree.sync()
+
+    async def close(self):
+        if self.db:
+            await self.db.close()
+        await super().close()
 
     async def on_ready(self):
         print(f"[SUCCESS] Bot connecté : {self.user} (ID: {self.user.id})", flush=True)
