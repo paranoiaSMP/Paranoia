@@ -25,7 +25,10 @@ export async function GET(req: NextRequest) {
     }
 
     if (card.renderedImageUrl && !searchParams.get('force')) {
-      return NextResponse.redirect(card.renderedImageUrl);
+      const target = card.renderedImageUrl.startsWith('http')
+        ? card.renderedImageUrl
+        : new URL(card.renderedImageUrl, req.url).toString();
+      return NextResponse.redirect(target);
     }
 
     const rarityColors: Record<string, string> = {
@@ -210,9 +213,11 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    return imageResponse;
   } catch (e: any) {
     console.error("Card OG error:", e);
-    return NextResponse.redirect(`https://vzge.me/bust/512/Steve.png`);
+    return NextResponse.json(
+      { error: e?.message || String(e), stack: e?.stack },
+      { status: 500 }
+    );
   }
 }
