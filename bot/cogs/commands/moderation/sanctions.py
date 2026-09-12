@@ -60,7 +60,15 @@ class SanctionsCog(commands.Cog):
             return
 
         if member.top_role >= interaction.user.top_role and interaction.user.id != interaction.guild.owner_id:
-            await interaction.response.send_message("Vous ne pouvez pas sanctionner un membre ayant un rôle égal ou supérieur.", ephemeral=True)
+            await interaction.response.send_message("Vous ne pouvez pas sanctionner un membre ayant un rôle égal ou supérieur au vôtre.", ephemeral=True)
+            return
+
+        if member.top_role >= interaction.guild.me.top_role:
+            await interaction.response.send_message("Le rôle du bot est inférieur ou égal à celui de ce membre dans la hiérarchie des rôles Discord.", ephemeral=True)
+            return
+
+        if not interaction.guild.me.guild_permissions.ban_members:
+            await interaction.response.send_message("Le bot ne possède pas la permission de bannir des membres.", ephemeral=True)
             return
 
         await interaction.response.defer()
@@ -82,7 +90,15 @@ class SanctionsCog(commands.Cog):
             return
 
         if member.top_role >= interaction.user.top_role and interaction.user.id != interaction.guild.owner_id:
-            await interaction.response.send_message("Vous ne pouvez pas sanctionner un membre ayant un rôle égal ou supérieur.", ephemeral=True)
+            await interaction.response.send_message("Vous ne pouvez pas sanctionner un membre ayant un rôle égal ou supérieur au vôtre.", ephemeral=True)
+            return
+
+        if member.top_role >= interaction.guild.me.top_role:
+            await interaction.response.send_message("Le rôle du bot est inférieur ou égal à celui de ce membre dans la hiérarchie des rôles Discord.", ephemeral=True)
+            return
+
+        if not interaction.guild.me.guild_permissions.moderate_members:
+            await interaction.response.send_message("Le bot ne possède pas la permission 'Exclure temporairement des membres' (Moderate Members).", ephemeral=True)
             return
 
         delta = parse_duration(time)
@@ -109,7 +125,15 @@ class SanctionsCog(commands.Cog):
             return
 
         if member.top_role >= interaction.user.top_role and interaction.user.id != interaction.guild.owner_id:
-            await interaction.response.send_message("Vous ne pouvez pas sanctionner un membre ayant un rôle égal ou supérieur.", ephemeral=True)
+            await interaction.response.send_message("Vous ne pouvez pas sanctionner un membre ayant un rôle égal ou supérieur au vôtre.", ephemeral=True)
+            return
+
+        if member.top_role >= interaction.guild.me.top_role:
+            await interaction.response.send_message("Le rôle du bot est inférieur ou égal à celui de ce membre dans la hiérarchie des rôles Discord.", ephemeral=True)
+            return
+
+        if not interaction.guild.me.guild_permissions.kick_members:
+            await interaction.response.send_message("Le bot ne possède pas la permission d'expulser des membres.", ephemeral=True)
             return
 
         await interaction.response.defer()
