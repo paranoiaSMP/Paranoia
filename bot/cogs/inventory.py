@@ -58,8 +58,11 @@ class inventory(commands.Cog):
                     embed.set_image(url=image_url)
                 else:
                     filename = os.path.basename(image_url)
+                    rel_path = image_url.lstrip("/")
                     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
                     candidates = [
+                        os.path.join(base_dir, "public", rel_path),
+                        os.path.join(os.getcwd(), "public", rel_path),
                         os.path.join(base_dir, "public", "uploads", "cards", filename),
                         os.path.join(base_dir, "public", "uploads", filename),
                         os.path.join(os.getcwd(), "public", "uploads", "cards", filename),
@@ -69,6 +72,10 @@ class inventory(commands.Cog):
                     if local_path:
                         file_to_send = discord.File(local_path, filename="flex.png")
                         embed.set_image(url="attachment://flex.png")
+                    else:
+                        base_url = os.getenv("NEXTAUTH_URL", "http://localhost:3000").rstrip("/")
+                        if image_url.startswith("/") and base_url.startswith("http"):
+                            embed.set_image(url=f"{base_url}{image_url}")
 
             if file_to_send:
                 await interaction.response.send_message(embed=embed, file=file_to_send)

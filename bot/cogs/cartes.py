@@ -149,8 +149,11 @@ class CartesCog(commands.Cog):
             embed.set_image(url=first_img)
         else:
             filename = os.path.basename(first_img) if first_img else f"card_{cards[0]['id']}.png"
+            rel_path = first_img.lstrip("/") if first_img else f"uploads/{filename}"
             base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
             candidates = [
+                os.path.join(base_dir, "public", rel_path),
+                os.path.join(os.getcwd(), "public", rel_path),
                 os.path.join(base_dir, "public", "uploads", "cards", filename),
                 os.path.join(base_dir, "public", "uploads", filename),
                 os.path.join(os.getcwd(), "public", "uploads", "cards", filename),
@@ -160,6 +163,8 @@ class CartesCog(commands.Cog):
             if local_path:
                 file_to_send = discord.File(local_path, filename="carte.png")
                 embed.set_image(url="attachment://carte.png")
+            elif first_img and first_img.startswith("/") and base_url.startswith("http"):
+                embed.set_image(url=f"{base_url}{first_img}")
             else:
                 try:
                     async with aiohttp.ClientSession() as session:
