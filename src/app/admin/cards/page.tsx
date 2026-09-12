@@ -29,6 +29,9 @@ export default function AdminCardsPage() {
   const [editions, setEditions] = useState<any[]>([]);
   const [variants, setVariants] = useState<any[]>([]);
   const [templates, setTemplates] = useState<any[]>([]);
+  const [batchCard, setBatchCard] = useState<any | null>(null);
+  const [batchProgress, setBatchProgress] = useState<{ current: number; total: number; title: string } | null>(null);
+  const [isBatchGenerating, setIsBatchGenerating] = useState(false);
 
   const [creatingCard, setCreatingCard] = useState(false);
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
@@ -673,31 +676,119 @@ export default function AdminCardsPage() {
     }
   };
 
-  const handleGenerateMissingCards = async () => {
-    const missingCards = cards.filter(c => !c.renderedImageUrl);
-    if (missingCards.length === 0) {
+  const renderAndUploadCard = async (targetCard: any) => {
+    setBatchCard(targetCard);
+    await new Promise((r) => setTimeout(r, 200));
+    const element = document.getElementById("batch-capture-card");
+    if (!element) throw new Error("Capture element not found");
+
+    const images = Array.from(element.querySelectorAll("img"));
+    await Promise.all(
+      images.map((img) => {
+        if (img.complete && img.naturalHeight !== 0) return Promise.resolve();
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+          setTimeout(resolve, 3000);
+        });
+      })
+    );
+
+    const video = element.querySelector("video");
+    if (video && video.readyState < 2) {
+      await new Promise((resolve) => {
+        video.onloadeddata = resolve;
+        setTimeout(resolve, 4000);
+      });
+    }
+
+    await new Promise((r) => setTimeout(r, 200));
+
+    const blob = await toBlob(element, {
+      pixelRatio: 2,
+      backgroundColor: "transparent",
+      filter: (node) => {
+        if (node instanceof HTMLElement && typeof node.className === "string") {
+          return !node.className.includes("transparenttextures");
+        }
+        return true;
+      },
+    });
+
+    if (!blob) throw new Error("Failed to create image blob");
+
+    const file = new File([blob], `card_${targetCard.id}.png`, { type: "image/png" });
+    const formData = new FormData();
+    formData.append("file", file);
+    const playerName = targetCard.player?.minecraftName || targetCard.title;
+    if (playerName) formData.append("playerName", playerName);
+
+    const uploadRes = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+    if (!uploadRes.ok) throw new Error("Upload failed");
+    const { url } = await uploadRes.json();
+
+    const updateRes = await fetch("/api/cards", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: targetCard.id, renderedImageUrl: url }),
+    });
+    if (!updateRes.ok) throw new Error("Card update failed");
+
+    setCards((prev) =>
+      prev.map((c) => (c.id === targetCard.id ? { ...c, renderedImageUrl: url } : c))
+    );
+    return url;
+  };
+
+  const handleGenerateCards = async (forceAll: boolean = false) => {
+    const targets = forceAll ? cards : cards.filter((c) => !c.renderedImageUrl);
+    if (targets.length === 0) {
       toast.success("Toutes les cartes ont déjà leur rendu CDN !");
       return;
     }
-    toast.loading(`Génération automatique de ${missingCards.length} carte(s)...`, { id: "gen-missing" });
+
+    setIsBatchGenerating(true);
     let count = 0;
-    for (const card of missingCards) {
-      try {
-        const res = await fetch(`/api/og/card?id=${card.id}&force=true`);
-        if (res.ok) {
+    try {
+      for (let i = 0; i < targets.length; i++) {
+        const card = targets[i];
+        setBatchProgress({
+          current: i + 1,
+          total: targets.length,
+          title: card.title || "Carte",
+        });
+        try {
+          await renderAndUploadCard(card);
           count++;
-        } else {
-          const errText = await res.text().catch(() => "");
-          console.error("Card gen failed for", card.id, res.status, errText);
+        } catch (err) {
+          console.error("Batch card gen failed for", card.id, err);
         }
-      } catch (e) {
-        console.error("Failed to generate missing card:", card.id, e);
       }
-      await new Promise(r => setTimeout(r, 300));
+      toast.success(`${count} carte(s) générée(s) avec succès !`);
+    } finally {
+      setBatchCard(null);
+      setBatchProgress(null);
+      setIsBatchGenerating(false);
+      fetchData();
     }
-    toast.dismiss("gen-missing");
-    toast.success(`${count} carte(s) générée(s) et envoyée(s) sur le CDN !`);
-    fetchData();
+  };
+
+  const handleGenerateSingleCard = async (card: any) => {
+    toast.loading(`Rendu de ${card.title}...`, { id: `gen-${card.id}` });
+    try {
+      await renderAndUploadCard(card);
+      toast.dismiss(`gen-${card.id}`);
+      toast.success(`Carte ${card.title} générée avec succès !`);
+    } catch (e: any) {
+      toast.dismiss(`gen-${card.id}`);
+      toast.error(`Erreur: ${e.message || "Échec"}`);
+    } finally {
+      setBatchCard(null);
+      fetchData();
+    }
   };
 
   return (
@@ -1253,8 +1344,48 @@ export default function AdminCardsPage() {
           cards={cards}
           onEditCard={startEditCard}
           onDeleteCard={handleDeleteCard}
-          onGenerateMissingCards={handleGenerateMissingCards}
+          onGenerateMissingCards={() => handleGenerateCards(false)}
+          onRegenerateAllCards={() => handleGenerateCards(true)}
+          onGenerateSingleCard={handleGenerateSingleCard}
+          isGenerating={isBatchGenerating}
         />
+      )}
+
+      {batchCard && (
+        <div style={{ position: 'fixed', left: '-9999px', top: 0, width: '320px', zIndex: -9999, pointerEvents: 'none' }}>
+          <div id="batch-capture-card" className="w-80 aspect-[2.5/3.5] rounded-xl overflow-hidden">
+            <CardDisplay
+              card={batchCard}
+              isEditing={false}
+              disableTilt={true}
+              size="lg"
+            />
+          </div>
+        </div>
+      )}
+
+      {batchProgress && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[9999] flex flex-col items-center justify-center p-4">
+          <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-3xl p-8 max-w-md w-full shadow-2xl flex flex-col items-center gap-6">
+            <div className="p-4 bg-purple-500/20 rounded-2xl text-purple-400 animate-pulse">
+              <Sparkles className="w-8 h-8" />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-xl font-bold uppercase tracking-tight text-[var(--text-color)]">
+                Génération des cartes ({batchProgress.current} / {batchProgress.total})
+              </h3>
+              <p className="text-sm text-[var(--color-text-secondary)] font-medium">
+                Rendu en cours : <span className="text-purple-400 font-bold">{batchProgress.title}</span>
+              </p>
+            </div>
+            <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-purple-500 to-indigo-500 h-full transition-all duration-300"
+                style={{ width: `${(batchProgress.current / batchProgress.total) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
