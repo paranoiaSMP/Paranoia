@@ -42,11 +42,21 @@ export async function GET(req: NextRequest) {
 
     const color = rarityColors[card.rarity] || '#94a3b8';
 
-    const timestamp = Date.now();
-    let bgImage = `https://vzge.me/bust/512/${card.player?.minecraftName || 'Steve'}.png?v=${timestamp}`;
+    const mcName = card.player?.minecraftName || card.title || 'Steve';
+    let bgImage = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="320" height="480" fill="%231e293b"/>`;
+
     if (card.imageUrl) {
       if (card.imageUrl.startsWith('http://') || card.imageUrl.startsWith('https://')) {
-        bgImage = card.imageUrl;
+        try {
+          const res = await fetch(card.imageUrl, { signal: AbortSignal.timeout(3000) });
+          if (res.ok) {
+            const buf = Buffer.from(await res.arrayBuffer());
+            const ct = res.headers.get('content-type') || 'image/png';
+            if (ct.startsWith('image/')) {
+              bgImage = `data:${ct};base64,${buf.toString('base64')}`;
+            }
+          }
+        } catch {}
       } else {
         try {
           const fs = await import('fs');
@@ -56,6 +66,27 @@ export async function GET(req: NextRequest) {
             const fileData = fs.readFileSync(localPath);
             const ext = path.extname(localPath).slice(1) || 'png';
             bgImage = `data:image/${ext};base64,${fileData.toString('base64')}`;
+          }
+        } catch {}
+      }
+    }
+
+    if (!bgImage.startsWith('data:image/png') && !bgImage.startsWith('data:image/jpeg') && !bgImage.startsWith('data:image/webp')) {
+      const candidates = [
+        `https://mc-heads.net/body/${mcName}/512`,
+        `https://minotar.net/bust/${mcName}/300.png`,
+        `https://crafatar.com/renders/body/${card.player?.uuid || mcName}?overlay`,
+      ];
+      for (const url of candidates) {
+        try {
+          const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
+          if (res.ok) {
+            const ct = res.headers.get('content-type');
+            if (ct && ct.startsWith('image/')) {
+              const buf = Buffer.from(await res.arrayBuffer());
+              bgImage = `data:${ct};base64,${buf.toString('base64')}`;
+              break;
+            }
           }
         } catch {}
       }
@@ -94,6 +125,8 @@ export async function GET(req: NextRequest) {
             {}
             <img
               src={bgImage}
+              width={320}
+              height={480}
               style={{
                 width: '100%',
                 height: '100%',
