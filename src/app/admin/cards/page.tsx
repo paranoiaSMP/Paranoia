@@ -688,6 +688,7 @@ export default function AdminCardsPage() {
       } catch (e) {
         console.error("Failed to generate missing card:", card.id, e);
       }
+      await new Promise(r => setTimeout(r, 300));
     }
     toast.dismiss("gen-missing");
     toast.success(`${count} carte(s) générée(s) et envoyée(s) sur le CDN !`);

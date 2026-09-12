@@ -186,21 +186,33 @@ export async function GET(req: NextRequest) {
       }
     );
 
+    let buffer: Buffer | null = null;
     try {
-      const cloned = imageResponse.clone();
-      const arrayBuffer = await cloned.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
+      const arrayBuffer = await imageResponse.arrayBuffer();
+      buffer = Buffer.from(arrayBuffer);
       const publicUrl = await uploadBufferToR2(buffer, `card_${card.id}.png`, 'image/png', card.player?.minecraftName);
-      await prisma.tradingCard.update({
-        where: { id: card.id },
-        data: { renderedImageUrl: publicUrl }
-      });
+      if (publicUrl) {
+        await prisma.tradingCard.update({
+          where: { id: card.id },
+          data: { renderedImageUrl: publicUrl }
+        });
+      }
     } catch (uploadErr) {
       console.error("Auto upload to CDN error:", uploadErr);
     }
 
+    if (buffer) {
+      return new NextResponse(new Uint8Array(buffer), {
+        headers: {
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=31536000, immutable',
+        },
+      });
+    }
+
     return imageResponse;
   } catch (e: any) {
-    return new Response('Failed to generate image', { status: 500 });
+    console.error("Card OG error:", e);
+    return NextResponse.redirect(`https://vzge.me/bust/512/Steve.png`);
   }
 }
