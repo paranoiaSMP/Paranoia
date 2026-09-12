@@ -684,7 +684,12 @@ export default function AdminCardsPage() {
     for (const card of missingCards) {
       try {
         const res = await fetch(`/api/og/card?id=${card.id}&force=true`);
-        if (res.ok) count++;
+        if (res.ok) {
+          count++;
+        } else {
+          const errText = await res.text().catch(() => "");
+          console.error("Card gen failed for", card.id, res.status, errText);
+        }
       } catch (e) {
         console.error("Failed to generate missing card:", card.id, e);
       }
