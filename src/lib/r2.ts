@@ -43,10 +43,15 @@ export async function uploadBufferToR2(
     return `${baseUrl}${uniqueKey}`;
   }
 
-  const localDir = path.join(process.cwd(), "public", "uploads", folder);
-  fs.mkdirSync(localDir, { recursive: true });
-  const localFileName = path.basename(uniqueKey);
-  const localPath = path.join(localDir, localFileName);
-  fs.writeFileSync(localPath, buffer);
-  return `/uploads/${folder}/${localFileName}`;
+  try {
+    const localDir = path.join(process.cwd(), "public", "uploads", folder);
+    fs.mkdirSync(localDir, { recursive: true });
+    const localFileName = path.basename(uniqueKey);
+    const localPath = path.join(localDir, localFileName);
+    fs.writeFileSync(localPath, buffer);
+    return `/uploads/${folder}/${localFileName}`;
+  } catch (err) {
+    console.error("Local write error in r2 fallback:", err);
+    return "";
+  }
 }

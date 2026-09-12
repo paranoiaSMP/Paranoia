@@ -1,9 +1,7 @@
 FROM node:22-alpine AS base
-
-# 1. Install dependencies only when needed
-FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat openssl
+
+FROM base AS deps
 WORKDIR /app
 
 # Install dependencies
@@ -41,9 +39,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Set the correct permission for prerender cache and persistent data
-RUN mkdir -p .next data
-RUN chown -R nextjs:nodejs .next data
+RUN mkdir -p .next data public/uploads
+RUN chown -R nextjs:nodejs .next data public/uploads
+RUN chmod -R 777 .next data public/uploads
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing

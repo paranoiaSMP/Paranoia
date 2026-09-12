@@ -40,7 +40,23 @@ export async function GET(req: NextRequest) {
     const color = rarityColors[card.rarity] || '#94a3b8';
 
     const timestamp = Date.now();
-    const bgImage = card.imageUrl || `https://vzge.me/bust/512/${card.player?.minecraftName || 'Steve'}.png?v=${timestamp}`;
+    let bgImage = `https://vzge.me/bust/512/${card.player?.minecraftName || 'Steve'}.png?v=${timestamp}`;
+    if (card.imageUrl) {
+      if (card.imageUrl.startsWith('http://') || card.imageUrl.startsWith('https://')) {
+        bgImage = card.imageUrl;
+      } else {
+        try {
+          const fs = await import('fs');
+          const path = await import('path');
+          const localPath = path.join(process.cwd(), 'public', card.imageUrl.replace(/^\//, ''));
+          if (fs.existsSync(localPath)) {
+            const fileData = fs.readFileSync(localPath);
+            const ext = path.extname(localPath).slice(1) || 'png';
+            bgImage = `data:image/${ext};base64,${fileData.toString('base64')}`;
+          }
+        } catch {}
+      }
+    }
 
     const imageResponse = new ImageResponse(
       (
