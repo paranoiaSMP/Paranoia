@@ -28,54 +28,103 @@ class CartesCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="cartes", description="Affiche toutes les cartes assignées à un joueur Minecraft.")
-    @app_commands.describe(pseudo_mc="Pseudo Minecraft du joueur")
-    async def cartes(self, interaction: discord.Interaction, pseudo_mc: str):
+    @app_commands.command(name="cartes", description="Affiche les cartes d'un joueur ou de votre inventaire.")
+    @app_commands.describe(pseudo_mc="Pseudo Minecraft ou laisser vide pour votre inventaire")
+    async def cartes(self, interaction: discord.Interaction, pseudo_mc: str = None):
         await interaction.response.defer()
 
-        clean_pseudo = pseudo_mc.strip()
+        clean_pseudo = pseudo_mc.strip() if pseudo_mc else ""
+        discord_id = str(interaction.user.id)
         cards = []
+        is_inventory = False
+
         if self.bot.db:
             try:
                 async with self.bot.db.acquire() as con:
-                    query = """
-                    SELECT tc.id, tc.title, tc.rarity, tc.edition, tc."imageUrl", tc."renderedImageUrl", tc.proba
-                    FROM "TradingCard" tc
-                    LEFT JOIN "Player" p ON tc."playerId" = p.id
-                    WHERE (p."minecraftName" ILIKE $1 OR tc.title ILIKE $2)
-                      AND tc."isPublished" = true
-                    ORDER BY CASE tc.rarity
-                        WHEN 'MYTHIC' THEN 1
-                        WHEN 'LEGENDARY' THEN 2
-                        WHEN 'EPIC' THEN 3
-                        WHEN 'RARE' THEN 4
-                        WHEN 'UNCOMMON' THEN 5
-                        ELSE 6
-                    END ASC
-                    """
-                    records = await con.fetch(query, f"%{clean_pseudo}%", f"%{clean_pseudo}%")
-                    for r in records:
-                        cards.append(dict(r))
-            except Exception:
-                pass
+                    if clean_pseudo:
+                        inv_query = """
+                        SELECT DISTINCT tc.id, tc.title, tc.rarity, tc.edition, tc."imageUrl", tc."renderedImageUrl", tc.proba
+                        FROM "UserCard" uc
+                        JOIN "TradingCard" tc ON uc."tradingCardId" = tc.id
+                        JOIN "User" u ON uc."userId" = u.id
+                        WHERE u."minecraftName" ILIKE $1 OR u.name ILIKE $1
+                        ORDER BY CASE tc.rarity
+                            WHEN 'MYTHIC' THEN 1
+                            WHEN 'LEGENDARY' THEN 2
+                            WHEN 'EPIC' THEN 3
+                            WHEN 'RARE' THEN 4
+                            WHEN 'UNCOMMON' THEN 5
+                            ELSE 6
+                        END ASC
+                        """
+                        records = await con.fetch(inv_query, f"%{clean_pseudo}%")
+                        if records:
+                            is_inventory = True
+                            for r in records:
+                                cards.append(dict(r))
 
+                    if not cards and clean_pseudo:
+                        char_query = """
+                        SELECT tc.id, tc.title, tc.rarity, tc.edition, tc."imageUrl", tc."renderedImageUrl", tc.proba
+                        FROM "TradingCard" tc
+                        LEFT JOIN "Player" p ON tc."playerId" = p.id
+                        WHERE p."minecraftName" ILIKE $1 OR tc.title ILIKE $1
+                        ORDER BY CASE tc.rarity
+                            WHEN 'MYTHIC' THEN 1
+                            WHEN 'LEGENDARY' THEN 2
+                            WHEN 'EPIC' THEN 3
+                            WHEN 'RARE' THEN 4
+                            WHEN 'UNCOMMON' THEN 5
+                            ELSE 6
+                        END ASC
+                        """
+                        records = await con.fetch(char_query, f"%{clean_pseudo}%")
+                        for r in records:
+                            cards.append(dict(r))
+
+                    if not cards and not clean_pseudo:
+                        self_query = """
+                        SELECT DISTINCT tc.id, tc.title, tc.rarity, tc.edition, tc."imageUrl", tc."renderedImageUrl", tc.proba
+                        FROM "UserCard" uc
+                        JOIN "TradingCard" tc ON uc."tradingCardId" = tc.id
+                        JOIN "User" u ON uc."userId" = u.id
+                        WHERE u."discordId" = $1
+                        ORDER BY CASE tc.rarity
+                            WHEN 'MYTHIC' THEN 1
+                            WHEN 'LEGENDARY' THEN 2
+                            WHEN 'EPIC' THEN 3
+                            WHEN 'RARE' THEN 4
+                            WHEN 'UNCOMMON' THEN 5
+                            ELSE 6
+                        END ASC
+                        """
+                        records = await con.fetch(self_query, discord_id)
+                        if records:
+                            is_inventory = True
+                            for r in records:
+                                cards.append(dict(r))
+            except Exception as e:
+                print(f"[ERROR] Cartes query error: {e}", flush=True)
+
+        display_name = clean_pseudo or interaction.user.display_name
         if not cards:
             embed = discord.Embed(
                 title="🃏 Cartes Introuvables",
-                description=f"Aucune carte assignée à **{clean_pseudo}** n'a été trouvée.",
+                description=f"Aucune carte trouvée pour **{display_name}**.",
                 color=0xef4444
             )
-            embed.set_thumbnail(url=f"https://vzge.me/face/512/{clean_pseudo}.png")
+            embed.set_thumbnail(url=f"https://vzge.me/face/512/{display_name}.png")
             embed.set_footer(text="Paranoia Studio")
             await interaction.followup.send(embed=embed)
             return
 
+        embed_title = f"🎒 Inventaire de {display_name}" if is_inventory else f"🃏 Cartes de {display_name}"
         embed = discord.Embed(
-            title=f"🃏 Cartes de {clean_pseudo}",
-            description=f"**{len(cards)}** carte(s) répertoriée(s) pour ce joueur :",
+            title=embed_title,
+            description=f"**{len(cards)}** carte(s) répertoriée(s) :",
             color=0x7a0aad
         )
-        embed.set_thumbnail(url=f"https://vzge.me/face/512/{clean_pseudo}.png")
+        embed.set_thumbnail(url=f"https://vzge.me/face/512/{display_name}.png")
 
         for card in cards[:10]:
             rarity_text = RARITY_LABELS.get(card["rarity"], card["rarity"])
