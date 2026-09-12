@@ -405,6 +405,38 @@ export default function AdminCardsPage() {
     setCreatingCard(true);
     try {
       const player = players.find(p => p.id === cardPlayerId);
+
+      let autoRenderedUrl = editingCardId ? cards.find(c => c.id === editingCardId)?.renderedImageUrl : null;
+      try {
+        const cardElement = document.getElementById("live-preview-card");
+        if (cardElement) {
+          const blob = await toBlob(cardElement, {
+            pixelRatio: 2,
+            backgroundColor: 'transparent',
+            filter: (node) => {
+              if (node instanceof HTMLElement && typeof node.className === 'string') {
+                return !node.className.includes('transparenttextures');
+              }
+              return true;
+            }
+          });
+          if (blob) {
+            const file = new File([blob], `card_auto_${Date.now()}.png`, { type: 'image/png' });
+            const formData = new FormData();
+            formData.append('file', file);
+            const playerName = player?.minecraftName || cardTitle;
+            if (playerName) formData.append('playerName', playerName);
+            const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+            if (uploadRes.ok) {
+              const { url } = await uploadRes.json();
+              autoRenderedUrl = url;
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Auto render capture failed:", err);
+      }
+
       const payload = {
         id: editingCardId,
         title: cardTitle || player?.minecraftName,
@@ -416,6 +448,7 @@ export default function AdminCardsPage() {
         description: cardDesc,
         customBackground: cardCustomBg,
         imageUrl: cardImageUrl,
+        renderedImageUrl: autoRenderedUrl || undefined,
         layer1Url,
         layer2Url,
         layer3Url,
@@ -638,6 +671,27 @@ export default function AdminCardsPage() {
     } finally {
       setIsCapturing(false);
     }
+  };
+
+  const handleGenerateMissingCards = async () => {
+    const missingCards = cards.filter(c => !c.renderedImageUrl);
+    if (missingCards.length === 0) {
+      toast.success("Toutes les cartes ont déjà leur rendu CDN !");
+      return;
+    }
+    toast.loading(`Génération automatique de ${missingCards.length} carte(s)...`, { id: "gen-missing" });
+    let count = 0;
+    for (const card of missingCards) {
+      try {
+        const res = await fetch(`/api/og/card?id=${card.id}&force=true`);
+        if (res.ok) count++;
+      } catch (e) {
+        console.error("Failed to generate missing card:", card.id, e);
+      }
+    }
+    toast.dismiss("gen-missing");
+    toast.success(`${count} carte(s) générée(s) et envoyée(s) sur le CDN !`);
+    fetchData();
   };
 
   return (
@@ -1193,6 +1247,7 @@ export default function AdminCardsPage() {
           cards={cards}
           onEditCard={startEditCard}
           onDeleteCard={handleDeleteCard}
+          onGenerateMissingCards={handleGenerateMissingCards}
         />
       )}
     </div>

@@ -7,12 +7,14 @@ interface AdminCardCatalogProps {
   cards: any[];
   onEditCard: (card: any) => void;
   onDeleteCard: (id: string) => void;
+  onGenerateMissingCards?: () => void;
 }
 
 export default function AdminCardCatalog({
   cards,
   onEditCard,
   onDeleteCard,
+  onGenerateMissingCards,
 }: AdminCardCatalogProps) {
   const [search, setSearch] = useState("");
 
@@ -34,7 +36,10 @@ export default function AdminCardCatalog({
           />
         </div>
         <div className="flex gap-4">
-          <button className="px-6 py-3 bg-[var(--icon-bg)] hover:bg-[var(--icon-bg)] border border-[var(--card-border)] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+          <button
+            onClick={onGenerateMissingCards}
+            className="px-6 py-3 bg-[var(--icon-bg)] hover:bg-[var(--icon-bg)] border border-[var(--card-border)] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer"
+          >
             <ImagePlus className="w-4 h-4" /> Générer les manquantes
           </button>
           <button className="px-6 py-3 bg-red-500/10 hover:bg-red-500 border border-red-500/20 text-red-500 hover:text-[var(--text-color)] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">

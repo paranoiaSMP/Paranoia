@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { prisma } from '@/lib/db';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { uploadBufferToR2 } from '@/lib/r2';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -23,6 +24,10 @@ export async function GET(req: NextRequest) {
       return new Response('Not found', { status: 404 });
     }
 
+    if (card.renderedImageUrl && !searchParams.get('force')) {
+      return NextResponse.redirect(card.renderedImageUrl);
+    }
+
     const rarityColors: Record<string, string> = {
       'MYTHIC': '#dc2626',
       'LEGENDARY': '#facc15',
@@ -37,7 +42,7 @@ export async function GET(req: NextRequest) {
     const timestamp = Date.now();
     const bgImage = card.imageUrl || `https://vzge.me/bust/512/${card.player?.minecraftName || 'Steve'}.png?v=${timestamp}`;
 
-    return new ImageResponse(
+    const imageResponse = new ImageResponse(
       (
         <div
           style={{
@@ -164,6 +169,21 @@ export async function GET(req: NextRequest) {
         height: 600,
       }
     );
+
+    try {
+      const cloned = imageResponse.clone();
+      const arrayBuffer = await cloned.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const publicUrl = await uploadBufferToR2(buffer, `card_${card.id}.png`, 'image/png', card.player?.minecraftName);
+      await prisma.tradingCard.update({
+        where: { id: card.id },
+        data: { renderedImageUrl: publicUrl }
+      });
+    } catch (uploadErr) {
+      console.error("Auto upload to CDN error:", uploadErr);
+    }
+
+    return imageResponse;
   } catch (e: any) {
     return new Response('Failed to generate image', { status: 500 });
   }

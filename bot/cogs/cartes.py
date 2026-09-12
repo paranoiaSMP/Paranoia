@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+import os
 
 RARITY_COLORS = {
     "MYTHIC": 0xdc2626,
@@ -87,9 +88,11 @@ class CartesCog(commands.Cog):
         else:
             embed.set_footer(text="Paranoia Studio")
 
-        first_img = cards[0].get("renderedImageUrl") or cards[0].get("imageUrl")
-        if first_img and first_img.startswith("http"):
-            embed.set_image(url=first_img)
+        base_url = os.getenv("NEXTAUTH_URL", "http://localhost:3000").rstrip("/")
+        first_img = cards[0].get("renderedImageUrl")
+        if not first_img or not first_img.startswith("http"):
+            first_img = f"{base_url}/api/og/card?id={cards[0]['id']}"
+        embed.set_image(url=first_img)
 
         await interaction.followup.send(embed=embed)
 
