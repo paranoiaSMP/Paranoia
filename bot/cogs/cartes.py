@@ -47,7 +47,8 @@ class CartesCog(commands.Cog):
                         FROM "UserCard" uc
                         JOIN "TradingCard" tc ON uc."tradingCardId" = tc.id
                         JOIN "User" u ON uc."userId" = u.id
-                        WHERE u."minecraftName" ILIKE $1 OR u.name ILIKE $1
+                        LEFT JOIN "Account" a ON a."userId" = u.id
+                        WHERE u."minecraftName" ILIKE $1 OR u.name ILIKE $1 OR a."providerAccountId" = $2
                         ORDER BY CASE tc.rarity
                             WHEN 'MYTHIC' THEN 1
                             WHEN 'LEGENDARY' THEN 2
@@ -57,7 +58,7 @@ class CartesCog(commands.Cog):
                             ELSE 6
                         END ASC
                         """
-                        records = await con.fetch(inv_query, f"%{clean_pseudo}%")
+                        records = await con.fetch(inv_query, f"%{clean_pseudo}%", clean_pseudo)
                         if records:
                             is_inventory = True
                             for r in records:
@@ -68,7 +69,7 @@ class CartesCog(commands.Cog):
                         SELECT tc.id, tc.title, tc.rarity, tc.edition, tc."imageUrl", tc."renderedImageUrl", tc.proba
                         FROM "TradingCard" tc
                         LEFT JOIN "Player" p ON tc."playerId" = p.id
-                        WHERE p."minecraftName" ILIKE $1 OR tc.title ILIKE $1
+                        WHERE p."minecraftName" ILIKE $1 OR tc.title ILIKE $1 OR $2 ILIKE ('%' || tc.title || '%') OR $2 ILIKE ('%' || COALESCE(p."minecraftName", '') || '%')
                         ORDER BY CASE tc.rarity
                             WHEN 'MYTHIC' THEN 1
                             WHEN 'LEGENDARY' THEN 2
@@ -78,7 +79,7 @@ class CartesCog(commands.Cog):
                             ELSE 6
                         END ASC
                         """
-                        records = await con.fetch(char_query, f"%{clean_pseudo}%")
+                        records = await con.fetch(char_query, f"%{clean_pseudo}%", clean_pseudo)
                         for r in records:
                             cards.append(dict(r))
 
@@ -88,7 +89,8 @@ class CartesCog(commands.Cog):
                         FROM "UserCard" uc
                         JOIN "TradingCard" tc ON uc."tradingCardId" = tc.id
                         JOIN "User" u ON uc."userId" = u.id
-                        WHERE u."discordId" = $1
+                        LEFT JOIN "Account" a ON a."userId" = u.id
+                        WHERE u."discordId" = $1 OR a."providerAccountId" = $1
                         ORDER BY CASE tc.rarity
                             WHEN 'MYTHIC' THEN 1
                             WHEN 'LEGENDARY' THEN 2
@@ -103,6 +105,38 @@ class CartesCog(commands.Cog):
                             is_inventory = True
                             for r in records:
                                 cards.append(dict(r))
+
+                    if not cards and not clean_pseudo:
+                        user_info = await con.fetchrow(
+                            'SELECT u."minecraftName", u.name FROM "User" u LEFT JOIN "Account" a ON a."userId" = u.id WHERE u."discordId" = $1 OR a."providerAccountId" = $1 LIMIT 1',
+                            discord_id
+                        )
+                        mc_name = user_info["minecraftName"] if user_info and user_info.get("minecraftName") else ""
+                        u_name = user_info["name"] if user_info and user_info.get("name") else ""
+                        candidates_names = [n for n in [mc_name, u_name, interaction.user.display_name, interaction.user.name] if n]
+                        for cname in candidates_names:
+                            records = await con.fetch(
+                                """
+                                SELECT tc.id, tc.title, tc.rarity, tc.edition, tc."imageUrl", tc."renderedImageUrl", tc.proba
+                                FROM "TradingCard" tc
+                                LEFT JOIN "Player" p ON tc."playerId" = p.id
+                                WHERE p."minecraftName" ILIKE $1 OR tc.title ILIKE $1 OR $2 ILIKE ('%' || tc.title || '%')
+                                ORDER BY CASE tc.rarity
+                                    WHEN 'MYTHIC' THEN 1
+                                    WHEN 'LEGENDARY' THEN 2
+                                    WHEN 'EPIC' THEN 3
+                                    WHEN 'RARE' THEN 4
+                                    WHEN 'UNCOMMON' THEN 5
+                                    ELSE 6
+                                END ASC
+                                """,
+                                f"%{cname}%",
+                                cname
+                            )
+                            if records:
+                                for r in records:
+                                    cards.append(dict(r))
+                                break
             except Exception as e:
                 print(f"[ERROR] Cartes query error: {e}", flush=True)
 

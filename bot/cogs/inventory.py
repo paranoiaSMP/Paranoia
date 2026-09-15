@@ -12,7 +12,7 @@ class inventory(commands.Cog):
         if not self.bot.db:
             return await interaction.response.send_message("Error Database.", ephemeral=True)
 
-        user_query = 'SELECT id FROM "User" WHERE "discordId" = $1'
+        user_query = 'SELECT u.id FROM "User" u LEFT JOIN "Account" a ON a."userId" = u.id WHERE u."discordId" = $1 OR a."providerAccountId" = $1 LIMIT 1'
 
         async with self.bot.db.acquire() as con:
             user = await con.fetchrow(user_query, str(interaction.user.id))

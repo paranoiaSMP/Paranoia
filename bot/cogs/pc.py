@@ -12,10 +12,10 @@ class ParaCoin(commands.Cog):
         if not self.bot.db:
             return await interaction.response.send_message("Error Database.", ephemeral= True)
 
-        query = 'SELECT "paraCoins" FROM "User" WHERE "discordId" = $1'
+        query = 'SELECT u."paraCoins" FROM "User" u LEFT JOIN "Account" a ON a."userId" = u.id WHERE u."discordId" = $1 OR a."providerAccountId" = $1 LIMIT 1'
 
         async with self.bot.db.acquire() as con:
-            record = await con.fetchrow(query,str(interaction.user.id))
+            record = await con.fetchrow(query, str(interaction.user.id))
 
         if record:
             coin = record["paraCoins"]

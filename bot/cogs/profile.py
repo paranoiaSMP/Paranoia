@@ -27,7 +27,7 @@ class ProfileCog(commands.Cog):
             try:
                 async with self.bot.db.acquire() as con:
                     user_row = await con.fetchrow(
-                        'SELECT id, "minecraftName", "paraCoins" FROM "User" WHERE "discordId" = $1',
+                        'SELECT u.id, u."minecraftName", u."paraCoins" FROM "User" u LEFT JOIN "Account" a ON a."userId" = u.id WHERE u."discordId" = $1 OR a."providerAccountId" = $1 LIMIT 1',
                         str(target.id)
                     )
                     if user_row:

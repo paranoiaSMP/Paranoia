@@ -3,7 +3,17 @@ from discord.ext import commands
 import os
 
 import asyncpg
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from core.config import Config
+
+def clean_database_url(url: str) -> str:
+    if not url:
+        return url
+    parsed = urlparse(url)
+    qs = parse_qs(parsed.query)
+    qs.pop("schema", None)
+    clean_query = urlencode(qs, doseq=True)
+    return urlunparse(parsed._replace(query=clean_query))
 
 class ParanoiaBot(commands.Bot):
     def __init__(self):
@@ -17,7 +27,9 @@ class ParanoiaBot(commands.Bot):
     async def setup_hook(self):
         if Config.DATABASE_URL:
             try:
-                self.db = await asyncpg.create_pool(Config.DATABASE_URL)
+                cleaned_url = clean_database_url(Config.DATABASE_URL)
+                self.db = await asyncpg.create_pool(cleaned_url)
+                print("[SUCCESS] DB connected successfully", flush=True)
             except Exception as e:
                 print(f"[ERROR] DB connection failed: {e}", flush=True)
         await self.load_all_cogs()

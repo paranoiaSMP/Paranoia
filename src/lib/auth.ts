@@ -56,7 +56,7 @@ export const authOptions: NextAuthOptions = {
           if (dbUser) {
             await prisma.user.update({
               where: { id: user.id },
-              data: { name: newName, image: imageUrl }
+              data: { name: newName, image: imageUrl, discordId: account.providerAccountId }
             });
           }
           user.name = newName;
