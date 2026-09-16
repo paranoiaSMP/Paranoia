@@ -49,14 +49,6 @@ class CartesCog(commands.Cog):
                         JOIN "User" u ON uc."userId" = u.id
                         LEFT JOIN "Account" a ON a."userId" = u.id
                         WHERE u."minecraftName" ILIKE $1 OR u.name ILIKE $1 OR a."providerAccountId" = $2
-                        ORDER BY CASE tc.rarity
-                            WHEN 'MYTHIC' THEN 1
-                            WHEN 'LEGENDARY' THEN 2
-                            WHEN 'EPIC' THEN 3
-                            WHEN 'RARE' THEN 4
-                            WHEN 'UNCOMMON' THEN 5
-                            ELSE 6
-                        END ASC
                         """
                         records = await con.fetch(inv_query, f"%{clean_pseudo}%", clean_pseudo)
                         if records:
@@ -70,14 +62,6 @@ class CartesCog(commands.Cog):
                         FROM "TradingCard" tc
                         LEFT JOIN "Player" p ON tc."playerId" = p.id
                         WHERE p."minecraftName" ILIKE $1 OR tc.title ILIKE $1 OR $2 ILIKE ('%' || tc.title || '%') OR $2 ILIKE ('%' || COALESCE(p."minecraftName", '') || '%')
-                        ORDER BY CASE tc.rarity
-                            WHEN 'MYTHIC' THEN 1
-                            WHEN 'LEGENDARY' THEN 2
-                            WHEN 'EPIC' THEN 3
-                            WHEN 'RARE' THEN 4
-                            WHEN 'UNCOMMON' THEN 5
-                            ELSE 6
-                        END ASC
                         """
                         records = await con.fetch(char_query, f"%{clean_pseudo}%", clean_pseudo)
                         for r in records:
@@ -91,14 +75,6 @@ class CartesCog(commands.Cog):
                         JOIN "User" u ON uc."userId" = u.id
                         LEFT JOIN "Account" a ON a."userId" = u.id
                         WHERE u."discordId" = $1 OR a."providerAccountId" = $1
-                        ORDER BY CASE tc.rarity
-                            WHEN 'MYTHIC' THEN 1
-                            WHEN 'LEGENDARY' THEN 2
-                            WHEN 'EPIC' THEN 3
-                            WHEN 'RARE' THEN 4
-                            WHEN 'UNCOMMON' THEN 5
-                            ELSE 6
-                        END ASC
                         """
                         records = await con.fetch(self_query, discord_id)
                         if records:
@@ -121,14 +97,6 @@ class CartesCog(commands.Cog):
                                 FROM "TradingCard" tc
                                 LEFT JOIN "Player" p ON tc."playerId" = p.id
                                 WHERE p."minecraftName" ILIKE $1 OR tc.title ILIKE $1 OR $2 ILIKE ('%' || tc.title || '%')
-                                ORDER BY CASE tc.rarity
-                                    WHEN 'MYTHIC' THEN 1
-                                    WHEN 'LEGENDARY' THEN 2
-                                    WHEN 'EPIC' THEN 3
-                                    WHEN 'RARE' THEN 4
-                                    WHEN 'UNCOMMON' THEN 5
-                                    ELSE 6
-                                END ASC
                                 """,
                                 f"%{cname}%",
                                 cname
@@ -139,6 +107,9 @@ class CartesCog(commands.Cog):
                                 break
             except Exception as e:
                 print(f"[ERROR] Cartes query error: {e}", flush=True)
+
+        rarity_weights = {"MYTHIC": 1, "LEGENDARY": 2, "EPIC": 3, "RARE": 4, "UNCOMMON": 5, "COMMON": 6}
+        cards.sort(key=lambda c: (rarity_weights.get(c.get("rarity", "").upper(), 99), c.get("proba", 100)))
 
         display_name = clean_pseudo or interaction.user.display_name
         if not cards:
