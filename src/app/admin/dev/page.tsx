@@ -29,10 +29,10 @@ export default function AdminDevPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key, value })
       });
-      if (res.ok) toast.success("Sauvegardé !");
+      if (res.ok) toast.success("SauvegardÃ© !");
       else toast.error("Erreur serveur");
     } catch {
-      toast.error("Erreur réseau");
+      toast.error("Erreur rÃ©seau");
     }
   };
 
@@ -55,17 +55,17 @@ export default function AdminDevPage() {
         handleSave("launcher_download_url", url);
         toast.success("Nouveau Launcher disponible !", { id: toastId });
       } else {
-        toast.error("Échec de l'upload", { id: toastId });
+        toast.error("Ã‰chec de l'upload", { id: toastId });
       }
     } catch {
-      toast.error("Erreur réseau", { id: toastId });
+      toast.error("Erreur rÃ©seau", { id: toastId });
     }
   };
 
   if ((session?.user as any)?.role !== "DEV") {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold text-red-500">Accès Refusé</h2>
+        <h2 className="text-2xl font-bold text-red-500">AccÃ¨s RefusÃ©</h2>
         <p className="text-[var(--color-text-secondary)]">Vous n'avez pas les autorisations DEV.</p>
       </div>
     );
@@ -79,7 +79,7 @@ export default function AdminDevPage() {
         </div>
         <div>
           <h2 className="text-3xl font-bold font-outfit text-[var(--text-color)]">Configuration DEV</h2>
-          <p className="text-[var(--color-text-secondary)]">Paramètres techniques et liens du site.</p>
+          <p className="text-[var(--color-text-secondary)]">ParamÃ¨tres techniques et liens du site.</p>
         </div>
       </div>
 
@@ -121,7 +121,7 @@ export default function AdminDevPage() {
           <h3 className="text-xl font-bold text-[var(--text-color)] mb-6 flex items-center gap-2">
             <Upload className="w-5 h-5 text-fuchsia-400" /> Upload Launcher
           </h3>
-          <p className="text-sm text-[var(--color-text-secondary)] mb-4">Téléversez une nouvelle version du Launcher. L'URL de téléchargement sera automatiquement mise à jour.</p>
+          <p className="text-sm text-[var(--color-text-secondary)] mb-4">TÃ©lÃ©versez une nouvelle version du Launcher. L'URL de tÃ©lÃ©chargement sera automatiquement mise Ã  jour.</p>
           
           <div className="space-y-4">
             <div className="relative overflow-hidden w-full">
@@ -133,10 +133,10 @@ export default function AdminDevPage() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-[var(--color-text-secondary)] mb-1 uppercase">URL de téléchargement actuelle :</label>
+              <label className="block text-xs font-bold text-[var(--color-text-secondary)] mb-1 uppercase">URL de tÃ©lÃ©chargement actuelle :</label>
               <input 
                 type="text" 
-                value={settings.launcher_download_url || "Aucun launcher uploadé"}
+                value={settings.launcher_download_url || "Aucun launcher uploadÃ©"}
                 onChange={e => setSettings({ ...settings, launcher_download_url: e.target.value })}
                 className="w-full bg-black/20 border border-[var(--card-border)] rounded-lg px-3 py-2 text-xs text-fuchsia-400 outline-none"
               />
