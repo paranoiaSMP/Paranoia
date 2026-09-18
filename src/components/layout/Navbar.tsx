@@ -179,7 +179,7 @@ function UserMenu() {
           </div>
           <div className="p-2">
 
-            {(session.user as any)?.role === "ADMIN" && (
+            {["ADMIN", "DEV"].includes((session.user as any)?.role) && (
               <Link href="/admin" className="flex items-center gap-2 w-full p-2 text-sm font-bold text-fuchsia-500 hover:bg-fuchsia-500/10 rounded-xl transition-colors mt-1">
                 <LayoutDashboard className="w-4 h-4" />
                 Administration
