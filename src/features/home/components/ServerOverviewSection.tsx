@@ -23,7 +23,7 @@ export default function ServerOverviewSection() {
 
       <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
         <div className="md:col-span-4 relative overflow-hidden rounded-2xl bg-[#111118] border-2 border-white/5 p-6 flex flex-col sm:flex-row gap-6 items-center justify-between">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_85%_30%,_rgba(168,85,247,0.18),_transparent_62%)] pointer-events-none" />
+
           
           <div className="relative z-10 min-w-[220px] flex-1">
             <span className="font-mono text-[11px] tracking-widest text-purple-400 font-bold uppercase">

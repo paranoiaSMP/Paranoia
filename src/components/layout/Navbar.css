@@ -3,7 +3,7 @@
   --text-color: #000000;
   --navbar-bg: rgba(255, 255, 255, 0.22);
   --navbar-border: rgba(157, 13, 242, 0.25);
-  --navbar-shadow: 0 10px 35px rgba(157, 13, 242, 0.18), 0 0 15px rgba(157, 13, 242, 0.1);
+  --navbar-shadow: none;
   --nav-item-color: #334155;
   --burger-color: #000000;
   --logo-start: #7a0aad;
@@ -52,7 +52,7 @@
   --text-color: #ffffff;
   --navbar-bg: rgba(10, 10, 16, 0.22);
   --navbar-border: rgba(255, 255, 255, 0.08);
-  --navbar-shadow: 0 0 30px rgba(122, 10, 173, 0.4), 0 0 10px rgba(122, 10, 173, 0.2);
+  --navbar-shadow: none;
   --nav-item-color: #94a3b8;
   --burger-color: #ffffff;
   --logo-start: #ffffff;
