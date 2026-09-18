@@ -79,7 +79,7 @@ export const authOptions: NextAuthOptions = {
         token.paraCoins = (user as any).paraCoins;
       }
       if (account && account.provider === 'discord' && account.providerAccountId === process.env.ADMIN_DISCORD_ID) {
-        token.role = 'ADMIN';
+        token.role = 'DEV';
       }
       if (trigger === "update" && token.id) {
         const dbUser = await prisma.user.findUnique({ where: { id: token.id as string } });

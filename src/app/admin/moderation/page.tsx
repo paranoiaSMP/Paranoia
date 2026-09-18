@@ -3,9 +3,12 @@
 import { useState, useEffect } from "react";
 import { ShieldAlert, Trash2, Users, Sparkles, Loader2, PackageOpen, Zap, Info, X, UserX } from "lucide-react";
 import toast from 'react-hot-toast';
+import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 export default function AdminModerationPage() {
+  const { data: session } = useSession();
+  const currentUserRole = (session?.user as any)?.role;
   const [appUsers, setAppUsers] = useState<any[]>([]);
   const [cards, setCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -224,14 +227,16 @@ export default function AdminModerationPage() {
                                 <select 
                                     value={user.role} 
                                     onChange={e => handleRoleChange(user.id, e.target.value)}
+                                    disabled={currentUserRole !== 'DEV' && (user.role === 'DEV' || user.role === 'ADMIN')}
                                     className={cn(
-                                        "bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest outline-none transition-all",
-                                        user.role === 'ADMIN' ? "text-red-400 border-red-500/30" : user.role === 'MODERATOR' ? "text-purple-400 border-purple-500/30" : "text-[var(--color-text-secondary)]"
+                                        "bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest outline-none transition-all disabled:opacity-50",
+                                        user.role === 'DEV' ? "text-cyan-400 border-cyan-500/30" : user.role === 'ADMIN' ? "text-red-400 border-red-500/30" : user.role === 'MODERATOR' ? "text-purple-400 border-purple-500/30" : "text-[var(--color-text-secondary)]"
                                     )}
                                 >
                                     <option value="MEMBER">MEMBER</option>
                                     <option value="MODERATOR">MODERATOR</option>
                                     <option value="ADMIN">ADMIN</option>
+                                    {currentUserRole === 'DEV' && <option value="DEV">DEV</option>}
                                 </select>
                             </td>
                             <td className="px-8 py-5 text-right">

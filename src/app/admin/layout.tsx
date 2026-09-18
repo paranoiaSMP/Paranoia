@@ -2,7 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Users, Sparkles, Layers, ShieldAlert, ImagePlus, LayoutDashboard, Newspaper, Ticket } from "lucide-react";
+import { Users, Sparkles, Layers, ShieldAlert, ImagePlus, LayoutDashboard, Newspaper, Ticket, Settings } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 const adminLinks = [
@@ -15,10 +16,13 @@ const adminLinks = [
   { name: "Modération", href: "/admin/moderation", icon: ShieldAlert },
   { name: "Boutique & Éditions", href: "/admin/shop", icon: ImagePlus },
   { name: "Objets Boutique", href: "/admin/shop/items", icon: ImagePlus },
+  { name: "DEV & Système", href: "/admin/dev", icon: Settings, isDev: true },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const role = (session?.user as any)?.role;
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 py-12 animate-slide-up">
@@ -34,6 +38,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <aside className="lg:w-64 flex-shrink-0">
           <nav className="flex flex-col gap-2 p-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-2xl backdrop-blur-md sticky top-24">
             {adminLinks.map((link) => {
+              if (link.isDev && role !== "DEV") return null;
               const isActive = pathname === link.href;
               return (
                 <Link

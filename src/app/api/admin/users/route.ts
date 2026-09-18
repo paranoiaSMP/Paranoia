@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
+  if (!session?.user || !["ADMIN", "DEV", "MODERATOR"].includes(session.user.role as string)) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -35,8 +35,8 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== "ADMIN") {
-    return new NextResponse("Seul un ADMIN peut modifier les rôles", { status: 401 });
+  if (!session?.user || !["ADMIN", "DEV"].includes(session.user.role as string)) {
+    return new NextResponse("Seul un ADMIN ou DEV peut modifier les rôles", { status: 401 });
   }
 
   try {
@@ -47,12 +47,16 @@ export async function PUT(req: Request) {
       return new NextResponse("Missing data", { status: 400 });
     }
 
-    if (!["MEMBER", "MODERATOR", "ADMIN"].includes(role)) {
+    if (!["MEMBER", "MODERATOR", "ADMIN", "DEV"].includes(role)) {
       return new NextResponse("Invalid role", { status: 400 });
     }
 
-    if (userId === session.user.id && role !== "ADMIN") {
-      return new NextResponse("Vous ne pouvez pas retirer votre propre rôle Admin", { status: 400 });
+    if ((role === "DEV" || role === "ADMIN") && session.user.role !== "DEV") {
+      return new NextResponse("Seul un DEV peut attribuer ce rôle", { status: 403 });
+    }
+
+    if (userId === session.user.id && role !== session.user.role) {
+      return new NextResponse("Vous ne pouvez pas modifier votre propre rôle", { status: 400 });
     }
 
     const user = await prisma.user.update({
@@ -74,8 +78,8 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== "ADMIN") {
-    return new NextResponse("Seul un ADMIN peut supprimer des comptes", { status: 401 });
+  if (!session?.user || !["ADMIN", "DEV"].includes(session.user.role as string)) {
+    return new NextResponse("Seul un ADMIN ou DEV peut supprimer des comptes", { status: 401 });
   }
 
   try {
@@ -88,6 +92,11 @@ export async function DELETE(req: Request) {
 
     if (userId === session.user.id) {
       return new NextResponse("Vous ne pouvez pas supprimer votre propre compte", { status: 400 });
+    }
+
+    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (targetUser?.role === "DEV" && session.user.role !== "DEV") {
+      return new NextResponse("Impossible de supprimer un DEV", { status: 403 });
     }
 
     await prisma.$transaction([

@@ -14,6 +14,7 @@ type Player = {
 };
 
 export default function AdminPlayersPage() {
+  const { data: session } = useSession();
   const [players, setPlayers] = useState<Player[]>([]);
   const [newPlayerName, setNewPlayerName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -243,11 +244,36 @@ export default function AdminPlayersPage() {
                           </span>
                         )}
                       </span>
-                      <p className="text-[10px] text-[var(--color-text-secondary)] font-bold uppercase tracking-widest">
-                        {player.uuid ? `${player.uuid.slice(0, 8)}...` : player.id.slice(0, 8)}
-                      </p>
+                        <span className="flex items-center gap-2 mt-1">
+                          <p className="text-[10px] text-[var(--color-text-secondary)] font-bold uppercase tracking-widest">
+                            {player.uuid ? `${player.uuid.slice(0, 8)}...` : player.id.slice(0, 8)}
+                          </p>
+                          {(session?.user as any)?.role === "DEV" && (
+                            <button 
+                              onClick={() => {
+                                const newUuid = prompt("Nouveau UUID:", player.uuid || "");
+                                if (newUuid !== null) {
+                                  toast.promise(
+                                    fetch(`/api/players/${player.id}/uuid`, {
+                                      method: "POST",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ uuid: newUuid.trim() || null })
+                                    }).then(async r => {
+                                      if (!r.ok) throw new Error();
+                                      fetchPlayers();
+                                    }),
+                                    { loading: "Modification...", success: "UUID modifié", error: "Erreur" }
+                                  );
+                                }
+                              }}
+                              className="text-[10px] bg-blue-500/10 text-blue-400 px-2 rounded hover:bg-blue-500/30 transition-all font-bold"
+                            >
+                              MODIFIER UUID
+                            </button>
+                          )}
+                        </span>
+                      </div>
                     </div>
-                  </div>
                   <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
                     {player.uuid && (
                       <button

@@ -16,7 +16,7 @@ export default withAuth(
     }
 
     if (req.nextUrl.pathname.startsWith("/admin")) {
-      if (!token || token.role !== "ADMIN") {
+      if (!token || (token.role !== "ADMIN" && token.role !== "DEV")) {
         return NextResponse.redirect(new URL("/", req.url));
       }
     }
