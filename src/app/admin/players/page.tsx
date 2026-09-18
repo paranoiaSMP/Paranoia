@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { Plus, Trash2, Users, Loader2, Ban, ShieldCheck, Upload, RefreshCw, X } from "lucide-react";
 import toast from 'react-hot-toast';
 import PlayerSkinView from "@/components/player/PlayerSkinView";
