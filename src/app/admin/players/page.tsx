@@ -255,7 +255,7 @@ export default function AdminPlayersPage() {
                                 const newUuid = prompt("Nouveau UUID:", player.uuid || "");
                                 if (newUuid !== null) {
                                   toast.promise(
-                                    fetch(`/api/players/${player.id}/uuid`, {
+                                    fetch(`/api/players/${player.uuid || player.id}/uuid`, {
                                       method: "POST",
                                       headers: { "Content-Type": "application/json" },
                                       body: JSON.stringify({ uuid: newUuid.trim() || null })
