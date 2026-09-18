@@ -1,5 +1,3 @@
-"use client";
-
 import React from 'react';
 import {
   ChevronLeft,
@@ -156,7 +154,7 @@ export default function LauncherSection() {
               <img
                 src="https://vzge.me/full/512/Leoo955.png"
                 alt="Skin Leoo955"
-                className="relative max-w-[140px] sm:max-w-[160px] w-full h-auto object-contain image-rendering-pixelated drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] z-10"
+                className="relative max-w-[140px] sm:max-w-[160px] w-full h-auto object-contain [image-rendering:pixelated] drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] z-10"
               />
               <div className="relative text-center z-10">
                 <span className="block font-outfit text-base font-black text-white">Leoo955</span>

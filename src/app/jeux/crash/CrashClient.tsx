@@ -82,6 +82,14 @@ export default function CrashClient({
   const engineOscRef = useRef<OscillatorNode | null>(null);
   const engineGainRef = useRef<GainNode | null>(null);
 
+  const soundEnabledRef = useRef(soundEnabled);
+  useEffect(() => {
+    soundEnabledRef.current = soundEnabled;
+    if (!soundEnabled) {
+      stopEngineSound();
+    }
+  }, [soundEnabled]);
+
   const currentPlayer = players.find((p) => p.userId === currentUserId);
   const hasPlacedBet = !!currentPlayer;
   const hasCashedOut = !!currentPlayer?.cashedOut;
@@ -94,7 +102,7 @@ export default function CrashClient({
   };
 
   const startEngineSound = () => {
-    if (!soundEnabled) return;
+    if (!soundEnabledRef.current) return;
     initAudio();
     const ctx = audioCtxRef.current;
     if (!ctx) return;
@@ -116,7 +124,7 @@ export default function CrashClient({
   };
 
   const updateEngineSound = (mult: number) => {
-    if (!soundEnabled || !engineOscRef.current || !audioCtxRef.current) return;
+    if (!soundEnabledRef.current || !engineOscRef.current || !audioCtxRef.current) return;
     try {
       const freq = Math.min(600, 80 + (mult - 1) * 70);
       engineOscRef.current.frequency.setValueAtTime(freq, audioCtxRef.current.currentTime);
@@ -134,7 +142,7 @@ export default function CrashClient({
   };
 
   const playCashoutSound = () => {
-    if (!soundEnabled) return;
+    if (!soundEnabledRef.current) return;
     initAudio();
     const ctx = audioCtxRef.current;
     if (!ctx) return;
@@ -157,7 +165,7 @@ export default function CrashClient({
   };
 
   const playCrashSound = () => {
-    if (!soundEnabled) return;
+    if (!soundEnabledRef.current) return;
     initAudio();
     const ctx = audioCtxRef.current;
     if (!ctx) return;
@@ -312,7 +320,7 @@ export default function CrashClient({
           })
         );
 
-        if (data.userId !== currentUserId && soundEnabled) {
+        if (data.userId !== currentUserId && soundEnabledRef.current) {
           playCashoutSound();
         }
       });
@@ -344,7 +352,7 @@ export default function CrashClient({
       stopEngineSound();
       if (eventSource) eventSource.close();
     };
-  }, [currentUserId, soundEnabled]);
+  }, [currentUserId]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -352,11 +360,23 @@ export default function CrashClient({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    let width = (canvas.width = canvas.parentElement?.clientWidth || 600);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || 450);
+
+    const handleResize = () => {
+      if (!canvas.parentElement) return;
+      width = canvas.width = canvas.parentElement.clientWidth || 600;
+      height = canvas.height = canvas.parentElement.clientHeight || 450;
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    let lastMultiplierTime = 0;
     let particles: { x: number; y: number; vx: number; vy: number; life: number; color: string }[] = [];
 
     const render = () => {
-      const w = (canvas.width = canvas.parentElement?.clientWidth || 600);
-      const h = (canvas.height = canvas.parentElement?.clientHeight || 450);
+      const w = width;
+      const h = height;
 
       ctx.clearRect(0, 0, w, h);
 
@@ -388,7 +408,11 @@ export default function CrashClient({
         const currentM = Math.max(1.00, Math.pow(Math.E, 0.075 * elapsed));
 
         if (phaseRef.current === "FLYING") {
-          setMultiplier(parseFloat(currentM.toFixed(2)));
+          const now = performance.now();
+          if (now - lastMultiplierTime >= 75) {
+            lastMultiplierTime = now;
+            setMultiplier(parseFloat(currentM.toFixed(2)));
+          }
           updateEngineSound(currentM);
 
           const curP = playersRef.current.find((p) => p.userId === currentUserId);
@@ -494,6 +518,7 @@ export default function CrashClient({
     animFrameId.current = requestAnimationFrame(render);
 
     return () => {
+      window.removeEventListener("resize", handleResize);
       if (animFrameId.current) cancelAnimationFrame(animFrameId.current);
     };
   }, [currentUserId]);

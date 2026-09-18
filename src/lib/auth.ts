@@ -68,15 +68,15 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
 
-    async jwt({ token, user, trigger, session, account }) {
+    async jwt({ token, user, trigger, account }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
         token.picture = user.image;
-        token.role = (user as any).role;
-        token.minecraftName = (user as any).minecraftName;
-        token.isMcVerified = (user as any).isMcVerified;
-        token.paraCoins = (user as any).paraCoins;
+        token.role = user.role;
+        token.minecraftName = user.minecraftName;
+        token.isMcVerified = user.isMcVerified;
+        token.paraCoins = user.paraCoins;
       }
       if (account && account.provider === 'discord' && account.providerAccountId === process.env.ADMIN_DISCORD_ID) {
         token.role = 'DEV';
@@ -84,7 +84,7 @@ export const authOptions: NextAuthOptions = {
       if (trigger === "update" && token.id) {
         const dbUser = await prisma.user.findUnique({ where: { id: token.id as string } });
         if (dbUser) {
-          token.minecraftName = dbUser.minecraftName;
+          token.minecraftName = dbUser.minecraftName ?? undefined;
           token.isMcVerified = dbUser.isMcVerified;
           token.paraCoins = dbUser.paraCoins;
         }
@@ -97,7 +97,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
         session.user.minecraftName = token.minecraftName;
         session.user.isMcVerified = token.isMcVerified;
-        (session.user as any).paraCoins = token.paraCoins;
+        session.user.paraCoins = token.paraCoins;
       }
       return session;
     },

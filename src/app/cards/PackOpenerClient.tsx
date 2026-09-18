@@ -22,16 +22,16 @@ export default function PackOpenerClient({
   allEditions = [],
 }: {
   initialInventory: UserCard[];
-  initialBoxes?: any[];
+  initialBoxes?: { boxType: string; amount: number }[];
   initialCoins: number;
   isLoggedIn: boolean;
   allCards?: TradingCard[];
-  allEditions?: any[];
+  allEditions?: Array<{ id: string; name: string; iconUrl?: string | null }>;
   serverPlayers?: string[];
   currentUserMCName?: string;
 }) {
   const [inventory, setInventory] = useState<UserCard[]>(initialInventory);
-  const [boxes, setBoxes] = useState<any[]>(initialBoxes || []);
+  const [boxes, setBoxes] = useState<{ boxType: string; amount: number }[]>(initialBoxes || []);
   const [coins, setCoins] = useState<number>(initialCoins || 0);
   const [spendingAnimations, setSpendingAnimations] = useState<{ id: number; amount: number }[]>([]);
   const [selectedBoxType, setSelectedBoxType] = useState<string>("standard");
@@ -42,7 +42,7 @@ export default function PackOpenerClient({
   const [selectedCard, setSelectedCard] = useState<TradingCard | null>(null);
   const [activeModalTab, setActiveModalTab] = useState<"details" | "variants">("details");
   const [boosterStep, setBoosterStep] = useState<"idle" | "fetching" | "waiting_click" | "charging" | "exploding">("idle");
-  const fetchedCardsRef = useRef<any[]>([]);
+  const fetchedCardsRef = useRef<TradingCard[]>([]);
 
   useEffect(() => {
     if (selectedCard || isOpening || showReveal) {
@@ -96,8 +96,8 @@ export default function PackOpenerClient({
         if (existing) return prev.map((b) => (b.boxType === type ? { ...b, amount: b.amount + 1 } : b));
         return [...prev, { boxType: type, amount: 1 }];
       });
-    } catch (e: any) {
-      toast.error(e.message, { position: "top-center" });
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Une erreur est survenue.", { position: "top-center" });
     } finally {
       setIsBuying(false);
     }
@@ -136,17 +136,17 @@ export default function PackOpenerClient({
         prev.map((b) => (b.boxType === selectedBoxType ? { ...b, amount: b.amount - 1 } : b))
       );
 
-      const cardsWithEffects = data.userCards.map((uc: any) => ({
+      const cardsWithEffects: TradingCard[] = data.userCards.map((uc: UserCard) => ({
         ...uc.tradingCard,
         specialEffect: uc.specialEffect,
       }));
       fetchedCardsRef.current = cardsWithEffects;
 
-      const hasMythic = cardsWithEffects.some((c: any) => c.rarity === "MYTHIC");
-      const hasLegendary = cardsWithEffects.some((c: any) => c.rarity === "LEGENDARY");
-      const hasEpic = cardsWithEffects.some((c: any) => c.rarity === "EPIC");
-      const hasRare = cardsWithEffects.some((c: any) => c.rarity === "RARE");
-      const hasUncommon = cardsWithEffects.some((c: any) => c.rarity === "UNCOMMON");
+      const hasMythic = cardsWithEffects.some((c: TradingCard) => c.rarity === "MYTHIC");
+      const hasLegendary = cardsWithEffects.some((c: TradingCard) => c.rarity === "LEGENDARY");
+      const hasEpic = cardsWithEffects.some((c: TradingCard) => c.rarity === "EPIC");
+      const hasRare = cardsWithEffects.some((c: TradingCard) => c.rarity === "RARE");
+      const hasUncommon = cardsWithEffects.some((c: TradingCard) => c.rarity === "UNCOMMON");
 
       if (hasMythic) setOpeningGlow("MYTHIC");
       else if (hasLegendary) setOpeningGlow("LEGENDARY");
@@ -157,8 +157,8 @@ export default function PackOpenerClient({
 
       setInventory((prev) => [...data.userCards, ...prev]);
       setBoosterStep("waiting_click");
-    } catch (error: any) {
-      toast.error(error.message, { position: "top-center" });
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.", { position: "top-center" });
       setIsOpening(false);
     }
   };
@@ -181,9 +181,9 @@ export default function PackOpenerClient({
   };
 
   const groupedInventory = useMemo(() => {
-    const acc: Record<string, { card: any; count: number; latestObtained: Date; specialEffect?: string | null }> = {};
+    const acc: Record<string, { card: TradingCard; count: number; latestObtained: Date; specialEffect?: string | null }> = {};
 
-    inventory.forEach((curr: any) => {
+    inventory.forEach((curr: UserCard) => {
       if (!curr || !curr.tradingCard) return;
       const id = curr.tradingCard.id;
       const effect = curr.specialEffect || "none";
@@ -223,7 +223,17 @@ export default function PackOpenerClient({
       .sort((a, b) => new Date(b.latestObtained).getTime() - new Date(a.latestObtained).getTime());
   }, [groupedInventory, searchQuery, rarityFilter, filterEdition, filterEffect]);
 
-  const boxesData: any = {
+  const boxesData: Record<string, {
+    name: string;
+    image: string;
+    price: number;
+    owned: number;
+    glow: string;
+    text: string;
+    ringColor: string;
+    rates: { r: string; p: string; c: string }[];
+    isCustom?: boolean;
+  }> = {
     standard: {
       name: "Standard",
       image: "/StandardB.png",

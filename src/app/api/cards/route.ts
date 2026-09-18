@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 const cardSchema = z.object({
@@ -14,21 +15,21 @@ const cardSchema = z.object({
   proba: z.union([z.string(), z.number()]).optional().nullable(),
   description: z.string().optional().nullable(),
   customBackground: z.string().optional().nullable(),
-  customBadges: z.any().optional().nullable(),
-  characterPosition: z.any().optional().nullable(),
+  customBadges: z.unknown().optional().nullable(),
+  characterPosition: z.unknown().optional().nullable(),
   imageUrl: z.string().optional().nullable(),
   layer1Url: z.string().optional().nullable(),
   layer2Url: z.string().optional().nullable(),
   layer3Url: z.string().optional().nullable(),
   renderedImageUrl: z.string().optional().nullable(),
-  attributes: z.any().optional().nullable(),
+  attributes: z.unknown().optional().nullable(),
   isVariant: z.boolean().optional().nullable(),
 });
 
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    const user = session?.user as any;
+    const user = session?.user;
 
     if (!session || !user || user.role !== "ADMIN") {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -82,7 +83,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const edition = searchParams.get("edition");
 
-    const where: any = {};
+    const where: Prisma.TradingCardWhereInput = {};
     if (edition) {
       where.edition = edition;
     }
@@ -110,7 +111,7 @@ export async function GET(req: Request) {
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    const user = session?.user as any;
+    const user = session?.user;
 
     if (!session || !user || user.role !== "ADMIN") {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -179,7 +180,7 @@ export async function PUT(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    const user = session?.user as any;
+    const user = session?.user;
 
     if (!session || !user || user.role !== "ADMIN") {
       return new NextResponse("Unauthorized", { status: 401 });

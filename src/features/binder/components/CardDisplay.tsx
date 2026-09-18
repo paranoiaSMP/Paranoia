@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { Sparkles } from "lucide-react";
+import { TradingCard, CardVariantLink, CustomBadge } from "@/types/cards";
 
 export const getRarityGlow = (rarity: string) => {
   const r = rarity.toUpperCase();
@@ -79,10 +80,9 @@ export const getRarityBadge = (rarity: string) => {
   return 'bg-gray-500/20 text-gray-400 border-gray-500/50';
 }
 
-export const InteractiveCard = ({ card, children, className = "", style: customStyle = {}, disableTilt = false }: { card: any, children: React.ReactNode, className?: string, style?: React.CSSProperties, disableTilt?: boolean }) => {
+export const InteractiveCard = ({ card, children, className = "", style: customStyle = {}, disableTilt = false }: { card: TradingCard & { isEditing?: boolean }, children: React.ReactNode, className?: string, style?: React.CSSProperties, disableTilt?: boolean }) => {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [rotation, setRotation] = useState({ x: 0, y: 0 });
-  const [glarePosition, setGlarePosition] = useState({ x: 50, y: 50 });
+  const rafRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -97,9 +97,18 @@ export const InteractiveCard = ({ card, children, className = "", style: customS
 
     const rotateX = ((y - centerY) / centerY) * -15;
     const rotateY = ((x - centerX) / centerX) * 15;
+    const glareX = (x / rect.width) * 100;
+    const glareY = (y / rect.height) * 100;
 
-    setRotation({ x: rotateX, y: rotateY });
-    setGlarePosition({ x: (x / rect.width) * 100, y: (y / rect.height) * 100 });
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      const el = cardRef.current;
+      if (!el) return;
+      el.style.setProperty('--rot-x', `${rotateX.toFixed(2)}deg`);
+      el.style.setProperty('--rot-y', `${rotateY.toFixed(2)}deg`);
+      el.style.setProperty('--glare-x', `${glareX.toFixed(1)}%`);
+      el.style.setProperty('--glare-y', `${glareY.toFixed(1)}%`);
+    });
   };
 
   const handleMouseEnter = () => {
@@ -108,13 +117,20 @@ export const InteractiveCard = ({ card, children, className = "", style: customS
   };
   const handleMouseLeave = () => {
     if (disableTilt) return;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     setIsHovered(false);
-    setRotation({ x: 0, y: 0 });
+    const el = cardRef.current;
+    if (el) {
+      el.style.setProperty('--rot-x', '0deg');
+      el.style.setProperty('--rot-y', '0deg');
+      el.style.setProperty('--glare-x', '50%');
+      el.style.setProperty('--glare-y', '50%');
+    }
   };
 
   const style: React.CSSProperties = {
     transform: isHovered
-      ? `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) scale3d(1.05, 1.05, 1.05)`
+      ? "perspective(1000px) rotateX(var(--rot-x, 0deg)) rotateY(var(--rot-y, 0deg)) scale3d(1.05, 1.05, 1.05)"
       : "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)",
     transition: isHovered ? "transform 0.1s ease-out" : "transform 0.5s ease-out",
     transformStyle: "preserve-3d",
@@ -125,7 +141,13 @@ export const InteractiveCard = ({ card, children, className = "", style: customS
   const isLegendary = ["LEGENDARY", "LÉGENDAIRE", "LEGENDAIRE", "MYTHIC", "MYTHIQUE"].includes(card.rarity.toUpperCase());
 
   const hasVideoBg = card?.customBackground && (card.customBackground.includes('.mp4') || card.customBackground.includes('.webm'));
-  const attrs = typeof card?.attributes === 'string' ? JSON.parse(card.attributes) : (card?.attributes || {});
+  const attrs = useMemo(() => {
+    try {
+      return typeof card?.attributes === 'string' ? JSON.parse(card.attributes) : (card?.attributes || {});
+    } catch {
+      return {};
+    }
+  }, [card?.attributes]);
 
   const combinedStyle = {
     ...style,
@@ -154,7 +176,7 @@ export const InteractiveCard = ({ card, children, className = "", style: customS
       {hasVideoBg && (
         <div className="absolute inset-0 z-0 overflow-hidden rounded-xl">
           <video
-            src={card.customBackground}
+            src={card.customBackground || undefined}
             autoPlay
             loop
             muted
@@ -195,7 +217,7 @@ export const InteractiveCard = ({ card, children, className = "", style: customS
               )
             `,
             backgroundSize: '300% 300%',
-            backgroundPosition: `${glarePosition.x}% ${glarePosition.y}%`,
+            backgroundPosition: 'var(--glare-x, 50%) var(--glare-y, 50%)',
             filter: 'brightness(1.1) contrast(1.2)',
             transform: 'translateZ(5px)'
           }}
@@ -206,7 +228,7 @@ export const InteractiveCard = ({ card, children, className = "", style: customS
           <div
             className="absolute inset-0 pointer-events-none z-20 mix-blend-overlay rounded-xl overflow-hidden"
             style={{
-              background: `radial-gradient(circle at ${glarePosition.x}% ${glarePosition.y}%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 60%)`
+              background: 'radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 60%)'
             }}
           />
         )}
@@ -216,7 +238,7 @@ export const InteractiveCard = ({ card, children, className = "", style: customS
             className="absolute inset-0 pointer-events-none z-20 overflow-hidden rounded-xl mix-blend-overlay"
             style={{
               opacity: 0.6,
-              backgroundImage: `radial-gradient(farthest-corner at ${glarePosition.x}% ${glarePosition.y}%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 40%, transparent 100%)`
+              backgroundImage: 'radial-gradient(farthest-corner at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 40%, transparent 100%)'
             }}
           />
         )}
@@ -235,7 +257,7 @@ export default function CardDisplay({
   ownedVariantIds = new Set(),
   onUpdateElement
 }: {
-  card: any,
+  card: TradingCard & { isEditing?: boolean },
   size?: "sm" | "md" | "lg",
   isEditing?: boolean,
   isOwned?: boolean,
@@ -259,24 +281,31 @@ export default function CardDisplay({
                           card.level === 'Gold' ? 'text-[#facc15]' :
                           card.level === 'Iron' ? 'text-gray-300' : 'text-gray-500';
 
-  let customBadges: any[] = [];
-  try {
-    customBadges = typeof card.customBadges === 'string' ? JSON.parse(card.customBadges) : (card.customBadges || []);
-  } catch (e) {
-    customBadges = [];
-  }
+  const customBadges: CustomBadge[] = useMemo(() => {
+    try {
+      return typeof card.customBadges === 'string' ? JSON.parse(card.customBadges) : (card.customBadges || []);
+    } catch {
+      return [];
+    }
+  }, [card.customBadges]);
 
   const variantLinks = card.motherLinks || [];
 
-  let charPos = { x: 50, y: 50, scale: 100 };
-  try {
-    charPos = typeof card.characterPosition === 'string' ? JSON.parse(card.characterPosition) : (card.characterPosition || charPos);
-  } catch (e) {}
+  const charPos = useMemo(() => {
+    try {
+      return typeof card.characterPosition === 'string' ? JSON.parse(card.characterPosition) : (card.characterPosition || { x: 50, y: 50, scale: 100 });
+    } catch {
+      return { x: 50, y: 50, scale: 100 };
+    }
+  }, [card.characterPosition]);
 
-  let attrs: any = {};
-  try {
-    attrs = typeof card.attributes === 'string' ? JSON.parse(card.attributes) : (card.attributes || {});
-  } catch (e) {}
+  const attrs: any = useMemo(() => {
+    try {
+      return typeof card.attributes === 'string' ? JSON.parse(card.attributes) : (card.attributes || {});
+    } catch {
+      return {};
+    }
+  }, [card.attributes]);
 
   const isPremiumLayout = attrs.isFullArt || ["LEGENDARY", "LÉGENDAIRE", "LEGENDAIRE", "MYTHIC", "MYTHIQUE"].includes(card.rarity.toUpperCase());
 
@@ -343,16 +372,16 @@ export default function CardDisplay({
                   {card.layer3Url && <img src={card.layer3Url} alt="Layer 3" loading="lazy" className="absolute bottom-0 w-full object-contain pointer-events-none" style={{ transform: 'translateZ(70px) scale(1.1)' }} />}
                   {(!card.layer2Url && card.imageUrl) && <img src={card.imageUrl} alt="Fallback" loading="lazy" className="absolute bottom-0 w-full object-contain pointer-events-none" style={{ transform: 'translateZ(40px) scale(1.05)' }} />}
                 </>
-              ) : (card.imageUrl || card.player?.minecraftName || (card.player as any)?.uuid) ? (
+              ) : (card.imageUrl || card.player?.minecraftName || card.player?.uuid) ? (
                 (() => {
-                  const identifier = (card.player as any)?.uuid || card.player?.minecraftName || card.title;
+                  const identifier = card.player?.uuid || card.player?.minecraftName || card.title;
                   const avatarUrl = card.imageUrl || `https://vzge.me/bust/512/${identifier}.png`;
                   const isVideo = avatarUrl.match(/\.(mp4|webm|mov)$/i);
                   const commonProps = {
                     className: `w-full h-full object-cover object-top drop-shadow-2xl transition-transform duration-300 ${isEditing ? 'pointer-events-auto cursor-grab active:cursor-grabbing hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'pointer-events-none'}`,
                     style: { transform: (card.rarity === 'MYTHIC' || card.rarity === 'MYTHIQUE') ? 'translateZ(40px) scale(1.05)' : 'translateZ(10px)' },
-                    onMouseDown: (e: any) => handleMouseDown(e, 'character'),
-                    onWheel: (e: any) => handleWheel(e, 'character'),
+                    onMouseDown: (e: React.MouseEvent) => handleMouseDown(e, 'character'),
+                    onWheel: (e: React.WheelEvent) => handleWheel(e, 'character'),
                   };
 
                   return isVideo ? (
@@ -452,7 +481,7 @@ export default function CardDisplay({
         {}
         {variantLinks.length > 0 && (
           <div className="absolute bottom-[11cqi] left-0 right-0 z-40 flex justify-center gap-[1.5cqi] pointer-events-none px-[2cqi]">
-            {variantLinks.map((link: any) => {
+            {variantLinks.map((link: CardVariantLink) => {
               const owned = ownedVariantIds?.has(link.targetCardId);
               return (
                 <div
@@ -460,7 +489,7 @@ export default function CardDisplay({
                   className={`w-[8cqi] h-[8cqi] rounded-full border border-white/30 bg-black/60 backdrop-blur-md flex items-center justify-center overflow-hidden transition-all shadow-lg ${owned ? 'shadow-indigo-500/50 scale-110 border-indigo-400' : 'grayscale opacity-40'}`}
                   style={{ transform: 'translateZ(45px)' }}
                 >
-                  <img src={link.variantProfile.iconUrl} loading={isEditing ? "eager" : "lazy"} decoding="async" className="w-[70%] h-[70%] object-contain" alt="" />
+                  {link.variantProfile?.iconUrl && <img src={link.variantProfile.iconUrl} loading={isEditing ? "eager" : "lazy"} decoding="async" className="w-[70%] h-[70%] object-contain" alt="" />}
                 </div>
               );
             })}
@@ -496,7 +525,7 @@ export default function CardDisplay({
           </div>}
         </div>
 
-        {customBadges && customBadges.map((badge: any, i: number) => badge.url && (
+        {customBadges && customBadges.map((badge: CustomBadge, i: number) => badge.url && (
           <img
             key={badge.id || i}
             src={badge.url}

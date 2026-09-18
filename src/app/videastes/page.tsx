@@ -1,5 +1,3 @@
-"use client";
-
 import React from 'react';
 import { BoldGradient, GlowText, EasyBox, EasyBadge } from "@/components/easy-tags";
 import { Video, ExternalLink, MonitorPlay } from "lucide-react";
@@ -73,7 +71,6 @@ export default function VideastesPage() {
                     src={`https://vzge.me/face/512/${createur.pseudoMinecraft}.png`} 
                     alt={`Avatar de ${createur.nom}`}
                     className="w-24 h-24 rounded-xl shadow-lg relative z-10 group-hover:-translate-y-2 transition-transform duration-300"
-                    onError={(e) => { e.currentTarget.src = 'https://minotar.net/helm/Steve/512.png'; }}
                   />
                 </div>
 

@@ -4,36 +4,38 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { LogIn, Sparkles } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function ComingSoonPage() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let rafId: number | null = null;
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: e.clientX,
-        y: e.clientY,
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (glowRef.current) {
+          glowRef.current.style.transform = `translate3d(${e.clientX - 400}px, ${e.clientY - 400}px, 0)`;
+        }
       });
     };
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (
     <div className="min-h-screen bg-[#050508] text-white flex flex-col items-center justify-center relative overflow-hidden px-4">
 
       {}
-      <motion.div 
-        className="absolute w-[800px] h-[800px] rounded-full pointer-events-none z-0"
+      <div 
+        ref={glowRef}
+        className="absolute top-0 left-0 w-[800px] h-[800px] rounded-full pointer-events-none z-0 transition-transform duration-700 ease-out"
         style={{
           background: "radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 60%)",
         }}
-        animate={{
-          x: mousePosition.x - 400,
-          y: mousePosition.y - 400,
-        }}
-        transition={{ type: "tween", ease: "backOut", duration: 1 }}
       />
 
       {}

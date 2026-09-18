@@ -6,8 +6,8 @@ import Link from "next/link";
 import { ChevronLeft, Sparkles, PackageOpen } from "lucide-react";
 import EditionDetailClient from "./EditionDetailClient";
 
-export default async function EditionPage({ params }: { params: { editionId: string } }) {
-  const { editionId } = params;
+export default async function EditionPage(props: { params: Promise<{ editionId: string }> }) {
+  const { editionId } = await props.params;
 
   const edition = await prisma.edition.findUnique({
     where: { id: editionId }

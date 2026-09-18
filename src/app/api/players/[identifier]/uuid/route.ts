@@ -3,14 +3,14 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-export async function POST(req: NextRequest, { params }: { params: { identifier: string } }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ identifier: string }> }) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== "DEV") {
+    if (!session || session.user.role !== "DEV") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { identifier } = params;
+    const { identifier } = await context.params;
     const body = await req.json();
     const { uuid } = body;
 

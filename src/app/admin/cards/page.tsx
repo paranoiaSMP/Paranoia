@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 import { cn } from "@/lib/utils";
 import AdminCardPreview from "./components/AdminCardPreview";
 import AdminCardCatalog from "./components/AdminCardCatalog";
+import { TradingCard, Player, VariantProfile, CustomBadge, CardVariantLink } from "@/types/cards";
 
 export default function AdminCardsPage() {
   const defaultProbas: Record<string, number> = {
@@ -24,12 +25,12 @@ export default function AdminCardsPage() {
   };
 
   const [activeTab, setActiveTab] = useState("editor"); 
-  const [cards, setCards] = useState<any[]>([]);
-  const [players, setPlayers] = useState<any[]>([]);
-  const [editions, setEditions] = useState<any[]>([]);
-  const [variants, setVariants] = useState<any[]>([]);
+  const [cards, setCards] = useState<TradingCard[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [editions, setEditions] = useState<Array<{ id: string; name: string; iconUrl?: string | null }>>([]);
+  const [variants, setVariants] = useState<VariantProfile[]>([]);
   const [templates, setTemplates] = useState<any[]>([]);
-  const [batchCard, setBatchCard] = useState<any | null>(null);
+  const [batchCard, setBatchCard] = useState<TradingCard | null>(null);
   const [batchProgress, setBatchProgress] = useState<{ current: number; total: number; title: string } | null>(null);
   const [isBatchGenerating, setIsBatchGenerating] = useState(false);
 
@@ -98,9 +99,9 @@ export default function AdminCardsPage() {
   const [variantBadgePos, setVariantBadgePos] = useState({ x: 15, y: 15, scale: 100 });
 
   const [isVariant, setIsVariant] = useState(false);
-  const [cardCustomBadges, setCardCustomBadges] = useState<any[]>([]);
+  const [cardCustomBadges, setCardCustomBadges] = useState<CustomBadge[]>([]);
 
-  const [cardVariantLinks, setCardVariantLinks] = useState<any[]>([]);
+  const [cardVariantLinks, setCardVariantLinks] = useState<CardVariantLink[]>([]);
   const [selectedVariantProfileId, setSelectedVariantProfileId] = useState("");
   const [selectedTargetCardId, setSelectedTargetCardId] = useState("");
   const [isSavingLink, setIsSavingLink] = useState(false);
@@ -253,7 +254,7 @@ export default function AdminCardsPage() {
       if (type === 'editionBadge') setEditionBadgePos(prev => ({...prev, scale: Math.max(10, Math.min(300, prev.scale + delta))}));
       if (type === 'variantBadge') setVariantBadgePos(prev => ({...prev, scale: Math.max(10, Math.min(300, prev.scale + delta))}));
       if (type === 'customBadge') {
-         setCardCustomBadges(prev => prev.map((b, i) => String(i) === id || b.id === id ? { ...b, size: Math.max(10, Math.min(200, b.size + delta)) } : b));
+         setCardCustomBadges(prev => prev.map((b, i) => String(i) === id || b.id === id ? { ...b, size: Math.max(10, Math.min(200, (b.size ?? 50) + delta)) } : b));
       }
     }
   };
@@ -284,7 +285,7 @@ export default function AdminCardsPage() {
       } else if (draggingItem.type === 'customBadge') {
          setCardCustomBadges(prev => prev.map((b, i) => 
             String(i) === draggingItem.id || b.id === draggingItem.id 
-            ? { ...b, x: b.x + deltaX, y: b.y + deltaY } 
+            ? { ...b, x: (b.x ?? 0) + deltaX, y: (b.y ?? 0) + deltaY } 
             : b
          ));
       }
@@ -301,11 +302,11 @@ export default function AdminCardsPage() {
     };
   }, [draggingItem]);
 
-  const startEditCard = (card: any) => {
+  const startEditCard = (card: TradingCard) => {
     setEditingCardId(card.id);
     setIsVariant(card.isVariant || false);
     if (card.id) fetchVariantLinks(card.id);
-    setCardPlayerId(card.playerId);
+    setCardPlayerId(card.playerId || "");
     setCardRarity(card.rarity);
     setCardLevel(card.level);
     const baseProba = defaultProbas[card.rarity] || 100;
@@ -676,7 +677,7 @@ export default function AdminCardsPage() {
     }
   };
 
-  const renderAndUploadCard = async (targetCard: any) => {
+  const renderAndUploadCard = async (targetCard: TradingCard) => {
     setBatchCard(targetCard);
     await new Promise((r) => setTimeout(r, 200));
     const element = document.getElementById("batch-capture-card");
@@ -776,7 +777,7 @@ export default function AdminCardsPage() {
     }
   };
 
-  const handleGenerateSingleCard = async (card: any) => {
+  const handleGenerateSingleCard = async (card: TradingCard) => {
     toast.loading(`Rendu de ${card.title}...`, { id: `gen-${card.id}` });
     try {
       await renderAndUploadCard(card);
@@ -1135,7 +1136,7 @@ export default function AdminCardsPage() {
                                             className="w-full bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-xl px-4 py-2.5 text-[var(--text-color)] outline-none focus:border-purple-500"
                                         >
                                             <option value="">-- Aucun badge --</option>
-                                            {variants.map(v => <option key={v.id} value={v.iconUrl}>{v.name}</option>)}
+                                            {variants.map(v => <option key={v.id} value={v.iconUrl || ""}>{v.name}</option>)}
                                             <option value="custom">URL Personnalisée</option>
                                         </select>
                                         {(!variants.some(v => v.iconUrl === variantBadgeUrl) && variantBadgeUrl !== "" || variants.length === 0) && (
@@ -1249,11 +1250,11 @@ export default function AdminCardsPage() {
                                 <div key={link.id} className="flex items-center justify-between bg-[var(--surface-bg)] border border-[var(--card-border)] p-4 rounded-2xl group hover:border-indigo-500/30 transition-all">
                                     <div className="flex items-center gap-4">
                                         <div className="w-10 h-10 bg-[var(--surface-bg)] rounded-xl flex items-center justify-center border border-[var(--card-border)] p-1.5">
-                                            <img src={link.variantProfile.iconUrl} className="w-full h-full object-contain" alt="" />
+                                            {link.variantProfile?.iconUrl && <img src={link.variantProfile.iconUrl} className="w-full h-full object-contain" alt="" />}
                                         </div>
                                         <div>
-                                            <p className="font-black text-[var(--text-color)] uppercase text-sm">{link.variantProfile.name}</p>
-                                            <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">➔ {link.targetCard.title}</p>
+                                            <p className="font-black text-[var(--text-color)] uppercase text-sm">{link.variantProfile?.name || "Variante"}</p>
+                                            <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">➔ {link.targetCard?.title || "Carte cible"}</p>
                                         </div>
                                     </div>
                                     <button type="button" onClick={() => handleDeleteVariantLink(link.id)} className="p-2.5 text-gray-600 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>

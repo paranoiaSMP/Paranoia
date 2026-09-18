@@ -1,5 +1,3 @@
-"use client";
-
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,7 +33,7 @@ export default function ServerOverviewSection() {
               Collectionne les joueurs du serveur
             </h3>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-md">
-              Chaque carte est le skin d'un joueur, en six raretés. Les mythiques tombent à 0,2%.
+              Chaque carte est le skin d&apos;un joueur, en six raretés. Les mythiques tombent à 0,2%.
             </p>
             <div className="flex flex-wrap gap-1.5 mt-4">
               <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded text-slate-400 border border-slate-700">
@@ -163,7 +161,7 @@ export default function ServerOverviewSection() {
           </div>
           <button
             disabled
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-outfit font-bold text-sm text-white bg-[#111118] border-2 border-[#7a1fa2] shadow-[5px_5px_0px_0px_#7a1fa2] cursor-not-allowed opacity-80"
+            className="btn-neo-secondary w-full text-sm cursor-not-allowed opacity-80"
           >
             Soon
           </button>

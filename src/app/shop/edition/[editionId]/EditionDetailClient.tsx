@@ -80,7 +80,7 @@ export default function EditionDetailClient({
             <div className="bg-[#111118]/80 backdrop-blur-xl border border-white/10 px-8 py-4 rounded-3xl flex items-center gap-6 shadow-2xl">
                 <span className="text-white/50 font-bold uppercase tracking-widest text-xs">PARA Coins disponibles</span>
                 <div className="flex items-center gap-3">
-                    <img src="/Paracoin.png" className="w-8 h-8 object-contain animate-pulse-glow" alt="" />
+                    <img src="/Paracoin.png" className="w-8 h-8 object-contain animate-pulse drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]" alt="" />
                     <span className="text-4xl font-outfit font-black text-white">{balance.toLocaleString()}</span>
                 </div>
             </div>

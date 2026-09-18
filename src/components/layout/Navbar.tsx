@@ -158,7 +158,7 @@ function UserMenu() {
     <div className="relative">
       <button 
         onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex items-center gap-2 nav-btn !px-3 !py-2 !bg-[var(--surface-bg)] !text-[var(--text-color)] border border-[var(--card-border)]"
+        className="flex items-center gap-2 nav-btn px-3 py-2 bg-[var(--surface-bg)] text-[var(--text-color)] border border-[var(--card-border)]"
       >
         <img 
           src={session.user?.image || "https://cdn.discordapp.com/embed/avatars/0.png"} 

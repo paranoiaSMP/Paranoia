@@ -2,10 +2,11 @@
 
 import { Loader2, ImagePlus } from "lucide-react";
 import CardDisplay from "@/features/binder/components/CardDisplay";
+import { Player, CustomBadge, ElementPosition } from "@/types/cards";
 
 interface AdminCardPreviewProps {
   cardTitle: string;
-  players: any[];
+  players: Player[];
   cardPlayerId: string;
   cardRarity: string;
   cardLevel: string;
@@ -16,7 +17,7 @@ interface AdminCardPreviewProps {
   layer1Url: string;
   layer2Url: string;
   layer3Url: string;
-  cardCustomBadges: any[];
+  cardCustomBadges: CustomBadge[];
   charPosX: number;
   charPosY: number;
   charScale: number | string;
@@ -26,13 +27,13 @@ interface AdminCardPreviewProps {
   factionColor: string;
   rarityBadgeColor: string;
   cardFrameUrl: string;
-  titlePos: any;
-  descPos: any;
-  rarityBadgePos: any;
-  levelTextPos: any;
-  levelBadgePos: any;
-  editionBadgePos: any;
-  variantBadgePos: any;
+  titlePos: ElementPosition;
+  descPos: ElementPosition;
+  rarityBadgePos: ElementPosition;
+  levelTextPos: ElementPosition;
+  levelBadgePos: ElementPosition;
+  editionBadgePos: ElementPosition;
+  variantBadgePos: ElementPosition;
   levelBadgeUrl: string;
   editionBadgeUrl: string;
   variantBadgeUrl: string;
@@ -182,7 +183,7 @@ export default function AdminCardPreview({
                 showLevelText,
                 showLevelIcon,
               }),
-              player: { minecraftName: resolvedPlayer?.minecraftName || "" },
+              player: resolvedPlayer || { id: "preview", minecraftName: "" },
             }}
             size="lg"
           />

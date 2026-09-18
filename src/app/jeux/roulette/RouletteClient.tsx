@@ -58,6 +58,8 @@ export default function RouletteClient({
   const [bets, setBets] = useState<RouletteBet[]>([]);
   const [history, setHistory] = useState<number[]>([2, 11, 0, 7, 14, 3, 5, 8, 1]);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const soundEnabledRef = useRef(soundEnabled);
+  soundEnabledRef.current = soundEnabled;
   const [showHelp, setShowHelp] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [translateX, setTranslateX] = useState(0);
@@ -77,7 +79,7 @@ export default function RouletteClient({
   };
 
   const playTickSound = () => {
-    if (!soundEnabled) return;
+    if (!soundEnabledRef.current) return;
     initAudio();
     const ctx = audioCtxRef.current;
     if (!ctx) return;
@@ -100,7 +102,7 @@ export default function RouletteClient({
   };
 
   const playWinSound = () => {
-    if (!soundEnabled) return;
+    if (!soundEnabledRef.current) return;
     initAudio();
     const ctx = audioCtxRef.current;
     if (!ctx) return;
@@ -159,7 +161,7 @@ export default function RouletteClient({
     };
 
     animFrameId.current = requestAnimationFrame(trackClicks);
-  }, [soundEnabled]);
+  }, []);
 
   const resetWheelPosition = useCallback((lastNum: number, lastOffset: number) => {
     const container = containerRef.current;

@@ -92,9 +92,9 @@ export default function CardDetailModal({
                   Édition {card.edition}
                 </span>
               )}
-              {(card as any).specialEffect && (card as any).specialEffect !== "none" && (
+              {card.specialEffect && card.specialEffect !== "none" && (
                 <span className="px-4 py-1.5 rounded-full text-sm font-bold border bg-amber-500/10 text-amber-300 border-amber-500/30 bg-gradient-to-r from-amber-500/20 to-orange-500/20">
-                  ({(card as any).specialEffect})
+                  ({card.specialEffect})
                 </span>
               )}
             </div>
@@ -136,7 +136,7 @@ export default function CardDetailModal({
                   <div className="mt-6 pt-6 border-t border-white/10 flex items-center justify-between relative z-10 bg-white/5 rounded-xl p-4">
                     <div className="flex items-center gap-4">
                       <img
-                        src={`https://vzge.me/bust/512/${(card.player as any)?.uuid || card.player.minecraftName}.png`}
+                        src={`https://vzge.me/bust/512/${card.player.uuid || card.player.minecraftName}.png`}
                         alt="Skin"
                         fetchPriority="high"
                         className="w-12 h-12 object-contain drop-shadow-lg"
@@ -185,7 +185,7 @@ export default function CardDetailModal({
                                   src={
                                     c.imageUrl ||
                                     `https://vzge.me/bust/512/${
-                                      (c.player as any)?.uuid || c.player?.minecraftName || c.title
+                                      c.player?.uuid || c.player?.minecraftName || c.title
                                     }.png`
                                   }
                                   loading="lazy"

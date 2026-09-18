@@ -84,11 +84,19 @@ export default function TicketsPage() {
       if (!silent) setLoading(true);
       const res = await fetch("/api/tickets");
       if (res.ok) {
-        const data = await res.json();
-        setTickets(data);
+        const data: Ticket[] = await res.json();
+        setTickets((prev) => {
+          if (JSON.stringify(prev) === JSON.stringify(data)) return prev;
+          return data;
+        });
         if (selectedTicket) {
           const fresh = data.find((t: Ticket) => t.id === selectedTicket.id);
-          if (fresh) setSelectedTicket(fresh);
+          if (fresh) {
+            setSelectedTicket((prev) => {
+              if (JSON.stringify(prev) === JSON.stringify(fresh)) return prev;
+              return fresh;
+            });
+          }
         }
       }
     } catch {
@@ -101,6 +109,7 @@ export default function TicketsPage() {
   useEffect(() => {
     fetchTickets();
     const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
       fetchTickets(true);
     }, 3500);
     return () => clearInterval(interval);
