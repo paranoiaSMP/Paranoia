@@ -114,6 +114,14 @@
   transition: box-shadow 0.3s ease;
 }
 
+@media screen and (min-width: 768px) and (max-width: 960px) {
+  .navbar {
+    top: 12px;
+    width: calc(100% - 24px);
+    height: 56px;
+  }
+}
+
 /* Pseudo-élément pour gérer le fond et le flou sans faire bugger les coins sur mobile */
 .navbar::before {
   content: '';
@@ -142,7 +150,19 @@
   padding: 0 15px;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 768px) and (max-width: 960px) {
+  .nav-container {
+    padding: 0 14px;
+  }
+}
+
+@media screen and (min-width: 961px) and (max-width: 1080px) {
+  .nav-container {
+    padding: 0 20px;
+  }
+}
+
+@media screen and (min-width: 1081px) {
   .nav-container {
     padding: 0 30px;
   }
@@ -166,6 +186,24 @@
   list-style: none;
   gap: 28px;
   flex: 1;
+}
+
+@media screen and (min-width: 768px) and (max-width: 960px) {
+  .nav-links {
+    gap: 12px;
+  }
+  .nav-item {
+    font-size: 0.8rem;
+  }
+}
+
+@media screen and (min-width: 961px) and (max-width: 1080px) {
+  .nav-links {
+    gap: 18px;
+  }
+  .nav-item {
+    font-size: 0.85rem;
+  }
 }
 
 .nav-links .nav-link-first,
@@ -271,4 +309,12 @@
 
 .theme-toggle-input:checked + .theme-toggle-label .sun { opacity: 0.3; }
 .theme-toggle-input:checked + .theme-toggle-label .moon { opacity: 1; }
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 

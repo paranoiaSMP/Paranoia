@@ -2,30 +2,31 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
+import { siteConfig } from '@/config/site';
+import { AVAILABLE_GAMES } from '@/config/games';
+import { CARD_RARITIES } from '@/config/boosters';
+import CopyIpButton from '@/components/common/CopyIpButton';
 
 export default function ServerOverviewSection() {
-
   return (
     <section className="relative max-w-6xl mx-auto px-4 sm:px-6 mt-16 sm:mt-24">
       <div className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-white/10 mb-6">
         <h2 className="font-outfit text-2xl sm:text-4xl font-black text-white tracking-tight max-w-xl">
           Un SMP, un <span className="text-[#b366ff]">plugin maison</span> et une salle de jeux.
         </h2>
-        <Link
-          href="https://discord.gg/paranoiasmp"
+        <a
+          href={siteConfig.discordUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs sm:text-sm font-extrabold text-purple-400 hover:text-purple-300 flex items-center gap-1.5 transition-colors shrink-0"
         >
-          Le wiki du serveur <ArrowRight className="w-4 h-4" />
-        </Link>
+          Rejoindre le Discord <ArrowRight className="w-4 h-4" />
+        </a>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-        <div className="md:col-span-4 relative overflow-hidden rounded-2xl bg-[#111118] border-2 border-white/5 p-6 flex flex-col sm:flex-row gap-6 items-center justify-between">
-
-          
-          <div className="relative z-10 min-w-[220px] flex-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+        <div className="col-span-1 md:col-span-2 lg:col-span-4 relative overflow-hidden rounded-2xl bg-[#111118] border-2 border-white/5 p-6 flex flex-col sm:flex-row gap-6 items-center justify-between">
+          <div className="relative z-10 min-w-0 sm:min-w-[220px] flex-1">
             <span className="font-mono text-[11px] tracking-widest text-purple-400 font-bold uppercase">
               TCG · CARTES À COLLECTIONNER
             </span>
@@ -36,24 +37,14 @@ export default function ServerOverviewSection() {
               Chaque carte est le skin d&apos;un joueur, en six raretés. Les mythiques tombent à 0,2%.
             </p>
             <div className="flex flex-wrap gap-1.5 mt-4">
-              <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded text-slate-400 border border-slate-700">
-                Commune
-              </span>
-              <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded text-emerald-400 border border-emerald-500/30">
-                Peu commune
-              </span>
-              <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded text-blue-400 border border-blue-500/30">
-                Rare
-              </span>
-              <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded text-purple-400 border border-purple-500/30">
-                Épique
-              </span>
-              <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded text-amber-400 border border-amber-500/30">
-                Légendaire
-              </span>
-              <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded text-rose-400 border border-rose-500/35">
-                Mythique 0.2%
-              </span>
+              {CARD_RARITIES.map((rarity) => (
+                <span
+                  key={rarity.key}
+                  className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded border border-white/10 ${rarity.colorClass}`}
+                >
+                  {rarity.key === "MYTHIC" ? `${rarity.label} 0.2%` : rarity.label}
+                </span>
+              ))}
             </div>
           </div>
 
@@ -85,35 +76,29 @@ export default function ServerOverviewSection() {
           </div>
         </div>
 
-        <div className="md:col-span-2 rounded-2xl bg-[#111118] border-2 border-white/5 p-5 flex flex-col justify-between">
+        <div className="col-span-1 md:col-span-2 lg:col-span-2 rounded-2xl bg-[#111118] border-2 border-white/5 p-5 flex flex-col justify-between">
           <div>
             <span className="font-mono text-[11px] tracking-widest text-slate-400 font-bold uppercase">
               SALLE DES JEUX
             </span>
             <h3 className="font-outfit text-xl font-black text-white mt-1.5 mb-3">
-              5 jeux en ligne
+              {AVAILABLE_GAMES.length} jeux en ligne
             </h3>
             <div className="flex flex-col gap-1 border border-white/5 font-mono text-xs rounded-lg overflow-hidden">
-              <div className="bg-[#151520] px-3 py-1.5 flex justify-between">
-                <span className="text-slate-200">Crash</span>
-                <span className="text-emerald-400 font-bold">x100+</span>
-              </div>
-              <div className="bg-[#151520] px-3 py-1.5 flex justify-between">
-                <span className="text-slate-200">Mines</span>
-                <span className="text-slate-400">5×5</span>
-              </div>
-              <div className="bg-[#151520] px-3 py-1.5 flex justify-between">
-                <span className="text-slate-200">Roulette</span>
-                <span className="text-slate-400">x14</span>
-              </div>
-              <div className="bg-[#151520] px-3 py-1.5 flex justify-between">
-                <span className="text-slate-200">Blackjack</span>
-                <span className="text-slate-400">3:2</span>
-              </div>
-              <div className="bg-[#151520] px-3 py-1.5 flex justify-between">
-                <span className="text-slate-200">Boosters</span>
-                <span className="text-purple-400 font-bold">TCG</span>
-              </div>
+              {AVAILABLE_GAMES.map((game) => (
+                <Link
+                  key={game.id}
+                  href={game.href}
+                  className="bg-[#151520] hover:bg-[#1a1a26] px-3 py-1.5 flex justify-between transition-colors group"
+                >
+                  <span className="text-slate-200 group-hover:text-white transition-colors">
+                    {game.title === "Trading Cards" ? "Boosters" : game.title === "Blackjack 21" ? "Blackjack" : game.title}
+                  </span>
+                  <span className={game.badgeColor ? `${game.badgeColor} font-bold` : game.shortRatio === "TCG" ? "text-purple-400 font-bold" : "text-slate-400"}>
+                    {game.shortRatio}
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
           <Link
@@ -125,7 +110,7 @@ export default function ServerOverviewSection() {
           </Link>
         </div>
 
-        <div className="md:col-span-3 rounded-2xl bg-[#111118] border-2 border-white/5 p-5 flex flex-col justify-between">
+        <div className="col-span-1 md:col-span-1 lg:col-span-3 rounded-2xl bg-[#111118] border-2 border-white/5 p-5 flex flex-col justify-between">
           <div>
             <span className="font-mono text-[11px] tracking-widest text-emerald-400 font-bold uppercase">
               COMMUNAUTÉ
@@ -137,34 +122,36 @@ export default function ServerOverviewSection() {
           <div className="mt-4 pt-3 border-t border-white/5 flex flex-col gap-2 font-mono text-xs">
             <div className="flex justify-between text-slate-400">
               <span>Événement</span>
-              <span className="text-white font-bold">Soon</span>
+              <span className="text-emerald-400 font-bold">Samedi 21h</span>
             </div>
-            <div className="flex justify-between text-slate-400">
+            <div className="flex justify-between items-center text-slate-400">
               <span>Discord</span>
-              <span className="text-white font-bold">Soon</span>
+              <a
+                href={siteConfig.discordUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1 transition-colors"
+              >
+                Rejoindre <ArrowRight className="w-3 h-3" />
+              </a>
             </div>
             <div className="flex justify-between text-slate-400">
               <span>Version</span>
-              <span className="text-white font-bold">Soon</span>
+              <span className="text-white font-bold">1.21.1</span>
             </div>
           </div>
         </div>
 
-        <div className="md:col-span-3 rounded-2xl bg-[#111118] border-2 border-white/5 p-5 flex flex-col justify-between gap-4">
+        <div className="col-span-1 md:col-span-1 lg:col-span-3 rounded-2xl bg-[#111118] border-2 border-white/5 p-5 flex flex-col justify-between gap-4">
           <div>
             <span className="font-mono text-[11px] tracking-widest text-slate-400 font-bold uppercase">
               REJOINDRE LE SERVEUR
             </span>
-            <p className="font-mono text-base font-bold text-white mt-2 tracking-widest">
-              XXXXX
+            <p className="font-mono text-base font-bold text-white mt-2 tracking-wide">
+              {siteConfig.serverIp}
             </p>
           </div>
-          <button
-            disabled
-            className="btn-neo-secondary w-full text-sm cursor-not-allowed opacity-80"
-          >
-            Soon
-          </button>
+          <CopyIpButton variant="badge" className="w-full justify-between" />
         </div>
       </div>
     </section>

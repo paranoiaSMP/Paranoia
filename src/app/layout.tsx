@@ -47,7 +47,6 @@ export const metadata: Metadata = {
 };
 
 import SplashScreen from "@/components/layout/SplashScreen";
-import Footer from "@/components/layout/Footer";
 
 export default function RootLayout({
   children,
@@ -92,7 +91,6 @@ export default function RootLayout({
           <SplashScreen>
             <NavigationManager>
               {children}
-              <Footer />
             </NavigationManager>
           </SplashScreen>
         </Providers>

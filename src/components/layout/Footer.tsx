@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Disc, ShieldAlert, FileText, ExternalLink } from 'lucide-react';
@@ -8,7 +8,7 @@ export default function Footer() {
 
   return (
     <footer className="w-full bg-[#09090b] border-t border-zinc-800 text-zinc-400 mt-20">
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-6 pt-12 pb-28 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           
           {/* Logo & Intro */}

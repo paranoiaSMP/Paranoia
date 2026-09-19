@@ -4,9 +4,11 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Sun, Moon, ChevronDown, Video, FileText, Ticket } from 'lucide-react';
+import { Sun, Moon, ChevronDown, Video, FileText, Ticket, Menu, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { FloatingDock } from '@/components/ui/floating-dock';
 import { IconHome, IconShoppingCart, IconDice, IconDeviceGamepad2, IconUsers } from '@tabler/icons-react';
+import UserMenu from '@/components/common/UserMenu';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -43,6 +45,146 @@ export default function Navbar() {
 
   return (
     <>
+      <header className="md:hidden fixed top-0 left-0 right-0 h-16 z-[1000] bg-[#09090b]/85 backdrop-blur-md border-b border-white/10 px-4 flex items-center justify-between">
+        <Link href="/" className="flex items-center shrink-0">
+          <div className="relative w-28 h-9">
+            <Image 
+              src="/Paranoia_logo.png" 
+              alt="Paranoia SMP Logo" 
+              fill 
+              priority
+              className="object-contain drop-shadow-[0_0_8px_rgba(179,102,255,0.4)]"
+            />
+          </div>
+        </Link>
+        <div className="flex items-center gap-2.5">
+          <div className="theme-switch-container flex items-center scale-90" title="Changer de thème">
+            <input 
+              type="checkbox" 
+              id="theme-toggle-mobile" 
+              className="theme-toggle-input" 
+              checked={theme === 'dark'}
+              onChange={toggleTheme}
+            />
+            <label htmlFor="theme-toggle-mobile" className="theme-toggle-label flex items-center justify-between w-full h-full px-1 cursor-pointer border border-white/10 shadow-inner">
+              <Sun className="sun w-3.5 h-3.5 text-yellow-400" />
+              <Moon className="moon w-3.5 h-3.5 text-purple-200" />
+            </label>
+          </div>
+          <UserMenu className="scale-95" />
+          <button 
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            aria-label="Menu"
+            className="p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
+      </header>
+
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="md:hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[1001]"
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="md:hidden fixed top-0 right-0 bottom-0 w-[280px] bg-[#09090b] border-l border-zinc-800 p-6 z-[1002] shadow-2xl flex flex-col justify-between overflow-y-auto"
+            >
+              <div>
+                <div className="flex items-center justify-between pb-4 border-b border-zinc-800/80 mb-6">
+                  <span className="font-outfit font-black text-white text-lg tracking-wide">
+                    Navigation
+                  </span>
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    aria-label="Fermer le menu"
+                    className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <nav className="flex flex-col gap-2">
+                  <Link 
+                    href="/" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-colors ${pathname === '/' ? 'bg-purple-500/15 text-purple-300 font-bold' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    Accueil
+                  </Link>
+                  <Link 
+                    href="/shop" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-colors ${pathname === '/shop' ? 'bg-purple-500/15 text-purple-300 font-bold' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    Boutique
+                  </Link>
+                  <Link 
+                    href="/jeux" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-colors ${pathname === '/jeux' ? 'bg-purple-500/15 text-purple-300 font-bold' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    <span className="text-purple-400 font-bold">Jeux</span>
+                    <span className="px-1.5 py-0.5 text-[9px] uppercase font-black bg-purple-500/20 text-purple-300 rounded-full border border-purple-500/30">New</span>
+                  </Link>
+                  <Link 
+                    href="/launcher" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-colors ${pathname === '/launcher' ? 'bg-purple-500/15 text-purple-300 font-bold' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    Launcher
+                  </Link>
+                  <div className="pt-4 mt-2 border-t border-zinc-800/80">
+                    <span className="px-3.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                      Communauté
+                    </span>
+                    <div className="flex flex-col gap-1 mt-2">
+                      <Link 
+                        href="/videastes" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${pathname === '/videastes' ? 'bg-fuchsia-500/15 text-fuchsia-300 font-bold' : 'text-zinc-300 hover:bg-white/5'}`}
+                      >
+                        <Video className="w-4 h-4 text-fuchsia-400 shrink-0" />
+                        <span>Vidéastes</span>
+                      </Link>
+                      <Link 
+                        href="/candidature" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${pathname === '/candidature' ? 'bg-purple-500/15 text-purple-300 font-bold' : 'text-zinc-300 hover:bg-white/5'}`}
+                      >
+                        <FileText className="w-4 h-4 opacity-70 shrink-0" />
+                        <span>Candidature</span>
+                      </Link>
+                      <Link 
+                        href="/tickets" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${pathname === '/tickets' ? 'bg-purple-500/15 text-purple-300 font-bold' : 'text-zinc-300 hover:bg-white/5'}`}
+                      >
+                        <Ticket className="w-4 h-4 text-purple-400 shrink-0" />
+                        <span>Support / Tickets</span>
+                      </Link>
+                    </div>
+                  </div>
+                </nav>
+              </div>
+
+              <div className="pt-6 border-t border-zinc-800/80 text-xs text-zinc-500 flex items-center justify-between">
+                <span>Paranoia SMP</span>
+                <span className="font-mono text-[11px] text-zinc-600">v1.21.1</span>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       <nav className="navbar hidden md:block">
         <div className="nav-container">
           <Link href="/" className="nav-logo flex items-center group shrink-0">
@@ -132,69 +274,5 @@ export default function Navbar() {
       mobileClassName="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-max"
     />
     </>
-  );
-}
-
-import { useSession, signIn, signOut } from "next-auth/react";
-import { LogOut, LayoutDashboard, User } from "lucide-react";
-
-function UserMenu() {
-  const { data: session, status } = useSession();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  if (status === "loading") {
-    return <div className="nav-btn opacity-50 cursor-wait">Chargement...</div>;
-  }
-
-  if (!session) {
-    return (
-      <button onClick={() => signIn("discord")} className="nav-btn">
-        Se connecter
-      </button>
-    );
-  }
-
-  return (
-    <div className="relative">
-      <button 
-        onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex items-center gap-2 nav-btn px-3 py-2 bg-[var(--surface-bg)] text-[var(--text-color)] border border-[var(--card-border)]"
-      >
-        <img 
-          src={session.user?.image || "https://cdn.discordapp.com/embed/avatars/0.png"} 
-          alt="Avatar" 
-          className="w-6 h-6 rounded-full"
-          referrerPolicy="no-referrer"
-          onError={(e) => { e.currentTarget.src = "https://cdn.discordapp.com/embed/avatars/0.png" }}
-        />
-        <span className="font-bold text-sm max-w-[100px] truncate">{session.user?.name}</span>
-        <ChevronDown className="w-4 h-4 opacity-50" />
-      </button>
-
-      {dropdownOpen && (
-        <div className="absolute left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-auto sm:right-0 mt-2 w-48 bg-[#09090b] border border-zinc-800 rounded-2xl shadow-xl overflow-hidden z-50 animate-slide-up">
-          <div className="p-3 border-b border-[var(--card-border)]">
-            <p className="text-xs text-[var(--color-text-secondary)] uppercase tracking-wider font-bold">Connecté en tant que</p>
-            <p className="font-bold text-[var(--text-color)] truncate">{session.user?.name}</p>
-          </div>
-          <div className="p-2">
-
-            {(session.user as any)?.role === "ADMIN" && (
-              <Link href="/admin" className="flex items-center gap-2 w-full p-2 text-sm font-bold text-fuchsia-500 hover:bg-fuchsia-500/10 rounded-xl transition-colors mt-1">
-                <LayoutDashboard className="w-4 h-4" />
-                Administration
-              </Link>
-            )}
-            <button 
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="flex items-center gap-2 w-full p-2 text-sm font-bold text-red-500 hover:bg-red-500/10 rounded-xl transition-colors mt-1"
-            >
-              <LogOut className="w-4 h-4" />
-              Se déconnecter
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
   );
 }

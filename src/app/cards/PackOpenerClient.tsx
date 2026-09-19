@@ -12,6 +12,7 @@ import CatalogueTab from "./components/CatalogueTab";
 import CardDetailModal from "./components/CardDetailModal";
 import RatesModal from "./components/RatesModal";
 import BoosterCarousel from "./components/BoosterCarousel";
+import { BOOSTER_PACKS, type BoosterPackId } from "@/config/boosters";
 
 export default function PackOpenerClient({
   initialInventory,
@@ -223,83 +224,16 @@ export default function PackOpenerClient({
       .sort((a, b) => new Date(b.latestObtained).getTime() - new Date(a.latestObtained).getTime());
   }, [groupedInventory, searchQuery, rarityFilter, filterEdition, filterEffect]);
 
-  const boxesData: Record<string, {
-    name: string;
-    image: string;
-    price: number;
-    owned: number;
-    glow: string;
-    text: string;
-    ringColor: string;
-    rates: { r: string; p: string; c: string }[];
-    isCustom?: boolean;
-  }> = {
-    standard: {
-      name: "Standard",
-      image: "/StandardB.png",
-      price: 150,
-      owned: boxes.find((b) => b.boxType === "standard")?.amount || 0,
-      glow: "bg-blue-500",
-      text: "text-blue-400",
-      ringColor: "rgba(59,130,246,0.35)",
-      rates: [
-        { r: "Commune", p: "40%", c: "text-slate-300" },
-        { r: "Peu Commune", p: "30%", c: "text-emerald-400" },
-        { r: "Rare", p: "20%", c: "text-blue-400" },
-        { r: "Épique", p: "7.8%", c: "text-purple-400" },
-        { r: "Légendaire", p: "2%", c: "text-amber-400" },
-        { r: "Mythique", p: "0.2%", c: "text-rose-500" },
-      ],
-    },
-    premium: {
-      name: "Premium",
-      image: "/PreniumB.png",
-      price: 250,
-      owned: boxes.find((b) => b.boxType === "premium")?.amount || 0,
-      glow: "bg-purple-500",
-      text: "text-purple-400",
-      ringColor: "rgba(168,85,247,0.35)",
-      rates: [
-        { r: "Commune", p: "20%", c: "text-slate-300" },
-        { r: "Peu Commune", p: "25%", c: "text-emerald-400" },
-        { r: "Rare", p: "35%", c: "text-blue-400" },
-        { r: "Épique", p: "14.5%", c: "text-purple-400" },
-        { r: "Légendaire", p: "5%", c: "text-amber-400" },
-        { r: "Mythique", p: "0.5%", c: "text-rose-500" },
-      ],
-    },
-    legendary: {
-      name: "Légendaire",
-      image: "/LegendaireB.png",
-      price: 400,
-      owned: boxes.find((b) => b.boxType === "legendary")?.amount || 0,
-      glow: "bg-amber-500",
-      text: "text-amber-400",
-      ringColor: "rgba(245,158,11,0.35)",
-      rates: [
-        { r: "Commune", p: "10%", c: "text-slate-300" },
-        { r: "Peu Commune", p: "15%", c: "text-emerald-400" },
-        { r: "Rare", p: "40%", c: "text-blue-400" },
-        { r: "Épique", p: "23%", c: "text-purple-400" },
-        { r: "Légendaire", p: "10%", c: "text-amber-400" },
-        { r: "Mythique", p: "2%", c: "text-rose-500" },
-      ],
-    },
-    mythic: {
-      name: "Mythique",
-      image: "/MythiqueB.png",
-      price: 750,
-      owned: boxes.find((b) => b.boxType === "mythic")?.amount || 0,
-      glow: "bg-red-600",
-      text: "text-rose-500",
-      ringColor: "rgba(239,68,68,0.45)",
-      rates: [
-        { r: "Épique", p: "75%", c: "text-purple-400" },
-        { r: "Légendaire", p: "20%", c: "text-amber-400" },
-        { r: "Mythique", p: "5%", c: "text-rose-500" },
-      ],
-    },
-  };
+  const boxesData = useMemo(() => {
+    const data: Record<string, (typeof BOOSTER_PACKS)[BoosterPackId] & { owned: number }> = {} as any;
+    for (const [key, pack] of Object.entries(BOOSTER_PACKS)) {
+      data[key] = {
+        ...pack,
+        owned: boxes.find((b) => b.boxType === key)?.amount || 0,
+      };
+    }
+    return data;
+  }, [boxes]);
 
   const activeBox = boxesData[selectedBoxType] || boxesData["standard"];
   const ownedVariantIds = useMemo(

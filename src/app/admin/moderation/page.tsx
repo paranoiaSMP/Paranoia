@@ -229,14 +229,14 @@ export default function AdminModerationPage() {
                                     onChange={e => handleRoleChange(user.id, e.target.value)}
                                     disabled={currentUserRole !== 'DEV' && (user.role === 'DEV' || user.role === 'ADMIN')}
                                     className={cn(
-                                        "bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest outline-none transition-all disabled:opacity-50",
+                                        "bg-[#09090b] border border-zinc-800 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest outline-none transition-all disabled:opacity-50 cursor-pointer hover:border-zinc-600 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50",
                                         user.role === 'DEV' ? "text-cyan-400 border-cyan-500/30" : user.role === 'ADMIN' ? "text-red-400 border-red-500/30" : user.role === 'MODERATOR' ? "text-purple-400 border-purple-500/30" : "text-[var(--color-text-secondary)]"
                                     )}
                                 >
-                                    <option value="MEMBER">MEMBER</option>
-                                    <option value="MODERATOR">MODERATOR</option>
-                                    <option value="ADMIN">ADMIN</option>
-                                    {currentUserRole === 'DEV' && <option value="DEV">DEV</option>}
+                                    <option value="MEMBER" className="bg-[#09090b] text-zinc-400">MEMBER</option>
+                                    <option value="MODERATOR" className="bg-[#09090b] text-purple-400">MODERATOR</option>
+                                    <option value="ADMIN" className="bg-[#09090b] text-red-400">ADMIN</option>
+                                    {currentUserRole === 'DEV' && <option value="DEV" className="bg-[#09090b] text-cyan-400">DEV</option>}
                                 </select>
                             </td>
                             <td className="px-8 py-5 text-right">

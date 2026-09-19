@@ -12,14 +12,12 @@ import {
   Rocket, 
   Bomb, 
   Disc, 
-  Spade, 
   ArrowRight, 
-  ShieldCheck, 
-  Dices, 
-  CircleDot 
+  ShieldCheck 
 } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
+import { AVAILABLE_GAMES, UPCOMING_GAMES } from "@/config/games";
 
 export const revalidate = 0;
 
@@ -27,104 +25,6 @@ export const metadata = {
   title: "Jeux & Casino | PARANOIA",
   description: "Salle de jeux du serveur Paranoia SMP. TCG, Mines, Crash, Roulette, Blackjack et plus.",
 };
-
-const AVAILABLE_GAMES = [
-  {
-    id: "tcg",
-    title: "Trading Cards",
-    tagline: "Boosters & Collection",
-    href: "/cards",
-    icon: Layers,
-    badge: "Populaire",
-    badgeColor: "text-[#34d399]",
-    color: "from-purple-500/20 to-fuchsia-500/10",
-    hoverBorder: "hover:border-purple-500/50",
-    ratio: "Commune → Mythique",
-    iconBg: "bg-purple-500/15 border-purple-500/30 text-purple-400",
-  },
-  {
-    id: "mines",
-    title: "Mines",
-    tagline: "Démineur à gains",
-    href: "/jeux/mines",
-    icon: Bomb,
-    color: "from-red-500/20 to-orange-500/10",
-    hoverBorder: "hover:border-red-500/50",
-    ratio: "Grille 5×5",
-    iconBg: "bg-red-500/15 border-red-500/30 text-red-300",
-    extraAsset: "/netherite.png",
-  },
-  {
-    id: "crash",
-    title: "Crash",
-    tagline: "Fusée & Multiplicateur",
-    href: "/jeux/crash",
-    icon: Rocket,
-    badge: "Live",
-    livePulse: true,
-    badgeColor: "text-red-300",
-    color: "from-blue-500/20 to-indigo-500/10",
-    hoverBorder: "hover:border-blue-500/50",
-    ratio: "Jusqu'à x100+",
-    iconBg: "bg-blue-500/15 border-blue-500/30 text-blue-400",
-  },
-  {
-    id: "roulette",
-    title: "Roulette",
-    tagline: "Rouge, Noir ou Vert",
-    href: "/jeux/roulette",
-    icon: Disc,
-    badge: "x14 max",
-    badgeColor: "text-[#34d399]",
-    color: "from-violet-500/20 to-purple-500/10",
-    hoverBorder: "hover:border-violet-500/50",
-    ratio: "Rouge x2 • Vert x14",
-    iconBg: "bg-violet-500/15 border-violet-500/30 text-violet-400",
-  },
-  {
-    id: "blackjack",
-    title: "Blackjack 21",
-    tagline: "Battez le Croupier",
-    href: "/jeux/blackjack",
-    icon: Spade,
-    badge: "3:2",
-    badgeColor: "text-zinc-400",
-    color: "from-amber-500/20 to-purple-500/10",
-    hoverBorder: "hover:border-amber-500/50",
-    ratio: "1:1 • Blackjack 3:2",
-    iconBg: "bg-amber-500/15 border-amber-500/30 text-amber-400",
-  },
-];
-
-const UPCOMING_GAMES = [
-  {
-    id: "coinflip",
-    title: "Coinflip",
-    desc: "Pile ou face en solo ou PvP · 50% · x2.00",
-    icon: Coins,
-    iconColor: "text-amber-400",
-    badge: "Bientôt",
-    badgeStyle: "border-purple-500/30 bg-purple-500/15 text-purple-200",
-  },
-  {
-    id: "dice",
-    title: "Dice",
-    desc: "Jauge de risque personnalisable",
-    icon: Dices,
-    iconColor: "text-cyan-400",
-    badge: "Bientôt",
-    badgeStyle: "border-zinc-700 bg-zinc-800 text-zinc-400",
-  },
-  {
-    id: "plinko",
-    title: "Plinko",
-    desc: "Pyramide de clous · jusqu'à x1000",
-    icon: CircleDot,
-    iconColor: "text-pink-400",
-    badge: "Bientôt",
-    badgeStyle: "border-zinc-700 bg-zinc-800 text-zinc-400",
-  },
-];
 
 interface ActivityItem {
   id: string;
