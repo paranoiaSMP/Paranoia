@@ -56,7 +56,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const discordUrlSetting = await prisma.systemSetting.findUnique({ where: { key: "discord_url" } });
+  let discordUrlSetting = null;
+  try {
+    discordUrlSetting = await prisma.systemSetting.findUnique({ where: { key: "discord_url" } });
+  } catch (e) {
+    // Database might be unavailable during static build time (ECONNREFUSED)
+    console.warn("Could not fetch discord_url setting during build:", e);
+  }
   const discordUrl = discordUrlSetting?.value || siteConfig.discordUrl;
 
   return (
