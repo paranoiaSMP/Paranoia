@@ -47,17 +47,23 @@ export const metadata: Metadata = {
 };
 
 import SplashScreen from "@/components/layout/SplashScreen";
+import { prisma } from "@/lib/db";
+import { SettingsProvider } from "@/components/providers/SettingsProvider";
+import { siteConfig } from "@/config/site";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const discordUrlSetting = await prisma.systemSetting.findUnique({ where: { key: "discord_url" } });
+  const discordUrl = discordUrlSetting?.value || siteConfig.discordUrl;
 
   return (
     <html lang="fr">
       <body className={`${inter.variable} ${outfit.variable} flex flex-col min-h-screen bg-[var(--background)]`}>
-        <Providers>
+        <SettingsProvider discordUrl={discordUrl}>
+          <Providers>
           <Toaster
             position="bottom-right"
             toastOptions={{
@@ -93,7 +99,8 @@ export default function RootLayout({
               {children}
             </NavigationManager>
           </SplashScreen>
-        </Providers>
+          </Providers>
+        </SettingsProvider>
       </body>
     </html>
   );

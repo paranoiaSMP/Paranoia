@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Layers } from 'lucide-react';
+import { Sparkles, ArrowRight, Shield, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { siteConfig } from '@/config/site';
+import { useSettings } from '@/components/providers/SettingsProvider';
 
 const FLIP_WORDS = ["SMP", "STUDIO", "TCG", "Launcher"];
 
 export default function HeroSection() {
   const [index, setIndex] = useState(0);
+  const { discordUrl } = useSettings();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -48,7 +50,7 @@ export default function HeroSection() {
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto px-1 sm:px-0">
           <a
-            href={siteConfig.discordUrl}
+            href={discordUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-neo-primary flex items-center justify-center gap-2.5"
