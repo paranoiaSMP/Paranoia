@@ -5,7 +5,6 @@ import { ArrowRight } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { AVAILABLE_GAMES } from '@/config/games';
 import { CARD_RARITIES } from '@/config/boosters';
-import CopyIpButton from '@/components/common/CopyIpButton';
 
 export default function ServerOverviewSection() {
   return (
@@ -145,13 +144,21 @@ export default function ServerOverviewSection() {
         <div className="col-span-1 md:col-span-1 lg:col-span-3 rounded-2xl bg-[#111118] border-2 border-white/5 p-5 flex flex-col justify-between gap-4">
           <div>
             <span className="font-mono text-[11px] tracking-widest text-slate-400 font-bold uppercase">
-              REJOINDRE LE SERVEUR
+              ACCÈS AU SERVEUR
             </span>
-            <p className="font-mono text-base font-bold text-white mt-2 tracking-wide">
-              {siteConfig.serverIp}
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mt-2">
+              Serveur 100% privé sur candidature. Rejoignez notre Discord pour tenter votre chance.
             </p>
           </div>
-          <CopyIpButton variant="badge" className="w-full justify-between" />
+          <a
+            href={siteConfig.discordUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-bold bg-[#151520] border border-white/10 hover:border-purple-500/50 text-white transition-all cursor-pointer w-full"
+          >
+            <span>Faire une candidature</span>
+            <ArrowRight className="w-4 h-4 text-purple-400" />
+          </a>
         </div>
       </div>
     </section>
