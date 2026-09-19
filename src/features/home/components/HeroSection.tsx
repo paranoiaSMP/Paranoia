@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { siteConfig } from '@/config/site';
+import CopyIpButton from '@/components/common/CopyIpButton';
 
 const FLIP_WORDS = ["SMP", "STUDIO", "TCG", "Launcher"];
 
@@ -18,31 +20,15 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative z-10 flex flex-col items-center justify-center min-h-[85vh] text-center px-4 pt-20">
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none select-none">
-        <div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] sm:w-[900px] h-[350px] sm:h-[500px] rounded-full opacity-60 dark:opacity-40 animate-pulse pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(168, 85, 247, 0.35) 0%, rgba(122, 10, 173, 0.15) 45%, transparent 70%)',
-            animationDuration: '6s'
-          }}
-        />
-        <div 
-          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] h-[200px] sm:h-[280px] rounded-full opacity-50 dark:opacity-30 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(217, 70, 239, 0.25) 0%, transparent 70%)'
-          }}
-        />
-      </div>
-
+    <section className="relative z-10 flex flex-col items-center justify-center min-h-[85vh] text-center px-4 pt-12 sm:pt-20">
       <div className="max-w-4xl mx-auto relative z-10">
         <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-outfit font-black mb-4 sm:mb-6 tracking-tight leading-[1.1] text-balance flex flex-col items-center justify-center sm:block">
           Bienvenue sur Paranoia{" "}
-          <span className="inline-grid [grid-template-areas:'stack'] overflow-visible pt-2 sm:pt-0" style={{ color: 'var(--logo-end)', perspective: '1000px' }}>
+          <span className="inline-grid [grid-template-areas:'stack'] overflow-visible pt-2 sm:pt-0 min-w-[120px] sm:min-w-[160px] text-center sm:text-left" style={{ color: 'var(--logo-end)', perspective: '1000px' }}>
             <AnimatePresence mode="popLayout">
               <motion.span
                 key={FLIP_WORDS[index]}
-                className="[grid-area:stack] inline-block text-left origin-center"
+                className="[grid-area:stack] inline-block min-w-[120px] sm:min-w-[160px] text-center sm:text-left origin-center"
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
@@ -54,14 +40,18 @@ export default function HeroSection() {
           </span>
         </h1>
 
-        <p className="text-base sm:text-xl md:text-2xl max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-inter font-medium text-balance px-2 text-[var(--nav-item-color)]">
+        <p className="text-base sm:text-xl md:text-2xl max-w-2xl mx-auto mb-6 leading-relaxed font-medium text-balance px-2 text-[var(--nav-item-color)]">
           Venez découvrir l&apos;univers du Paranoia SMP. 
           Faites vous des Amis ou collectionnez des boosters.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 mt-6 w-full sm:w-auto px-1 sm:px-0">
+        <div className="flex justify-center mb-8">
+          <CopyIpButton variant="hero" />
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto px-1 sm:px-0">
           <a
-            href="https://discord.gg/paranoiasmp"
+            href={siteConfig.discordUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-neo-primary flex items-center justify-center gap-2.5"

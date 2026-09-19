@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import {
   ChevronLeft,
   ChevronRight,
@@ -44,36 +45,43 @@ export default function LauncherSection() {
         </div>
 
         <div className="p-4 sm:p-6 bg-[radial-gradient(ellipse_90%_70%_at_50%_0%,_rgba(122,10,173,0.3),_transparent_65%),_#0a0910]">
-          <div className="flex items-center gap-2 p-2 rounded-2xl bg-[#14141e]/70 border border-white/5 mb-5 flex-wrap">
-            <ChevronLeft className="w-4 h-4 text-slate-400 shrink-0 cursor-pointer" />
-            <div className="flex gap-2 flex-wrap flex-1 min-w-0">
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151520] border border-white/5 text-xs font-semibold text-slate-200">
+          <div className="flex items-center gap-2 p-2 rounded-2xl bg-[#14141e]/70 border border-white/5 mb-5 overflow-hidden">
+            <ChevronLeft className="w-4 h-4 text-slate-400 shrink-0 cursor-pointer hidden sm:block" />
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-nowrap flex-1 min-w-0 py-0.5">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151520] border border-white/5 text-xs font-semibold text-slate-200 shrink-0 whitespace-nowrap">
                 <Shirt className="w-3.5 h-3.5 text-purple-400" /> Cosmétiques...
               </span>
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151520] border border-white/5 text-xs font-semibold text-slate-200">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151520] border border-white/5 text-xs font-semibold text-slate-200 shrink-0 whitespace-nowrap">
                 <Box className="w-3.5 h-3.5 text-purple-400" /> Mods
                 <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">
                   47
                 </span>
               </span>
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151520] border border-white/5 text-xs font-semibold text-slate-200">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151520] border border-white/5 text-xs font-semibold text-slate-200 shrink-0 whitespace-nowrap">
                 <Layers className="w-3.5 h-3.5 text-purple-400" /> Instances
                 <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">
                   12
                 </span>
               </span>
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151520] border border-white/5 text-xs font-semibold text-slate-200">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151520] border border-white/5 text-xs font-semibold text-slate-200 shrink-0 whitespace-nowrap">
                 <Settings className="w-3.5 h-3.5 text-purple-400" /> Paramètres
               </span>
-              <ChevronRight className="w-4 h-4 text-slate-400 self-center shrink-0 cursor-pointer" />
             </div>
-            <div className="flex items-center gap-2.5 ml-auto shrink-0">
-              <span className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#2a1a3e] border border-purple-500/35 text-xs font-extrabold text-white">
+            <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 cursor-pointer hidden sm:block" />
+            <div className="flex items-center gap-2.5 ml-auto shrink-0 pl-1">
+              <Link
+                href="/shop"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#2a1a3e] hover:bg-[#382254] border border-purple-500/35 text-xs font-extrabold text-white shrink-0 transition-colors"
+              >
                 <ShoppingBag className="w-3.5 h-3.5 text-purple-400" /> BOUTIQUE
-              </span>
-              <span className="w-9 h-8 rounded-lg bg-[#b366ff] flex items-center justify-center text-[#1a0a24]">
+              </Link>
+              <Link
+                href="/launcher"
+                className="w-9 h-8 rounded-lg bg-[#b366ff] hover:bg-[#c084fc] flex items-center justify-center text-[#1a0a24] shrink-0 transition-colors"
+                aria-label="Ouvrir le launcher"
+              >
                 <Menu className="w-4 h-4 text-black font-bold" />
-              </span>
+              </Link>
             </div>
           </div>
 
@@ -126,26 +134,38 @@ export default function LauncherSection() {
                   </span>
                 </div>
 
-                <div className="rounded-xl bg-[#101018] border border-dashed border-purple-500/40 min-h-[96px] flex items-center justify-center text-purple-400 hover:text-white cursor-pointer transition-colors">
+                <Link
+                  href="/launcher"
+                  className="rounded-xl bg-[#101018] border border-dashed border-purple-500/40 min-h-[96px] flex items-center justify-center text-purple-400 hover:text-white hover:border-purple-400 cursor-pointer transition-colors"
+                  aria-label="Ajouter une instance"
+                >
                   <Plus className="w-5 h-5" />
-                </div>
+                </Link>
               </div>
 
               <div className="flex flex-wrap items-center gap-2.5 pt-2">
-                <button
-                  disabled
-                  className="flex-1 min-w-[160px] h-12 rounded-full bg-gradient-to-r from-[#b366ff] to-[#9333ea] flex items-center justify-center gap-2 font-outfit font-black text-sm tracking-wider text-[#1a0a24] cursor-not-allowed opacity-90"
+                <Link
+                  href="/launcher"
+                  className="flex-1 min-w-[160px] h-12 rounded-full bg-gradient-to-r from-[#b366ff] to-[#9333ea] hover:brightness-110 flex items-center justify-center gap-2 font-outfit font-black text-sm tracking-wider text-[#1a0a24] transition-all shadow-[0_0_20px_rgba(179,102,255,0.3)]"
                 >
                   <Play className="w-4 h-4 fill-current" /> JOUER
-                </button>
-                <div className="w-12 h-12 rounded-xl bg-[#151520] border border-white/5 flex flex-col items-center justify-center gap-0.5 text-slate-400 shrink-0">
+                </Link>
+                <Link
+                  href="/launcher"
+                  className="w-12 h-12 rounded-xl bg-[#151520] hover:bg-[#1a1a28] border border-white/5 flex flex-col items-center justify-center gap-0.5 text-slate-400 hover:text-slate-200 shrink-0 transition-colors"
+                  title="Mods installés"
+                >
                   <Pickaxe className="w-3.5 h-3.5" />
                   <span className="font-mono text-[9px]">47</span>
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-[#151520] border border-white/5 flex flex-col items-center justify-center gap-0.5 text-slate-400 shrink-0">
+                </Link>
+                <Link
+                  href="/launcher"
+                  className="w-12 h-12 rounded-xl bg-[#151520] hover:bg-[#1a1a28] border border-white/5 flex flex-col items-center justify-center gap-0.5 text-slate-400 hover:text-slate-200 shrink-0 transition-colors"
+                  title="Logs du launcher"
+                >
                   <Terminal className="w-3.5 h-3.5" />
                   <span className="font-mono text-[9px]">Logs</span>
-                </div>
+                </Link>
               </div>
             </div>
 
