@@ -1,10 +1,14 @@
+"use client";
+
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Disc, ShieldAlert, FileText, ExternalLink } from 'lucide-react';
+import { useSettings } from '@/components/providers/SettingsProvider';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { discordUrl } = useSettings();
 
   return (
     <footer className="w-full bg-[#09090b] border-t border-zinc-800 text-zinc-400 mt-20">
@@ -51,7 +55,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="https://discord.gg/paranoiasmp" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors flex items-center gap-2">
+                <a href={discordUrl} target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors flex items-center gap-2">
                   Discord <ExternalLink className="w-3 h-3" />
                 </a>
               </li>

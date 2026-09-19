@@ -2,15 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Layers } from 'lucide-react';
+import { Sparkles, ArrowRight, Shield, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { siteConfig } from '@/config/site';
-import CopyIpButton from '@/components/common/CopyIpButton';
+import { useSettings } from '@/components/providers/SettingsProvider';
 
 const FLIP_WORDS = ["SMP", "STUDIO", "TCG", "Launcher"];
 
 export default function HeroSection() {
   const [index, setIndex] = useState(0);
+  const { discordUrl } = useSettings();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -45,13 +46,11 @@ export default function HeroSection() {
           Faites vous des Amis ou collectionnez des boosters.
         </p>
 
-        <div className="flex justify-center mb-8">
-          <CopyIpButton variant="hero" />
-        </div>
+        {/* IP Copy Button removed because SMP is private */}
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto px-1 sm:px-0">
           <a
-            href={siteConfig.discordUrl}
+            href={discordUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-neo-primary flex items-center justify-center gap-2.5"
