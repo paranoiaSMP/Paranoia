@@ -11,10 +11,7 @@ export async function GET(req: Request) {
       return new NextResponse("Missing uuid or username", { status: 400 });
     }
 
-    const authHeader = req.headers.get("x-launcher-secret");
-    if (authHeader !== process.env.LAUNCHER_API_SECRET) {
-      return new NextResponse("Unauthorized Launcher", { status: 401 });
-    }
+
 
     let player = null;
     if (uuid) {
