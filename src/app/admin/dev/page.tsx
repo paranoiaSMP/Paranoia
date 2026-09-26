@@ -2,12 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Settings, Save, Loader2, Upload, Link2 } from "lucide-react";
+import Link from "next/link";
+import { Settings, Save, Loader2, Upload, Link2, Bug, ExternalLink, Clock } from "lucide-react";
 import toast from 'react-hot-toast';
+
+type BugReportSummary = {
+  id: string;
+  title: string;
+  category: string;
+  status: string;
+  accountName: string | null;
+  profileName: string | null;
+  minecraftVersion: string | null;
+  createdAt: string;
+};
 
 export default function AdminDevPage() {
   const { data: session } = useSession();
   const [settings, setSettings] = useState<Record<string, string>>({});
+  const [reports, setReports] = useState<BugReportSummary[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -20,6 +33,13 @@ export default function AdminDevPage() {
           setSettings(s);
         }
       });
+
+    fetch("/api/admin/reports")
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setReports(data);
+      })
+      .catch(() => setReports([]));
   }, []);
 
   const handleSave = async (key: string, value: string) => {
@@ -144,6 +164,104 @@ export default function AdminDevPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="bg-[var(--card-bg)] p-8 rounded-3xl border border-[var(--card-border)] space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-red-500/10 border border-red-500/20 rounded-xl">
+              <Bug className="w-6 h-6 text-red-400" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-[var(--text-color)]">
+                Crashs & Signalements du Launcher
+              </h3>
+              <p className="text-xs text-[var(--color-text-secondary)]">
+                Rapports transmis par les joueurs depuis le Paranoia Client
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+              Total : {reports.length}
+            </span>
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">
+              Ouverts : {reports.filter((r) => r.status === "OPEN").length}
+            </span>
+          </div>
+        </div>
+
+        {reports.length === 0 ? (
+          <div className="text-center py-12 text-[var(--color-text-secondary)] text-sm border border-dashed border-[var(--card-border)] rounded-2xl">
+            Aucun signalement ou crash enregistré pour le moment.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-[var(--card-border)] text-xs text-[var(--color-text-secondary)] uppercase">
+                  <th className="py-3 px-4">Statut</th>
+                  <th className="py-3 px-4">Titre / Problème</th>
+                  <th className="py-3 px-4">Joueur</th>
+                  <th className="py-3 px-4">Instance</th>
+                  <th className="py-3 px-4">Date</th>
+                  <th className="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--card-border)]">
+                {reports.map((r) => {
+                  const isCrash = r.category.toLowerCase().includes("crash");
+                  return (
+                    <tr key={r.id} className="hover:bg-[var(--surface-bg)] transition-colors">
+                      <td className="py-3 px-4">
+                        <span
+                          className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase ${
+                            r.status === "RESOLVED"
+                              ? "bg-emerald-500/20 text-emerald-400"
+                              : r.status === "IN_PROGRESS"
+                              ? "bg-yellow-500/20 text-yellow-400"
+                              : r.status === "CLOSED"
+                              ? "bg-neutral-500/20 text-neutral-400"
+                              : isCrash
+                              ? "bg-red-500/20 text-red-400"
+                              : "bg-cyan-500/20 text-cyan-400"
+                          }`}
+                        >
+                          {r.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 font-semibold text-[var(--text-color)] max-w-xs truncate">
+                        {r.title}
+                      </td>
+                      <td className="py-3 px-4 text-[var(--color-text-secondary)] font-medium">
+                        {r.accountName || "Anonyme"}
+                      </td>
+                      <td className="py-3 px-4 text-xs text-[var(--color-text-secondary)]">
+                        {r.profileName || "Défaut"} ({r.minecraftVersion || "—"})
+                      </td>
+                      <td className="py-3 px-4 text-xs text-[var(--color-text-secondary)] whitespace-nowrap">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {new Date(r.createdAt).toLocaleDateString("fr-FR")}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <Link
+                          href={`/admin/dev/${r.id}`}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white transition-colors"
+                        >
+                          <span>Voir</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

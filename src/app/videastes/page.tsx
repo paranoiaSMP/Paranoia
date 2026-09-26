@@ -3,6 +3,14 @@ import { BoldGradient, GlowText, EasyBox, EasyBadge } from "@/components/easy-ta
 import { Video, ExternalLink, MonitorPlay } from "lucide-react";
 import Link from 'next/link';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Partenaires & Vidéastes',
+  description: "Découvrez les créateurs de contenu et partenaires de Paranoia Studio.",
+};
+
+
 const createurs = [
   {
     id: 1,

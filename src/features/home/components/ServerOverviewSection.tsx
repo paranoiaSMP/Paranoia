@@ -4,10 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
+import { IconBrandDiscordFilled } from '@tabler/icons-react';
 import { siteConfig } from '@/config/site';
 import { AVAILABLE_GAMES } from '@/config/games';
 import { CARD_RARITIES } from '@/config/boosters';
 import { useSettings } from '@/components/providers/SettingsProvider';
+import { EasyBox, EasyBadge, BoldGradient } from '@/components/easy-tags';
 
 export default function ServerOverviewSection() {
   const { discordUrl } = useSettings();
@@ -15,7 +17,7 @@ export default function ServerOverviewSection() {
     <section className="relative max-w-6xl mx-auto px-4 sm:px-6 mt-16 sm:mt-24">
       <div className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-white/10 mb-6">
         <h2 className="font-outfit text-2xl sm:text-4xl font-black text-white tracking-tight max-w-xl">
-          Un SMP, un <span className="text-[#b366ff]">plugin maison</span> et une salle de jeux.
+          Un SMP, un <BoldGradient from="from-purple-400" to="to-fuchsia-400">plugin maison</BoldGradient> et une salle de jeux.
         </h2>
         <a
           href={discordUrl}
@@ -23,12 +25,12 @@ export default function ServerOverviewSection() {
           rel="noopener noreferrer"
           className="text-xs sm:text-sm font-extrabold text-purple-400 hover:text-purple-300 flex items-center gap-1.5 transition-colors shrink-0"
         >
-          Rejoindre le Discord <ArrowRight className="w-4 h-4" />
+          <IconBrandDiscordFilled className="w-4 h-4" /> Rejoindre le Discord
         </a>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-        <div className="col-span-1 md:col-span-2 lg:col-span-4 relative overflow-hidden rounded-2xl bg-[#111118] border-2 border-white/5 p-6 flex flex-col sm:flex-row gap-6 items-center justify-between">
+        <EasyBox className="col-span-1 md:col-span-2 lg:col-span-4 relative overflow-hidden flex flex-col sm:flex-row gap-6 items-center justify-between !p-6">
           <div className="relative z-10 min-w-0 sm:min-w-[220px] flex-1">
             <span className="font-mono text-[11px] tracking-widest text-purple-400 font-bold uppercase">
               TCG · CARTES À COLLECTIONNER
@@ -41,12 +43,13 @@ export default function ServerOverviewSection() {
             </p>
             <div className="flex flex-wrap gap-1.5 mt-4">
               {CARD_RARITIES.map((rarity) => (
-                <span
+                <EasyBadge
                   key={rarity.key}
-                  className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded border border-white/10 ${rarity.colorClass}`}
+                  color="border-white/10 text-slate-300"
+                  className="font-mono text-[11px] font-bold !rounded"
                 >
                   {rarity.key === "MYTHIC" ? `${rarity.label} 0.2%` : rarity.label}
-                </span>
+                </EasyBadge>
               ))}
             </div>
           </div>
@@ -77,9 +80,9 @@ export default function ServerOverviewSection() {
               unoptimized
             />
           </div>
-        </div>
+        </EasyBox>
 
-        <div className="col-span-1 md:col-span-2 lg:col-span-2 rounded-2xl bg-[#111118] border-2 border-white/5 p-5 flex flex-col justify-between">
+        <EasyBox className="col-span-1 md:col-span-2 lg:col-span-2 flex flex-col justify-between !p-5">
           <div>
             <span className="font-mono text-[11px] tracking-widest text-slate-400 font-bold uppercase">
               SALLE DES JEUX
@@ -97,7 +100,7 @@ export default function ServerOverviewSection() {
                   <span className="text-slate-200 group-hover:text-white transition-colors">
                     {game.title === "Trading Cards" ? "Boosters" : game.title === "Blackjack 21" ? "Blackjack" : game.title}
                   </span>
-                  <span className={game.badgeColor ? `${game.badgeColor} font-bold` : game.shortRatio === "TCG" ? "text-purple-400 font-bold" : "text-slate-400"}>
+                  <span className="text-purple-400 font-bold">
                     {game.shortRatio}
                   </span>
                 </Link>
@@ -111,11 +114,11 @@ export default function ServerOverviewSection() {
             <span>Jouer maintenant</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
-        </div>
+        </EasyBox>
 
-        <div className="col-span-1 md:col-span-1 lg:col-span-3 rounded-2xl bg-[#111118] border-2 border-white/5 p-5 flex flex-col justify-between">
+        <EasyBox className="col-span-1 md:col-span-1 lg:col-span-3 flex flex-col justify-between !p-5">
           <div>
-            <span className="font-mono text-[11px] tracking-widest text-emerald-400 font-bold uppercase">
+            <span className="font-mono text-[11px] tracking-widest text-purple-400 font-bold uppercase">
               COMMUNAUTÉ
             </span>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mt-2">
@@ -125,7 +128,7 @@ export default function ServerOverviewSection() {
           <div className="mt-4 pt-3 border-t border-white/5 flex flex-col gap-2 font-mono text-xs">
             <div className="flex justify-between text-slate-400">
               <span>Événement</span>
-              <span className="text-emerald-400 font-bold">Samedi 21h</span>
+              <span className="text-purple-400 font-bold">Samedi 21h</span>
             </div>
             <div className="flex justify-between items-center text-slate-400">
               <span>Discord</span>
@@ -135,7 +138,7 @@ export default function ServerOverviewSection() {
                 rel="noopener noreferrer"
                 className="text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1 transition-colors"
               >
-                Rejoindre <ArrowRight className="w-3 h-3" />
+                <IconBrandDiscordFilled className="w-3 h-3" /> Rejoindre
               </a>
             </div>
             <div className="flex justify-between text-slate-400">
@@ -143,9 +146,9 @@ export default function ServerOverviewSection() {
               <span className="text-white font-bold">1.21.1</span>
             </div>
           </div>
-        </div>
+        </EasyBox>
 
-        <div className="col-span-1 md:col-span-1 lg:col-span-3 rounded-2xl bg-[#111118] border-2 border-white/5 p-5 flex flex-col justify-between gap-4">
+        <EasyBox className="col-span-1 md:col-span-1 lg:col-span-3 flex flex-col justify-between gap-4 !p-5">
           <div>
             <span className="font-mono text-[11px] tracking-widest text-slate-400 font-bold uppercase">
               ACCÈS AU SERVEUR
@@ -160,10 +163,13 @@ export default function ServerOverviewSection() {
             rel="noopener noreferrer"
             className="flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-bold bg-[#151520] border border-white/10 hover:border-purple-500/50 text-white transition-all cursor-pointer w-full"
           >
-            <span>Faire une candidature</span>
+            <div className="flex items-center gap-2">
+              <IconBrandDiscordFilled className="w-4 h-4 text-purple-400" />
+              <span>Faire une candidature</span>
+            </div>
             <ArrowRight className="w-4 h-4 text-purple-400" />
           </a>
-        </div>
+        </EasyBox>
       </div>
     </section>
   );

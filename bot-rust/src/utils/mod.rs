@@ -1,0 +1,1 @@
+// Fonctions utilitaires, constantes, etc.

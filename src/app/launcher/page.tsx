@@ -2,6 +2,14 @@ import React from 'react';
 import { BoldGradient, GlowText, EasyBox, EasyBadge } from "@/components/easy-tags";
 import { Download, Rocket, Shield, Zap } from "lucide-react";
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Télécharger le Launcher',
+  description: "Téléchargez le launcher officiel Paranoia Studio pour rejoindre le serveur.",
+};
+
+
 export default function LauncherPage() {
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 relative overflow-hidden flex flex-col items-center justify-center">

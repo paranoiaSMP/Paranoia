@@ -49,7 +49,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center shrink-0">
           <div className="relative w-28 h-9">
             <Image 
-              src="/Paranoia_logo.png" 
+              src="/logo.png" 
               alt="Paranoia SMP Logo" 
               fill 
               priority
@@ -190,7 +190,7 @@ export default function Navbar() {
           <Link href="/" className="nav-logo flex items-center group shrink-0">
             <div className="relative w-28 h-10 sm:w-32 sm:h-12 transition-transform duration-300 group-hover:scale-105">
               <Image 
-                src="/Paranoia_logo.png" 
+                src="/logo.png" 
                 alt="Paranoia SMP Logo" 
                 fill 
                 priority={true}

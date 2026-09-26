@@ -20,7 +20,7 @@ export default function Footer() {
             <Link href="/" className="inline-block mb-4">
               <div className="relative w-32 h-12 grayscale hover:grayscale-0 transition-all duration-300">
                 <Image 
-                  src="/Paranoia_logo.png" 
+                  src="/logo.png" 
                   alt="Paranoia SMP Logo" 
                   fill 
                   className="object-contain"

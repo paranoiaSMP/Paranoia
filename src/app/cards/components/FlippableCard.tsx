@@ -111,7 +111,7 @@ export default function FlippableCard({
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(168,85,247,0.25)_0%,_transparent_70%)] pointer-events-none" />
               <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none w-full px-6">
                 <img
-                  src="/Paranoia_logo.png"
+                  src="/logo.png"
                   fetchPriority="high"
                   className="w-4/5 h-auto drop-shadow-[0_0_20px_rgba(168,85,247,0.5)] group-hover:scale-105 transition-transform duration-500"
                   alt="Paranoia Card Back"
