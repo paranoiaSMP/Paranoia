@@ -116,7 +116,7 @@ def create_main_ticket_panel_v2_payload() -> dict:
                     },
                     {
                         "type": 10,
-                        "content": "> 📌 **Important :** Ne mentionnez aucun membre du staff dans votre ticket afin de ne pas ralentir le traitement.\n> 🌐 **Recrutement Staff :** Les candidatures (Modérateur, Helper) s'effectuent sur [paranoiasmp.fr/candidature](https://paranoiasmp.fr/candidature)."
+                        "content": "> 📌 **Important :** Ne mentionnez aucun membre du staff dans votre ticket afin de ne pas ralentir le traitement.\n> 🌐 **Recrutement Staff :** Les candidatures (Modérateur, Helper) s'effectuent sur [paranoiastudio.fr/candidature](https://paranoiastudio.fr/candidature)."
                     }
                 ]
             }
@@ -145,7 +145,7 @@ def create_main_ticket_panel_embed() -> discord.Embed:
         "Tu as reçu une sanction (ban, mute) et tu souhaites déposer une demande de révision argumentée auprès de l'administration.\n\n"
         "───────────────────────────────\n\n"
         "**📌 Notes additionnelles :**\n"
-        "• Pour postuler en tant que **Modérateur / Staff**, rendez-vous sur le site : [paranoiasmp.fr/candidature](https://paranoiasmp.fr/candidature)\n"
+        "• Pour postuler en tant que **Modérateur / Staff**, rendez-vous sur le site : [paranoiastudio.fr/candidature](https://paranoiastudio.fr/candidature)\n"
         "• Ne mentionnez **aucun membre du staff** dans votre ticket afin de ne pas ralentir le traitement."
     )
     embed = discord.Embed(
