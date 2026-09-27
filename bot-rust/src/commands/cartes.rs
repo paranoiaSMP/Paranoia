@@ -27,7 +27,7 @@ struct UserCard {
     image_url: Option<String>,
     #[sqlx(rename = "renderedImageUrl")]
     rendered_image_url: Option<String>,
-    proba: i32,
+    proba: f64,
 }
 
 pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) -> anyhow::Result<()> {
@@ -166,7 +166,7 @@ async fn build_page(db: &PgPool, discord_id: &str, pseudo_mc: Option<&str>, disp
     cards.sort_by(|a, b| {
         get_rarity_weight(&a.rarity)
             .cmp(&get_rarity_weight(&b.rarity))
-            .then_with(|| a.proba.cmp(&b.proba))
+            .then_with(|| a.proba.partial_cmp(&b.proba).unwrap_or(std::cmp::Ordering::Equal))
     });
 
     if cards.is_empty() {

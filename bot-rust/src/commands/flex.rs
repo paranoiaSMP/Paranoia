@@ -23,7 +23,7 @@ struct FlexCard {
     image_url: Option<String>,
     #[sqlx(rename = "renderedImageUrl")]
     rendered_image_url: Option<String>,
-    proba: i32,
+    proba: f64,
 }
 
 pub fn register() -> twilight_model::application::command::Command {
