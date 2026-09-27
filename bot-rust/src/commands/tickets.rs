@@ -20,7 +20,7 @@ use twilight_model::{
 };
 use twilight_util::builder::{
     command::CommandBuilder,
-    embed::{EmbedBuilder, EmbedFieldBuilder, EmbedFooterBuilder},
+    embed::{EmbedBuilder, EmbedFieldBuilder, EmbedFooterBuilder, ImageSource},
 };
 
 use crate::utils::{COLOR_ERROR, COLOR_INFO, COLOR_PURPLE, FOOTER_TEXT};
@@ -41,12 +41,25 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Res
         None => return Ok(()),
     };
 
-    let token = http.token().unwrap_or_default().to_string();
+    let defer_response = InteractionResponse {
+        kind: InteractionResponseType::DeferredChannelMessageWithSource,
+        data: Some(InteractionResponseData {
+            flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL),
+            ..Default::default()
+        }),
+    };
+    let _ = http.interaction(interaction.application_id)
+        .create_response(interaction.id, &interaction.token, &defer_response)
+        .await;
+
+    let raw_token = http.token().unwrap_or_default().trim();
+    let auth_header = if raw_token.starts_with("Bot ") {
+        raw_token.to_string()
+    } else {
+        format!("Bot {}", raw_token)
+    };
 
     let v2_payload = serde_json::json!({
-        "flags": 32768,
-        "content": null,
-        "embeds": [],
         "components": [
             {
                 "type": 12,
@@ -165,31 +178,140 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Res
     });
 
     let client = reqwest::Client::new();
-    let res = client
+    let mut sent_v2 = false;
+
+    match client
         .post(format!("https://discord.com/api/v10/channels/{}/messages", channel_id))
-        .header("Authorization", format!("Bot {}", token))
+        .header("Authorization", &auth_header)
         .header("Content-Type", "application/json")
         .json(&v2_payload)
         .send()
-        .await;
-
-    let success = res.is_ok() && res.unwrap().status().is_success();
-
-    let response = InteractionResponse {
-        kind: InteractionResponseType::ChannelMessageWithSource,
-        data: Some(InteractionResponseData {
-            content: Some(if success {
-                "✅ Panel des tickets V2 déployé avec succès !".to_string()
+        .await
+    {
+        Ok(res) => {
+            if res.status().is_success() {
+                sent_v2 = true;
             } else {
-                "⚠️ Erreur lors du déploiement du panel V2.".to_string()
-            }),
-            flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL),
-            ..Default::default()
-        }),
-    };
+                let status = res.status();
+                let err_text = res.text().await.unwrap_or_default();
+                tracing::warn!("V2 ticket panel rejected by Discord API ({}): {}, falling back to standard embed...", status, err_text);
+            }
+        }
+        Err(e) => {
+            tracing::warn!("Network error sending V2 ticket panel: {}, falling back to standard embed...", e);
+        }
+    }
+
+    if !sent_v2 {
+        let description = "\
+Vous souhaitez entrer en contact avec l'équipe de **Paranoia Studio** ?\n\
+Suivez les indications ci-dessous et sélectionnez la catégorie adaptée à votre situation.\n\n\
+*Ce salon est strictement réservé aux demandes d'assistance légitimes. Tout abus sera sanctionné.*\n\n\
+───────────────────────────────\n\n\
+**🛠️ Support Général & Technique**\n\
+Une question sur le serveur, un problème avec le launcher, la boutique ou un bug en jeu ?\n\n\
+───────────────────────────────\n\n\
+**🚨 Signalement Joueur (Report)**\n\
+Un joueur enfreint le règlement (cheat, grief, propos inappropriés ou comportement toxique) ?\n\n\
+───────────────────────────────\n\n\
+**🎥 Candidature Vidéaste & Partenariat**\n\
+Tu crées du contenu sur YouTube, Twitch ou TikTok ? Postule pour intégrer le programme créateur officiel.\n\n\
+───────────────────────────────\n\n\
+**⚖️ Contestation de Sanction (Appeals)**\n\
+Tu as reçu une sanction (ban, mute) et tu souhaites déposer une demande de révision argumentée ?\n\n\
+───────────────────────────────\n\n\
+> 📌 **Important :** Ne mentionnez aucun membre du staff dans votre ticket afin de ne pas ralentir le traitement.\n\
+> 🌐 **Recrutement Staff :** Les candidatures (Modérateur, Helper) s'effectuent sur [paranoiastudio.fr/candidature](https://paranoiastudio.fr/candidature).";
+
+        let mut embed_builder = EmbedBuilder::new()
+            .title("Contact Support")
+            .description(description)
+            .color(COLOR_PURPLE)
+            .footer(EmbedFooterBuilder::new(format!("{} • Support Officiel", FOOTER_TEXT)));
+
+        if let Ok(src) = ImageSource::url("https://files.catbox.moe/g1etwk.png") {
+            embed_builder = embed_builder.image(src);
+        }
+        if let Ok(src) = ImageSource::url("https://raw.githubusercontent.com/paranoiaSMP/Paranoia/main/public/Paranoia_logo.png") {
+            embed_builder = embed_builder.thumbnail(src);
+        }
+
+        let fallback_embed = embed_builder.build();
+
+        let row1 = Component::ActionRow(ActionRow {
+            id: None,
+            components: vec![
+                Component::Button(Button {
+                    id: None,
+                    custom_id: Some("btn_open_general_ticket".to_string()),
+                    disabled: false,
+                    emoji: None,
+                    label: Some("🛠️ Ticket Support".to_string()),
+                    style: ButtonStyle::Primary,
+                    url: None,
+                    sku_id: None,
+                }),
+                Component::Button(Button {
+                    id: None,
+                    custom_id: Some("btn_open_report_ticket".to_string()),
+                    disabled: false,
+                    emoji: None,
+                    label: Some("🚨 Signaler un joueur".to_string()),
+                    style: ButtonStyle::Danger,
+                    url: None,
+                    sku_id: None,
+                }),
+            ],
+        });
+
+        let row2 = Component::ActionRow(ActionRow {
+            id: None,
+            components: vec![
+                Component::Button(Button {
+                    id: None,
+                    custom_id: Some("btn_open_videaste_ticket".to_string()),
+                    disabled: false,
+                    emoji: None,
+                    label: Some("🎥 Postuler Vidéaste".to_string()),
+                    style: ButtonStyle::Secondary,
+                    url: None,
+                    sku_id: None,
+                }),
+                Component::Button(Button {
+                    id: None,
+                    custom_id: Some("btn_open_appeal_ticket".to_string()),
+                    disabled: false,
+                    emoji: None,
+                    label: Some("⚖️ Faire un appel".to_string()),
+                    style: ButtonStyle::Secondary,
+                    url: None,
+                    sku_id: None,
+                }),
+                Component::Button(Button {
+                    id: None,
+                    custom_id: None,
+                    disabled: false,
+                    emoji: None,
+                    label: Some("🌐 Recrutement Staff".to_string()),
+                    style: ButtonStyle::Link,
+                    url: Some("https://paranoiastudio.fr/candidature".to_string()),
+                    sku_id: None,
+                }),
+            ],
+        });
+
+        let embeds = [fallback_embed];
+        let components = [row1, row2];
+
+        http.create_message(channel_id)
+            .embeds(&embeds)
+            .components(&components)
+            .await?;
+    }
 
     let _ = http.interaction(interaction.application_id)
-        .create_response(interaction.id, &interaction.token, &response)
+        .update_response(&interaction.token)
+        .content(Some("✅ Panel des tickets déployé avec succès !"))
         .await;
 
     Ok(())
