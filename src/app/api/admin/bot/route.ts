@@ -14,14 +14,17 @@ export async function GET() {
   try {
     let discordGatewayInfo = null;
     let isDiscordReachable = false;
+    let gatewayError: string | null = null;
 
-    const rawToken = process.env.DISCORD_TOKEN;
+    const rawToken = process.env.DISCORD_TOKEN || process.env.DISCORD_BOT_TOKEN || process.env.BOT_TOKEN;
     const token = rawToken?.trim().replace(/^["']|["']$/g, "").trim();
-    if (token) {
+    const cleanToken = token ? (token.toLowerCase().startsWith("bot ") ? token.slice(4).trim() : token) : "";
+
+    if (cleanToken) {
       try {
         const res = await fetch("https://discord.com/api/v10/gateway/bot", {
           headers: {
-            Authorization: `Bot ${token}`,
+            Authorization: `Bot ${cleanToken}`,
           },
           cache: "no-store",
         });
@@ -29,11 +32,16 @@ export async function GET() {
           discordGatewayInfo = await res.json();
           isDiscordReachable = true;
         } else {
-          console.error("Discord Gateway ping returned status:", res.status, await res.text());
+          const errText = await res.text();
+          console.error("Discord Gateway ping returned status:", res.status, errText);
+          gatewayError = `Erreur ${res.status}: ${res.statusText || errText.slice(0, 50)}`;
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to ping Discord Gateway:", err);
+        gatewayError = err?.message || "Erreur réseau";
       }
+    } else {
+      gatewayError = "DISCORD_TOKEN manquant dans .env";
     }
 
     let tiktokTargets: any[] = [];
@@ -80,7 +88,8 @@ export async function GET() {
       status: {
         online: isDiscordReachable,
         gateway: discordGatewayInfo,
-        configured: Boolean(token),
+        configured: Boolean(cleanToken),
+        error: gatewayError,
         framework: "Rust Twilight 0.17",
       },
       stats: {

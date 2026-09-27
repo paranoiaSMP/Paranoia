@@ -16,9 +16,10 @@ export async function POST(req: Request) {
       return new NextResponse("Salon manquant", { status: 400 });
     }
 
-    const rawToken = process.env.DISCORD_TOKEN;
+    const rawToken = process.env.DISCORD_TOKEN || process.env.DISCORD_BOT_TOKEN || process.env.BOT_TOKEN;
     const token = rawToken?.trim().replace(/^["']|["']$/g, "").trim();
-    if (!token) {
+    const cleanToken = token ? (token.toLowerCase().startsWith("bot ") ? token.slice(4).trim() : token) : "";
+    if (!cleanToken) {
       return new NextResponse("DISCORD_TOKEN non configuré", { status: 500 });
     }
 
@@ -143,7 +144,7 @@ export async function POST(req: Request) {
     const res = await fetch(`https://discord.com/api/v10/channels/${channelId.trim()}/messages`, {
       method: "POST",
       headers: {
-        Authorization: `Bot ${token}`,
+        Authorization: `Bot ${cleanToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),

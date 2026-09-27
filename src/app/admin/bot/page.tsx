@@ -290,7 +290,9 @@ export default function AdminBotPage() {
                   {data?.status?.online ? "Connecté (OK)" : "Inaccessible"}
                 </p>
                 <p className="text-xs text-[var(--color-text-secondary)]">
-                  {data?.status?.gateway?.url ? "WSS Ready" : "Vérifier le token"}
+                  {data?.status?.gateway?.url
+                    ? "WSS Ready"
+                    : (data?.status?.error || "Vérifier le token")}
                 </p>
               </div>
             </div>
