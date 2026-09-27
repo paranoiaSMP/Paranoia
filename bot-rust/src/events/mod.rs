@@ -56,95 +56,73 @@ pub async fn handle_event(
             }
         }
 
-        Event::InteractionCreate(mut interaction) => {
-            let data = interaction.data.take();
-            match data {
+        Event::InteractionCreate(interaction) => {
+            let inter = interaction.0;
+            match &inter.data {
                 Some(InteractionData::ApplicationCommand(cmd)) => {
-                    let inter = interaction.0;
-                    match cmd.name.as_str() {
-                        "cartes" => {
-                            let _ = crate::commands::cartes::run(inter, http, db).await;
-                        }
-                        "pc" => {
-                            let _ = crate::commands::pc::run(inter, http, db).await;
-                        }
-                        "flex" => {
-                            let _ = crate::commands::flex::run(inter, http, db).await;
-                        }
-                        "profile" => {
-                            let _ = crate::commands::profile::run(inter, http, db).await;
-                        }
-                        "creators" => {
-                            let _ = crate::commands::creators::run(inter, http).await;
-                        }
-                        "notifications" => {
-                            let _ = crate::commands::notifications::run(inter, http).await;
-                        }
-                        "event" => {
-                            let _ = crate::commands::events::run(inter, http).await;
-                        }
-                        "quetes" => {
-                            let _ = crate::commands::quests::run(inter, http).await;
-                        }
-                        "ban" => {
-                            let _ = crate::commands::moderation::run_sanction(inter, http, db, "ban").await;
-                        }
-                        "mute" => {
-                            let _ = crate::commands::moderation::run_sanction(inter, http, db, "mute").await;
-                        }
-                        "kick" => {
-                            let _ = crate::commands::moderation::run_sanction(inter, http, db, "kick").await;
-                        }
-                        "promote" => {
-                            let _ = crate::commands::moderation::run_promote(inter, http).await;
-                        }
-                        "demote" => {
-                            let _ = crate::commands::moderation::run_demote(inter, http).await;
-                        }
-                        "setup_tickets" => {
-                            let _ = crate::commands::tickets::run(inter, http).await;
-                        }
-                        "tiktok" => {
-                            let _ = crate::commands::tiktok::run(inter, http, db).await;
-                        }
-                        _ => {}
+                    let cmd_name = cmd.name.clone();
+                    let res = match cmd_name.as_str() {
+                        "cartes" => crate::commands::cartes::run(inter, http, db).await,
+                        "pc" => crate::commands::pc::run(inter, http, db).await,
+                        "flex" => crate::commands::flex::run(inter, http, db).await,
+                        "profile" => crate::commands::profile::run(inter, http, db).await,
+                        "creators" => crate::commands::creators::run(inter, http).await,
+                        "notifications" => crate::commands::notifications::run(inter, http).await,
+                        "event" => crate::commands::events::run(inter, http).await,
+                        "quetes" => crate::commands::quests::run(inter, http).await,
+                        "ban" => crate::commands::moderation::run_sanction(inter, http, db, "ban").await,
+                        "mute" => crate::commands::moderation::run_sanction(inter, http, db, "mute").await,
+                        "kick" => crate::commands::moderation::run_sanction(inter, http, db, "kick").await,
+                        "promote" => crate::commands::moderation::run_promote(inter, http).await,
+                        "demote" => crate::commands::moderation::run_demote(inter, http).await,
+                        "setup_tickets" => crate::commands::tickets::run(inter, http).await,
+                        "tiktok" => crate::commands::tiktok::run(inter, http, db).await,
+                        _ => Ok(()),
+                    };
+                    if let Err(e) = res {
+                        tracing::error!("Error executing slash command {}: {:?}", cmd_name, e);
                     }
                 }
 
                 Some(InteractionData::MessageComponent(comp)) => {
-                    let inter = interaction.0;
-                    let cid = &comp.custom_id;
+                    let cid = comp.custom_id.clone();
+                    let values = comp.values.clone();
 
-                    if cid.starts_with("cartes:") {
-                        let _ = crate::commands::cartes::handle_button(inter, http, db, cid).await;
+                    let res = if cid.starts_with("cartes:") {
+                        crate::commands::cartes::handle_button(inter, http, db, &cid).await
                     } else if cid == "creators_select_menu" {
-                        let _ = crate::commands::creators::handle_select(inter, http, &comp.values).await;
+                        crate::commands::creators::handle_select(inter, http, &values).await
                     } else if let Some(role) = cid.strip_prefix("notif_toggle:") {
-                        let _ = crate::commands::notifications::handle_toggle(inter, http, role).await;
+                        crate::commands::notifications::handle_toggle(inter, http, role).await
                     } else if cid == "event_join" {
-                        let _ = crate::commands::events::handle_button(inter, http, "join").await;
+                        crate::commands::events::handle_button(inter, http, "join").await
                     } else if cid == "event_leave" {
-                        let _ = crate::commands::events::handle_button(inter, http, "leave").await;
+                        crate::commands::events::handle_button(inter, http, "leave").await
                     } else if cid == "quest_verify_status" {
-                        let _ = crate::commands::quests::handle_verify_status(inter, http, db).await;
+                        crate::commands::quests::handle_verify_status(inter, http, db).await
                     } else if let Some(sanction_id) = cid.strip_prefix("appeal_open:") {
-                        let _ = crate::commands::moderation::handle_appeal_button(inter, http, sanction_id).await;
+                        crate::commands::moderation::handle_appeal_button(inter, http, sanction_id).await
                     } else if let Some(sanction_id) = cid.strip_prefix("appeal_staff_accept:") {
-                        let _ = crate::commands::moderation::handle_staff_appeal_decision(inter, http, db, "accept", sanction_id).await;
+                        crate::commands::moderation::handle_staff_appeal_decision(inter, http, db, "accept", sanction_id).await
                     } else if let Some(sanction_id) = cid.strip_prefix("appeal_staff_reject:") {
-                        let _ = crate::commands::moderation::handle_staff_appeal_decision(inter, http, db, "reject", sanction_id).await;
+                        crate::commands::moderation::handle_staff_appeal_decision(inter, http, db, "reject", sanction_id).await
                     } else if let Some(cat) = cid.strip_prefix("ticket_open:") {
-                        let _ = crate::commands::tickets::handle_open_button(inter, http, cat).await;
+                        crate::commands::tickets::handle_open_button(inter, http, cat).await
                     } else if cid == "ticket_claim" {
-                        let _ = crate::commands::tickets::handle_claim(inter, http).await;
+                        crate::commands::tickets::handle_claim(inter, http).await
                     } else if cid == "ticket_close" {
-                        let _ = crate::commands::tickets::handle_close(inter, http, config.ticket_log_channel_id).await;
+                        crate::commands::tickets::handle_close(inter, http, config.ticket_log_channel_id).await
+                    } else {
+                        Ok(())
+                    };
+                    if let Err(e) = res {
+                        tracing::error!("Error executing message component {}: {:?}", cid, e);
                     }
                 }
 
                 Some(InteractionData::ModalSubmit(modal_data)) => {
-                    let inter = interaction.0;
-                    let cid = &modal_data.custom_id;
+                    let cid = modal_data.custom_id.clone();
+                    let modal = modal_data.clone();
 
                     if let Some(sanction_id) = cid.strip_prefix("modal_appeal:") {
                         let _ = crate::commands::moderation::handle_appeal_modal_submit(
@@ -152,7 +130,7 @@ pub async fn handle_event(
                             http,
                             db,
                             sanction_id,
-                            &modal_data,
+                            &modal,
                             config.ticket_log_channel_id,
                         )
                         .await;
@@ -162,7 +140,7 @@ pub async fn handle_event(
                                 inter,
                                 http,
                                 cat,
-                                &modal_data,
+                                &modal,
                                 gid,
                                 config.ticket_category_id,
                                 config.role_staff_id,
