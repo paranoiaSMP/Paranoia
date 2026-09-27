@@ -37,7 +37,7 @@
 
 ## Interface Contracts
 ### `src/config/site.ts` ↔ UI Components
-- `siteConfig.serverIp`: string (`"play.paranoiasmp.fr"`)
+- `siteConfig.serverIp`: string (`"play.paranoiastudio.fr"`)
 - `siteConfig.discordUrl`: string (`"https://discord.gg/paranoiasmp"`)
 - `siteConfig.skinCdn`: string (`"https://vzge.me"`)
 

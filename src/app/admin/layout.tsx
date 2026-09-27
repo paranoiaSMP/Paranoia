@@ -2,12 +2,13 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Users, Sparkles, Layers, ShieldAlert, ImagePlus, LayoutDashboard, Newspaper, Ticket, Settings } from "lucide-react";
+import { Users, Sparkles, Layers, ShieldAlert, ImagePlus, LayoutDashboard, Newspaper, Ticket, Settings, Bot } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 const adminLinks = [
   { name: "Vue d'ensemble", href: "/admin", icon: LayoutDashboard },
+  { name: "Console Bot", href: "/admin/bot", icon: Bot },
   { name: "Tickets", href: "/admin/tickets", icon: Ticket },
   { name: "Actualités", href: "/admin/news", icon: Newspaper },
   { name: "Joueurs", href: "/admin/players", icon: Users },

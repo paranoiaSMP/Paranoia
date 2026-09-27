@@ -55,4 +55,6 @@ gha-creds-*.json
 __pycache__/
 .venv/
 data/
-
+target/
+bot-rust/target/
+BotRust/

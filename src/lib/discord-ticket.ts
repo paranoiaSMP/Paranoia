@@ -82,7 +82,7 @@ export async function createDiscordTicketChannel(ticket: {
         value: ticket.minecraftName ? `\`${ticket.minecraftName}\`` : "*Non renseigné*",
         inline: true,
       },
-      { name: "Provenance", value: "🌐 Site Web (paranoiasmp.fr)", inline: true },
+      { name: "Provenance", value: "🌐 Site Web (paranoiastudio.fr)", inline: true },
       { name: "Description", value: ticket.description, inline: false },
     ];
 

@@ -2,24 +2,23 @@ use sqlx::PgPool;
 use std::sync::Arc;
 use twilight_http::Client as HttpClient;
 use twilight_model::{
-    application::{
-        command::{CommandOption, CommandOptionType},
-        interaction::{Interaction, application_command::CommandOptionValue, InteractionData},
+    application::interaction::{
+        application_command::CommandOptionValue, Interaction, InteractionData,
     },
     channel::message::{
         component::{ActionRow, Button, ButtonStyle, Component},
-        embed::{Embed, EmbedField},
+        embed::Embed,
     },
     http::interaction::{InteractionResponse, InteractionResponseType},
 };
 use twilight_util::builder::{
     command::{CommandBuilder, StringBuilder},
-    embed::{EmbedBuilder, EmbedFieldBuilder, ImageSource},
-    InteractionResponseDataBuilder,
+    embed::{EmbedBuilder, ImageSource},
 };
 
 #[derive(Debug, sqlx::FromRow)]
 struct UserCard {
+    #[allow(dead_code)]
     id: String,
     title: String,
     rarity: String,

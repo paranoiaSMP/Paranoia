@@ -5,9 +5,9 @@
 
   **Plateforme web officielle, système TCG & infrastructure de Paranoia Studio.**
 
-  [![Serveur IP](https://img.shields.io/badge/Minecraft-play.paranoiasmp.fr-a855f7?style=for-the-badge&logo=minecraft&logoColor=white)](https://paranoiasmp.fr)
+  [![Serveur IP](https://img.shields.io/badge/Minecraft-play.paranoiastudio.fr-a855f7?style=for-the-badge&logo=minecraft&logoColor=white)](https://paranoiastudio.fr)
   [![Discord](https://img.shields.io/badge/Discord-Rejoindre-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/paranoia)
-  [![Version](https://img.shields.io/badge/Statut-Production-22c55e?style=for-the-badge)](https://paranoiasmp.fr)
+  [![Version](https://img.shields.io/badge/Statut-Production-22c55e?style=for-the-badge)](https://paranoiastudio.fr)
 
 </div>
 
