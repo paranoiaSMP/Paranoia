@@ -60,6 +60,9 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Res
     };
 
     let v2_payload = serde_json::json!({
+        "flags": 32768,
+        "content": null,
+        "embeds": [],
         "components": [
             {
                 "type": 12,
