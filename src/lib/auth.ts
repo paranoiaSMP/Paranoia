@@ -4,6 +4,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma) as any,
   session: {
     strategy: "jwt"
@@ -38,7 +39,7 @@ export const authOptions: NextAuthOptions = {
         try {
           const discordProfile = profile as any;
           let imageUrl = user.image;
-          
+
           if (discordProfile.avatar === null) {
             const defaultAvatarNumber = discordProfile.discriminator === "0" 
               ? Number(BigInt(discordProfile.id) >> 22n) % 6 
@@ -50,12 +51,12 @@ export const authOptions: NextAuthOptions = {
           }
 
           const newName = discordProfile.global_name || discordProfile.username || user.name;
-          
+
           const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
           if (dbUser) {
             await prisma.user.update({
               where: { id: user.id },
-              data: { name: newName, image: imageUrl }
+              data: { name: newName, image: imageUrl, discordId: account.providerAccountId }
             });
           }
           user.name = newName;
@@ -66,24 +67,24 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-   
-    async jwt({ token, user, trigger, session, account }) {
+
+    async jwt({ token, user, trigger, account }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
         token.picture = user.image;
-        token.role = (user as any).role;
-        token.minecraftName = (user as any).minecraftName;
-        token.isMcVerified = (user as any).isMcVerified;
-        token.paraCoins = (user as any).paraCoins;
+        token.role = user.role;
+        token.minecraftName = user.minecraftName;
+        token.isMcVerified = user.isMcVerified;
+        token.paraCoins = user.paraCoins;
       }
       if (account && account.provider === 'discord' && account.providerAccountId === process.env.ADMIN_DISCORD_ID) {
-        token.role = 'ADMIN';
+        token.role = 'DEV';
       }
       if (trigger === "update" && token.id) {
         const dbUser = await prisma.user.findUnique({ where: { id: token.id as string } });
         if (dbUser) {
-          token.minecraftName = dbUser.minecraftName;
+          token.minecraftName = dbUser.minecraftName ?? undefined;
           token.isMcVerified = dbUser.isMcVerified;
           token.paraCoins = dbUser.paraCoins;
         }
@@ -96,7 +97,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
         session.user.minecraftName = token.minecraftName;
         session.user.isMcVerified = token.isMcVerified;
-        (session.user as any).paraCoins = token.paraCoins;
+        session.user.paraCoins = token.paraCoins;
       }
       return session;
     },

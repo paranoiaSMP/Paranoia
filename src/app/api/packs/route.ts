@@ -128,9 +128,9 @@ export async function POST(req: Request) {
     drawnCards.sort((a, b) => (rarityWeight[a.rarity] || 0) - (rarityWeight[b.rarity] || 0));
 
     const EFFECTS_PROBABILITY = [
-      { name: "Holo", prob: 0.05 }, // 5%
-      { name: "Glitch", prob: 0.02 }, // 2%
-      { name: "Cosmic", prob: 0.005 }, // 0.5%
+      { name: "Holo", prob: 0.05 }, 
+      { name: "Glitch", prob: 0.02 }, 
+      { name: "Cosmic", prob: 0.005 }, 
     ];
 
     const drawEffect = () => {

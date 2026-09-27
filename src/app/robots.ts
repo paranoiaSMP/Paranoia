@@ -1,12 +1,14 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://paranoiastudio.fr';
+  
   return {
     rules: {
       userAgent: '*',
       allow: '/',
       disallow: ['/admin/', '/api/'],
     },
-    sitemap: 'https://paranoiastudio.fr/sitemap.xml',
+    sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

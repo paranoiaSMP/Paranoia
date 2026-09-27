@@ -6,8 +6,8 @@ import Link from "next/link";
 import { ChevronLeft, Sparkles, PackageOpen } from "lucide-react";
 import EditionDetailClient from "./EditionDetailClient";
 
-export default async function EditionPage({ params }: { params: { editionId: string } }) {
-  const { editionId } = params;
+export default async function EditionPage(props: { params: Promise<{ editionId: string }> }) {
+  const { editionId } = await props.params;
 
   const edition = await prisma.edition.findUnique({
     where: { id: editionId }
@@ -30,7 +30,7 @@ export default async function EditionPage({ params }: { params: { editionId: str
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
-      {/* Hero Section with Banner */}
+      {}
       <div className="relative w-full h-[60vh] overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] hover:scale-110" 

@@ -50,6 +50,11 @@ gha-creds-*.json
 .agents/
 .agent/
 *.log
-log.txt
-check-images.js
-replace.js
+.idea/
+*.pyc
+__pycache__/
+.venv/
+data/
+target/
+bot-rust/target/
+BotRust/

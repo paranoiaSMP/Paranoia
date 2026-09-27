@@ -73,12 +73,12 @@ export default function AdminVariantsPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-12 items-start">
-        {/* Creation Form */}
+        {}
         <div className="xl:col-span-4 bg-[var(--card-bg)] p-8 rounded-3xl border border-[var(--card-border)] space-y-6">
           <h3 className="text-xl font-bold text-[var(--text-color)] flex items-center gap-2">
             <Plus className="w-5 h-5 text-indigo-400" /> Nouveau Type
           </h3>
-          
+
           <form onSubmit={handleCreateVariant} className="space-y-6">
             <div>
               <label className="block text-[10px] font-black text-[var(--color-text-secondary)] uppercase tracking-widest mb-2 ml-1">Nom du type</label>
@@ -136,10 +136,10 @@ export default function AdminVariantsPage() {
           </form>
         </div>
 
-        {/* Variants List */}
+        {}
         <div className="xl:col-span-8 bg-[var(--card-bg)] p-8 rounded-3xl border border-[var(--card-border)]">
           <h3 className="text-xl font-bold text-[var(--text-color)] mb-8">Types Enregistrés ({variants.length})</h3>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {variants.map(v => (
               <div key={v.id} className="flex items-center justify-between bg-[var(--card-bg)] border border-[var(--card-border)] p-4 rounded-2xl group hover:border-indigo-500/40 transition-all hover:bg-[var(--surface-bg)]">

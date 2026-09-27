@@ -3,13 +3,16 @@
 import { useState, useEffect } from "react";
 import { ShieldAlert, Trash2, Users, Sparkles, Loader2, PackageOpen, Zap, Info, X, UserX } from "lucide-react";
 import toast from 'react-hot-toast';
+import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 export default function AdminModerationPage() {
+  const { data: session } = useSession();
+  const currentUserRole = (session?.user as any)?.role;
   const [appUsers, setAppUsers] = useState<any[]>([]);
   const [cards, setCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   const [godCardId, setGodCardId] = useState("");
   const [godPlayerId, setGodPlayerId] = useState("");
   const [godBoxType, setGodBoxType] = useState("standard");
@@ -130,14 +133,14 @@ export default function AdminModerationPage() {
         </div>
       </div>
 
-      {/* Quick Actions Panel */}
+      {}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         <div className="bg-red-950/10 border border-red-500/20 p-8 rounded-[2.5rem] relative overflow-hidden space-y-8">
             <div className="absolute top-0 right-0 p-4 opacity-5"><ShieldAlert className="w-32 h-32 text-red-500" /></div>
             <h3 className="text-xl font-black text-[var(--text-color)] uppercase tracking-tighter flex items-center gap-3">
                 <Sparkles className="w-5 h-5 text-red-500" /> Card Manager (GOD MODE)
             </h3>
-            
+
             <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -188,7 +191,7 @@ export default function AdminModerationPage() {
         </div>
       </div>
 
-      {/* Users Table */}
+      {}
       <div className="bg-[var(--card-bg)] rounded-[2.5rem] border border-[var(--card-border)] overflow-hidden">
           <div className="p-8 border-b border-[var(--card-border)] bg-[var(--surface-bg)]">
             <h3 className="text-xl font-bold text-[var(--text-color)] flex items-center gap-3">
@@ -224,14 +227,16 @@ export default function AdminModerationPage() {
                                 <select 
                                     value={user.role} 
                                     onChange={e => handleRoleChange(user.id, e.target.value)}
+                                    disabled={currentUserRole !== 'DEV' && (user.role === 'DEV' || user.role === 'ADMIN')}
                                     className={cn(
-                                        "bg-[var(--surface-bg)] border border-[var(--card-border)] rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest outline-none transition-all",
-                                        user.role === 'ADMIN' ? "text-red-400 border-red-500/30" : user.role === 'MODERATOR' ? "text-purple-400 border-purple-500/30" : "text-[var(--color-text-secondary)]"
+                                        "bg-[#09090b] border border-zinc-800 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest outline-none transition-all disabled:opacity-50 cursor-pointer hover:border-zinc-600 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50",
+                                        user.role === 'DEV' ? "text-cyan-400 border-cyan-500/30" : user.role === 'ADMIN' ? "text-red-400 border-red-500/30" : user.role === 'MODERATOR' ? "text-purple-400 border-purple-500/30" : "text-[var(--color-text-secondary)]"
                                     )}
                                 >
-                                    <option value="MEMBER">MEMBER</option>
-                                    <option value="MODERATOR">MODERATOR</option>
-                                    <option value="ADMIN">ADMIN</option>
+                                    <option value="MEMBER" className="bg-[#09090b] text-zinc-400">MEMBER</option>
+                                    <option value="MODERATOR" className="bg-[#09090b] text-purple-400">MODERATOR</option>
+                                    <option value="ADMIN" className="bg-[#09090b] text-red-400">ADMIN</option>
+                                    {currentUserRole === 'DEV' && <option value="DEV" className="bg-[#09090b] text-cyan-400">DEV</option>}
                                 </select>
                             </td>
                             <td className="px-8 py-5 text-right">
@@ -249,7 +254,7 @@ export default function AdminModerationPage() {
           </div>
       </div>
 
-      {/* Economy Modal */}
+      {}
       {selectedUserEconomy && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 dark:bg-black/90 backdrop-blur-sm animate-in fade-in">
               <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-[3rem] p-10 max-w-md w-full shadow-[0_0_100px_rgba(0,0,0,0.8)] space-y-8 animate-slide-up">

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import NavigationManager from "@/components/layout/NavigationManager";
@@ -7,38 +7,50 @@ import { Providers } from "@/components/providers";
 
 import { Toaster } from 'react-hot-toast';
 
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import ComingSoon from "@/components/layout/ComingSoon";
-
-export const dynamic = "force-dynamic";
-
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
+export const viewport: Viewport = {
+  themeColor: "#9381ff", // Couleur violette du logo Paranoia (à ajuster si besoin)
+};
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://votre-domaine.fr'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://paranoiastudio.fr'),
   title: {
-    default: "PARANOIA SMP | Serveur Survie Privé",
-    template: "%s | PARANOIA SMP"
+    default: "Paranoia Studio",
+    template: "%s | Paranoia Studio"
   },
-  description: "Rejoignez l'élite sur PARANOIA. Serveur Survie Multijoueur Minecraft Privé. Forum, Tier List, Trading Cards et Candidatures.",
-  keywords: ["Minecraft", "SMP", "Serveur privé", "Survie", "Multi-joueur", "Paranoia", "Trading Cards", "TCG"],
+  description: "Paranoia Studio est le studio de création derrière le serveur Survie Multijoueur Minecraft Privé de référence. Découvrez notre Launcher, nos Trading Cards et nos différents projets.",
+  keywords: ["Paranoia Studio", "Minecraft", "SMP", "Serveur privé", "Survie", "Multi-joueur", "Trading Cards", "Launcher"],
+  authors: [{ name: "Paranoia Studio" }],
+  creator: "Paranoia Studio",
+  publisher: "Paranoia Studio",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
-    title: "PARANOIA SMP",
-    description: "Le Serveur Survie Multijoueur Minecraft Privé par excellence.",
+    title: "Paranoia Studio",
+    description: "Paranoia Studio est le studio de création derrière le serveur Survie Multijoueur Minecraft Privé de référence. Découvrez notre Launcher, nos Trading Cards et nos différents projets.",
     url: '/',
-    siteName: 'Paranoia SMP',
+    siteName: 'PARANOIA SMP',
     images: [
       {
-        url: '/Paranoia_logo.png', // Fallback to the logo for now
+        url: '/logo.png', 
         width: 800,
         height: 600,
+        alt: "Paranoia SMP Logo",
       },
     ],
     locale: 'fr_FR',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Paranoia Studio',
+    description: 'Paranoia Studio est le studio de création derrière le serveur Survie Multijoueur Minecraft Privé de référence.',
+    images: ['/logo.png'],
   },
   robots: {
     index: true,
@@ -53,29 +65,42 @@ export const metadata: Metadata = {
   },
 };
 
+import SplashScreen from "@/components/layout/SplashScreen";
+import { prisma } from "@/lib/db";
+import { SettingsProvider } from "@/components/providers/SettingsProvider";
+import { siteConfig } from "@/config/site";
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Check maintenance mode
-  let isMaintenance = false;
-  let isAdmin = false;
-
+  let discordUrlSetting = null;
   try {
-    const session = await getServerSession(authOptions);
-    isAdmin = (session?.user as any)?.role === "ADMIN";
-    
-    const maintenanceSetting = await prisma.systemSetting.findUnique({ where: { key: "maintenance_mode" } });
-    isMaintenance = maintenanceSetting?.value === "true";
+    discordUrlSetting = await prisma.systemSetting.findUnique({ where: { key: "discord_url" } });
   } catch (e) {
-    console.error("Failed to fetch maintenance mode state:", e);
+    // Database might be unavailable during static build time (ECONNREFUSED)
+    console.warn("Could not fetch discord_url setting during build:", e);
   }
+  const discordUrl = discordUrlSetting?.value || siteConfig.discordUrl;
 
   return (
     <html lang="fr">
       <body className={`${inter.variable} ${outfit.variable} flex flex-col min-h-screen bg-[var(--background)]`}>
-        <Providers>
+        <SettingsProvider discordUrl={discordUrl}>
+          <Providers>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'Organization',
+                name: 'Paranoia Studio',
+                url: 'https://paranoiastudio.fr',
+                logo: 'https://paranoiastudio.fr/logo.png'
+              })
+            }}
+          />
           <Toaster
             position="bottom-right"
             toastOptions={{
@@ -106,10 +131,13 @@ export default async function RootLayout({
               },
             }}
           />
-          <NavigationManager>
-            {children}
-          </NavigationManager>
-        </Providers>
+          <SplashScreen>
+            <NavigationManager>
+              {children}
+            </NavigationManager>
+          </SplashScreen>
+          </Providers>
+        </SettingsProvider>
       </body>
     </html>
   );

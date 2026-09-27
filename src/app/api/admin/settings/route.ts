@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== "ADMIN") {
+    if (!session || (session.user as any).role !== "DEV") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== "ADMIN") {
+    if (!session || (session.user as any).role !== "DEV") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -46,10 +46,8 @@ export async function POST(req: NextRequest) {
       create: { key, value: String(value) },
     });
 
-    if (key === "maintenance_mode") {
-      const { revalidatePath } = require("next/cache");
-      revalidatePath("/", "layout");
-    }
+    const { revalidatePath } = require("next/cache");
+    revalidatePath("/", "layout");
 
     return NextResponse.json(setting);
   } catch (error) {

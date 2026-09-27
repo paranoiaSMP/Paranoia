@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     const rawBody = await req.json();
     const parsed = manageSchema.safeParse(rawBody);
-    
+
     if (!parsed.success) {
       return new NextResponse("Invalid request payload", { status: 400 });
     }

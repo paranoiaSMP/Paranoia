@@ -17,7 +17,7 @@ export default function Error({
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 text-center relative overflow-hidden">
-      {/* Background Glow */}
+      {}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-500 rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
 
       <div className="relative z-10">
@@ -57,7 +57,7 @@ export default function Error({
         </div>
       </div>
 
-      {/* Decorative Text */}
+      {}
       <div className="absolute bottom-10 left-10 text-[10vw] font-black text-white/[0.02] select-none pointer-events-none uppercase">
         Crash
       </div>
