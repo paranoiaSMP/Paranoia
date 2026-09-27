@@ -25,6 +25,16 @@ pub async fn init_pool(database_url: &str) -> Result<PgPool> {
         .with_context(|| format!("Failed to connect to PostgreSQL at {}", clean_url))
 }
 
+pub fn init_pool_lazy(database_url: &str) -> Result<PgPool> {
+    let clean_url = clean_db_url(database_url);
+
+    PgPoolOptions::new()
+        .max_connections(10)
+        .acquire_timeout(Duration::from_secs(5))
+        .connect_lazy(&clean_url)
+        .with_context(|| format!("Failed to create PostgreSQL pool for {}", clean_url))
+}
+
 pub async fn connect(database_url: &str) -> Result<PgPool> {
     init_pool(database_url).await
 }

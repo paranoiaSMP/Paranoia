@@ -23,20 +23,31 @@ async fn main() -> Result<()> {
     let config = Arc::new(config::Config::load()?);
     tracing::info!("Configuration loaded successfully");
 
-    tracing::info!("Connecting to PostgreSQL database...");
-    let pool = db::init_pool(&config.database_url).await?;
+    tracing::info!("Initializing PostgreSQL pool...");
+    let pool = db::init_pool_lazy(&config.database_url)?;
 
-    tracing::info!("Checking database health...");
-    db::health_check(&pool).await?;
-    tracing::info!("Database health check OK");
+    match db::health_check(&pool).await {
+        Ok(_) => {
+            tracing::info!("Database health check OK");
+            if let Err(e) = db::run_migrations(&pool).await {
+                tracing::warn!("Database migrations could not be applied: {}", e);
+            } else {
+                tracing::info!("Database migrations applied successfully");
+            }
 
-    tracing::info!("Running database migrations...");
-    db::run_migrations(&pool).await?;
-    tracing::info!("Database migrations applied successfully");
-
-    tracing::info!("Checking legacy JSON migrations...");
-    db::migrate_json_data(&pool).await?;
-    tracing::info!("JSON data migration complete");
+            if let Err(e) = db::migrate_json_data(&pool).await {
+                tracing::warn!("JSON migration skipped: {}", e);
+            } else {
+                tracing::info!("JSON data migration complete");
+            }
+        }
+        Err(e) => {
+            tracing::warn!(
+                "PostgreSQL is unreachable ({}). Bot starting in resilient mode (commands requiring DB will connect once available).",
+                e
+            );
+        }
+    }
 
     let intents = Intents::GUILDS
         | Intents::GUILD_MESSAGES
