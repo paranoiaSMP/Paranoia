@@ -16,7 +16,8 @@ export async function POST(req: Request) {
       return new NextResponse("Salon manquant", { status: 400 });
     }
 
-    const token = process.env.DISCORD_TOKEN;
+    const rawToken = process.env.DISCORD_TOKEN;
+    const token = rawToken?.trim().replace(/^["']|["']$/g, "").trim();
     if (!token) {
       return new NextResponse("DISCORD_TOKEN non configuré", { status: 500 });
     }

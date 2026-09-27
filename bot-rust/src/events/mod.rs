@@ -108,9 +108,17 @@ pub async fn handle_event(
                         crate::commands::moderation::handle_staff_appeal_decision(inter, http, db, "reject", sanction_id).await
                     } else if let Some(cat) = cid.strip_prefix("ticket_open:") {
                         crate::commands::tickets::handle_open_button(inter, http, cat).await
-                    } else if cid == "ticket_claim" {
+                    } else if cid == "btn_open_general_ticket" {
+                        crate::commands::tickets::handle_open_button(inter, http, "general").await
+                    } else if cid == "btn_open_report_ticket" {
+                        crate::commands::tickets::handle_open_button(inter, http, "report").await
+                    } else if cid == "btn_open_videaste_ticket" {
+                        crate::commands::tickets::handle_open_button(inter, http, "videaste").await
+                    } else if cid == "btn_open_appeal_ticket" {
+                        crate::commands::tickets::handle_open_button(inter, http, "appeal").await
+                    } else if cid == "ticket_claim" || cid == "btn_claim_general_ticket" {
                         crate::commands::tickets::handle_claim(inter, http).await
-                    } else if cid == "ticket_close" {
+                    } else if cid == "ticket_close" || cid == "btn_close_general_ticket" {
                         crate::commands::tickets::handle_close(inter, http, config.ticket_log_channel_id).await
                     } else {
                         Ok(())

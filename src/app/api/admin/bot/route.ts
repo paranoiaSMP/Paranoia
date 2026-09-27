@@ -15,18 +15,21 @@ export async function GET() {
     let discordGatewayInfo = null;
     let isDiscordReachable = false;
 
-    const token = process.env.DISCORD_TOKEN;
+    const rawToken = process.env.DISCORD_TOKEN;
+    const token = rawToken?.trim().replace(/^["']|["']$/g, "").trim();
     if (token) {
       try {
         const res = await fetch("https://discord.com/api/v10/gateway/bot", {
           headers: {
             Authorization: `Bot ${token}`,
           },
-          next: { revalidate: 0 },
+          cache: "no-store",
         });
         if (res.ok) {
           discordGatewayInfo = await res.json();
           isDiscordReachable = true;
+        } else {
+          console.error("Discord Gateway ping returned status:", res.status, await res.text());
         }
       } catch (err) {
         console.error("Failed to ping Discord Gateway:", err);

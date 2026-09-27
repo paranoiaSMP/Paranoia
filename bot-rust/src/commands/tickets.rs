@@ -36,101 +36,161 @@ pub fn register() -> twilight_model::application::command::Command {
 }
 
 pub async fn run(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
-    let embed = EmbedBuilder::new()
-        .title("🎫 Centre d'Assistance & Tickets Paranoia")
-        .description(
-            "Bienvenue dans l'espace d'assistance officiel de **Paranoia SMP** !\n\n\
-            Pour toute demande d'aide, signalement ou candidature, cliquez sur la catégorie correspondante ci-dessous.\n\
-            Un salon privé dédié sera immédiatement ouvert avec l'équipe de modération.",
-        )
-        .color(COLOR_PURPLE)
-        .field(
-            EmbedFieldBuilder::new(
-                "🛠️ Support Général",
-                "Questions, soucis en jeu, aide technique ou problèmes de compte.",
-            ),
-        )
-        .field(
-            EmbedFieldBuilder::new(
-                "🚨 Signalement Joueur",
-                "Signaler un comportement interdit, triche, grief ou abus.",
-            ),
-        )
-        .field(
-            EmbedFieldBuilder::new(
-                "🎥 Candidature Vidéaste",
-                "Postuler au rang de créateur de contenu officiel sur le serveur.",
-            ),
-        )
-        .field(
-            EmbedFieldBuilder::new(
-                "⚖️ Contestation de Sanction",
-                "Faire appel suite à un bannissement ou une mesure disciplinaire.",
-            ),
-        )
-        .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
-        .build();
+    let channel_id = match interaction.channel.as_ref().map(|c| c.id) {
+        Some(id) => id,
+        None => return Ok(()),
+    };
 
-    let buttons = vec![
-        Button {
-            id: None,
-            custom_id: Some("ticket_open:general".to_string()),
-            disabled: false,
-            emoji: None,
-            label: Some("🛠️ Support Général".to_string()),
-            style: ButtonStyle::Primary,
-            url: None,
-            sku_id: None,
-        },
-        Button {
-            id: None,
-            custom_id: Some("ticket_open:report".to_string()),
-            disabled: false,
-            emoji: None,
-            label: Some("🚨 Signalement".to_string()),
-            style: ButtonStyle::Danger,
-            url: None,
-            sku_id: None,
-        },
-        Button {
-            id: None,
-            custom_id: Some("ticket_open:videaste".to_string()),
-            disabled: false,
-            emoji: None,
-            label: Some("🎥 Candidature Vidéaste".to_string()),
-            style: ButtonStyle::Success,
-            url: None,
-            sku_id: None,
-        },
-        Button {
-            id: None,
-            custom_id: Some("ticket_open:appeal".to_string()),
-            disabled: false,
-            emoji: None,
-            label: Some("⚖️ Appel Sanction".to_string()),
-            style: ButtonStyle::Secondary,
-            url: None,
-            sku_id: None,
-        },
-    ];
+    let token = http.token().unwrap_or_default().to_string();
 
-    let components = vec![Component::ActionRow(ActionRow {
-        id: None,
-        components: buttons.into_iter().map(Component::Button).collect(),
-    })];
+    let v2_payload = serde_json::json!({
+        "flags": 32768,
+        "content": null,
+        "embeds": [],
+        "components": [
+            {
+                "type": 12,
+                "items": [
+                    {
+                        "media": {
+                            "url": "https://files.catbox.moe/g1etwk.png"
+                        }
+                    }
+                ]
+            },
+            {
+                "type": 17,
+                "accent_color": 11032055,
+                "components": [
+                    {
+                        "type": 10,
+                        "content": "# Contact Support\nVous souhaitez entrer en contact avec l'équipe de **Paranoia Studio** ?\nSuivez les indications ci-dessous et sélectionnez la catégorie adaptée à votre situation.\n\n*Ce salon est strictement réservé aux demandes d'assistance légitimes. Tout abus sera sanctionné.*"
+                    },
+                    {
+                        "type": 14,
+                        "spacing": 1,
+                        "divider": true
+                    },
+                    {
+                        "type": 10,
+                        "content": "### 🛠️ Support Général & Technique\nUne question sur le serveur, un problème avec le launcher, la boutique ou un bug en jeu ?"
+                    },
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 2,
+                                "style": 1,
+                                "label": "Ticket Support",
+                                "emoji": {"name": "🛠️"},
+                                "custom_id": "btn_open_general_ticket"
+                            }
+                        ]
+                    },
+                    {
+                        "type": 14,
+                        "spacing": 1,
+                        "divider": true
+                    },
+                    {
+                        "type": 10,
+                        "content": "### 🚨 Signalement Joueur (Report)\nUn joueur enfreint le règlement (cheat, grief, propos inappropriés ou comportement toxique) ?"
+                    },
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 2,
+                                "style": 4,
+                                "label": "Signaler un joueur",
+                                "emoji": {"name": "🚨"},
+                                "custom_id": "btn_open_report_ticket"
+                            }
+                        ]
+                    },
+                    {
+                        "type": 14,
+                        "spacing": 1,
+                        "divider": true
+                    },
+                    {
+                        "type": 10,
+                        "content": "### 🎥 Candidature Vidéaste & Partenariat\nTu crées du contenu sur YouTube, Twitch ou TikTok ? Postule pour intégrer le programme créateur officiel."
+                    },
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 2,
+                                "style": 1,
+                                "label": "Postuler Vidéaste",
+                                "emoji": {"name": "🎥"},
+                                "custom_id": "btn_open_videaste_ticket"
+                            }
+                        ]
+                    },
+                    {
+                        "type": 14,
+                        "spacing": 1,
+                        "divider": true
+                    },
+                    {
+                        "type": 10,
+                        "content": "### ⚖️ Contestation de Sanction (Appeals)\nTu as reçu une sanction (ban, mute) et tu souhaites déposer une demande de révision argumentée ?"
+                    },
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 2,
+                                "style": 2,
+                                "label": "Faire un appel",
+                                "emoji": {"name": "⚖️"},
+                                "custom_id": "btn_open_appeal_ticket"
+                            }
+                        ]
+                    },
+                    {
+                        "type": 14,
+                        "spacing": 1,
+                        "divider": true
+                    },
+                    {
+                        "type": 10,
+                        "content": "> 📌 **Important :** Ne mentionnez aucun membre du staff dans votre ticket afin de ne pas ralentir le traitement.\n> 🌐 **Recrutement Staff :** Les candidatures (Modérateur, Helper) s'effectuent sur [paranoiastudio.fr/candidature](https://paranoiastudio.fr/candidature)."
+                    }
+                ]
+            }
+        ]
+    });
+
+    let client = reqwest::Client::new();
+    let res = client
+        .post(format!("https://discord.com/api/v10/channels/{}/messages", channel_id))
+        .header("Authorization", format!("Bot {}", token))
+        .header("Content-Type", "application/json")
+        .json(&v2_payload)
+        .send()
+        .await;
+
+    let success = res.is_ok() && res.unwrap().status().is_success();
 
     let response = InteractionResponse {
         kind: InteractionResponseType::ChannelMessageWithSource,
         data: Some(InteractionResponseData {
-            embeds: Some(vec![embed]),
-            components: Some(components),
+            content: Some(if success {
+                "✅ Panel des tickets V2 déployé avec succès !".to_string()
+            } else {
+                "⚠️ Erreur lors du déploiement du panel V2.".to_string()
+            }),
+            flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL),
             ..Default::default()
         }),
     };
 
-    http.interaction(interaction.application_id)
+    let _ = http.interaction(interaction.application_id)
         .create_response(interaction.id, &interaction.token, &response)
-        .await?;
+        .await;
 
     Ok(())
 }
