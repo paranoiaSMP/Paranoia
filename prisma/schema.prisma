@@ -325,6 +325,11 @@ model GuildConfig {
   moduleEconomy   Boolean  @default(false)
   moduleXp        Boolean  @default(false)
   moduleTcg       Boolean  @default(false)
+  welcomeChannelId String?
+  welcomeTitle     String?
+  welcomeDesc      String?
+  welcomeColor     String?
+  welcomeImage     String?
   updatedAt       DateTime @updatedAt
 }
 
