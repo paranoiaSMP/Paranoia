@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
@@ -29,7 +29,7 @@ export default function WelcomeEditor() {
       body: JSON.stringify(data)
     });
     setSaving(false);
-    alert("Configuration sauvegardÃ©e !");
+    alert("Configuration sauvegardÃƒÂ©e !");
   };
 
   if (!loaded) return null;
@@ -37,7 +37,7 @@ export default function WelcomeEditor() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-1">
-        <h3 className="text-xl font-bold text-white tracking-tight">Ã‰diteur de Bienvenue</h3>
+        <h3 className="text-xl font-bold text-white tracking-tight">Ãƒâ€°diteur de Bienvenue</h3>
         <p className="text-sm text-[var(--color-text-secondary)]">Personnalisez l'embed de bienvenue automatique.</p>
       </div>
 
@@ -52,7 +52,7 @@ export default function WelcomeEditor() {
             <input type="text" value={data.welcomeTitle} onChange={e => setData({...data, welcomeTitle: e.target.value})} className="w-full bg-black/40 border border-neutral-800 rounded-lg p-2 text-sm text-white" />
           </div>
           <div>
-            <label className="text-xs text-neutral-400 font-medium mb-1 block">Description (Markdown, variables: {user}, {server})</label>
+            <label className="text-xs text-neutral-400 font-medium mb-1 block">Description (Markdown, variables: {'{user}'}, {'{server}'})</label>
             <textarea value={data.welcomeDesc} onChange={e => setData({...data, welcomeDesc: e.target.value})} className="w-full bg-black/40 border border-neutral-800 rounded-lg p-2 text-sm text-white h-24" />
           </div>
           <div className="flex gap-4">
