@@ -54,6 +54,8 @@ model User {
   isMcVerified       Boolean   @default(false)
   role               String    @default("MEMBER")
   paraCoins          Int       @default(0)
+  xp                 Int       @default(0)
+  level              Int       @default(1)
   lastDaily          DateTime?
   createdAt          DateTime  @default(now())
 
@@ -67,6 +69,7 @@ model User {
   applications  Application[]
   modApplications ModApplication[]
   boxes         UserBox[]
+  marketListings MarketListing[]
 }
 
 model Topic {
@@ -176,6 +179,7 @@ model UserCard {
   tradingCard   TradingCard @relation(fields: [tradingCardId], references: [id], onDelete: Cascade)
   obtainedAt    DateTime    @default(now())
   specialEffect String?
+  marketListing MarketListing?
 }
 
 model Player {
@@ -309,3 +313,44 @@ model BugReport {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
+
+model GuildConfig {
+  guildId         String   @id
+  moduleTickets   Boolean  @default(true)
+  moduleWelcome   Boolean  @default(false)
+  moduleSecurity  Boolean  @default(false)
+  moduleAutoMod   Boolean  @default(false)
+  moduleAuditLogs Boolean  @default(false)
+  moduleTempVoice Boolean  @default(false)
+  moduleEconomy   Boolean  @default(false)
+  moduleXp        Boolean  @default(false)
+  moduleTcg       Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+}
+
+model MarketListing {
+  id          String   @id @default(cuid())
+  sellerId    String
+  userCardId  String   @unique
+  price       Int
+  createdAt   DateTime @default(now())
+  
+  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  userCard    UserCard @relation(fields: [userCardId], references: [id], onDelete: Cascade)
+}
+
+
+
+model Warn {
+  id        String   @id @default(cuid())
+  userId    String
+  guildId   String
+  reason    String
+  authorId  String
+  createdAt DateTime @default(now())
+
+}
+
+
+
+

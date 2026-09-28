@@ -1,4 +1,4 @@
-use sqlx::{PgPool, Row};
+﻿use sqlx::{PgPool, Row};
 use std::sync::Arc;
 use twilight_http::Client as HttpClient;
 use twilight_model::{
@@ -17,7 +17,7 @@ use crate::utils::{rarity_weight, COLOR_ERROR, COLOR_PURPLE, FOOTER_TEXT};
 pub fn register() -> twilight_model::application::command::Command {
     CommandBuilder::new(
         "profile",
-        "Affiche le profil d'un joueur ou le vôtre",
+        "Affiche le profil d'un joueur ou le vÃ´tre",
         twilight_model::application::command::CommandType::ChatInput,
     )
     .option(
@@ -107,24 +107,24 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
                 format!("P-{}", user_id.to_uppercase())
             };
 
-            let mc_display = mc_name.unwrap_or_else(|| "Non lié".to_string());
+            let mc_display = mc_name.unwrap_or_else(|| "Non liÃ©".to_string());
 
             let embed = EmbedBuilder::new()
-                .title("👤 Profil Paranoia")
+                .title("ðŸ‘¤ Profil Paranoia")
                 .color(COLOR_PURPLE)
-                .field(EmbedFieldBuilder::new("🎮 Minecraft", mc_display).inline())
-                .field(EmbedFieldBuilder::new("🆔 ID Paranoia", para_id).inline())
-                .field(EmbedFieldBuilder::new("🪙 PARA Coins", format!("**{}**", coins)).inline())
+                .field(EmbedFieldBuilder::new("ðŸŽ® Minecraft", mc_display).inline())
+                .field(EmbedFieldBuilder::new("ðŸ†” ID Paranoia", para_id).inline())
+                .field(EmbedFieldBuilder::new("ðŸª™ PARA Coins", format!("**{}**", coins)).inline())
                 .field(
                     EmbedFieldBuilder::new(
-                        "🃏 Cartes",
+                        "ðŸƒ Cartes",
                         format!("**{}/{}**", cards_count, total_cards),
                     )
                     .inline(),
                 )
-                .field(EmbedFieldBuilder::new("📦 Boosters ouverts", boosters_opened.to_string()).inline())
-                .field(EmbedFieldBuilder::new("⭐ Rareté maximale", max_rarity).inline())
-                .field(EmbedFieldBuilder::new("🏆 Niveau", format!("Niveau **{}**", level)).inline())
+                .field(EmbedFieldBuilder::new("ðŸ“¦ Boosters ouverts", boosters_opened.to_string()).inline())
+                .field(EmbedFieldBuilder::new("â­ RaretÃ© maximale", max_rarity).inline())
+                .field(EmbedFieldBuilder::new("ðŸ† Niveau", format!("Niveau **{}**", level)).inline())
                 .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
                 .build();
 
@@ -136,7 +136,7 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
         None => {
             let embed = EmbedBuilder::new()
                 .title("Joueur introuvable")
-                .description("Ce membre n'est pas encore inscrit ou lié sur le site Paranoia.")
+                .description("Ce membre n'est pas encore inscrit ou liÃ© sur le site Paranoia.")
                 .color(COLOR_ERROR)
                 .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
                 .build();
@@ -160,3 +160,4 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
 
     Ok(())
 }
+

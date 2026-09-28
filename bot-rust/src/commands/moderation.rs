@@ -609,3 +609,103 @@ pub async fn handle_staff_appeal_decision(
 
     Ok(())
 }
+pub fn register_warn() -> twilight_model::application::command::Command {
+    CommandBuilder::new("warn", "Avertir un membre", twilight_model::application::command::CommandType::ChatInput)
+        .default_member_permissions(Permissions::MODERATE_MEMBERS)
+        .option(UserBuilder::new("membre", "Le membre a avertir").required(true))
+        .option(StringBuilder::new("raison", "Motif de l'avertissement").required(true))
+        .build()
+}
+
+pub fn register_warnings() -> twilight_model::application::command::Command {
+    CommandBuilder::new("warnings", "Voir les avertissements d'un membre", twilight_model::application::command::CommandType::ChatInput)
+        .default_member_permissions(Permissions::MODERATE_MEMBERS)
+        .option(UserBuilder::new("membre", "Le membre").required(true))
+        .build()
+}
+
+pub fn register_clear() -> twilight_model::application::command::Command {
+    CommandBuilder::new("clear", "Supprimer des messages", twilight_model::application::command::CommandType::ChatInput)
+        .default_member_permissions(Permissions::MANAGE_MESSAGES)
+        .option(twilight_util::builder::command::IntegerBuilder::new("nombre", "Nombre de messages (max 100)").required(true))
+        .build()
+}
+
+pub async fn run_warn(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) -> anyhow::Result<()> {
+    let target_id = if let Some(InteractionData::ApplicationCommand(cmd_data)) = &interaction.data {
+        if let Some(CommandOptionValue::User(u_id)) = cmd_data.options.iter().find(|o| o.name == "membre").map(|o| &o.value) {
+            *u_id
+        } else { return Ok(()); }
+    } else { return Ok(()); };
+
+    let reason = if let Some(InteractionData::ApplicationCommand(cmd_data)) = &interaction.data {
+        if let Some(CommandOptionValue::String(r)) = cmd_data.options.iter().find(|o| o.name == "raison").map(|o| &o.value) {
+            r.clone()
+        } else { String::new() }
+    } else { String::new() };
+
+    let guild_id = interaction.guild_id.unwrap().get().to_string();
+    let author_id = interaction.author_id().unwrap().get().to_string();
+
+    sqlx::query(r#"INSERT INTO "Warn" ("userId", "guildId", "reason", "authorId") VALUES (, , , )"#)
+        .bind(target_id.get().to_string())
+        .bind(&guild_id)
+        .bind(&reason)
+        .bind(&author_id)
+        .execute(&db).await?;
+
+    let embed = EmbedBuilder::new().title("⚠️ Avertissement").description(format!("<@{}> a été averti.\n**Raison:** {}", target_id, reason)).color(COLOR_ERROR).build();
+    let res = InteractionResponse { kind: InteractionResponseType::ChannelMessageWithSource, data: Some(InteractionResponseData { embeds: Some(vec![embed]), ..Default::default() }) };
+    http.interaction(interaction.application_id).create_response(interaction.id, &interaction.token, &res).await?;
+    Ok(())
+}
+
+pub async fn run_warnings(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) -> anyhow::Result<()> {
+    let target_id = if let Some(InteractionData::ApplicationCommand(cmd_data)) = &interaction.data {
+        if let Some(CommandOptionValue::User(u_id)) = cmd_data.options.iter().find(|o| o.name == "membre").map(|o| &o.value) {
+            *u_id
+        } else { return Ok(()); }
+    } else { return Ok(()); };
+
+    let guild_id = interaction.guild_id.unwrap().get().to_string();
+
+    let rows = sqlx::query(r#"SELECT reason, "authorId", "createdAt" FROM "Warn" WHERE "userId" =  AND "guildId" =  ORDER BY "createdAt" DESC LIMIT 10"#)
+        .bind(target_id.get().to_string())
+        .bind(&guild_id)
+        .fetch_all(&db).await?;
+
+    let mut desc = String::new();
+    for row in rows {
+        let r: String = row.try_get("reason").unwrap_or_default();
+        let a: String = row.try_get("authorId").unwrap_or_default();
+        desc.push_str(&format!("- **{}** (par <@{}>)\n", r, a));
+    }
+    if desc.is_empty() { desc = "Aucun avertissement.".to_string(); }
+
+    let embed = EmbedBuilder::new().title(format!("Avertissements de <@{}>", target_id)).description(desc).color(COLOR_ERROR).build();
+    let res = InteractionResponse { kind: InteractionResponseType::ChannelMessageWithSource, data: Some(InteractionResponseData { embeds: Some(vec![embed]), ..Default::default() }) };
+    http.interaction(interaction.application_id).create_response(interaction.id, &interaction.token, &res).await?;
+    Ok(())
+}
+
+pub async fn run_clear(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
+    let mut count = 0;
+    if let Some(InteractionData::ApplicationCommand(cmd_data)) = &interaction.data {
+        if let Some(CommandOptionValue::Integer(c)) = cmd_data.options.iter().find(|o| o.name == "nombre").map(|o| &o.value) {
+            count = *c;
+        }
+    }
+    if count <= 0 || count > 100 { return Ok(()); }
+    
+    if let Some(ch_id) = interaction.channel_id {
+        let messages = http.channel_messages(ch_id).limit(count as u16).await?.models().await?;
+        let msg_ids: Vec<_> = messages.iter().map(|m| m.id).collect();
+        if !msg_ids.is_empty() {
+            let _ = http.delete_messages(ch_id, &msg_ids).await;
+        }
+    }
+    let embed = EmbedBuilder::new().description(format!("✅ {} messages supprimés.", count)).color(COLOR_SUCCESS).build();
+    let res = InteractionResponse { kind: InteractionResponseType::ChannelMessageWithSource, data: Some(InteractionResponseData { embeds: Some(vec![embed]), flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL), ..Default::default() }) };
+    http.interaction(interaction.application_id).create_response(interaction.id, &interaction.token, &res).await?;
+    Ok(())
+}

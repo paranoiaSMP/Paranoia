@@ -19,12 +19,16 @@ import {
   Package,
   ExternalLink,
   Sparkles,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import DiscordEmbedBuilder from "./components/DiscordEmbedBuilder";
+import BotModulesConfig from "./components/BotModulesConfig";
+import BotSanctions from "./components/BotSanctions";
+import WelcomeEditor from "./components/WelcomeEditor";
 
 export default function AdminBotPage() {
-  const [activeTab, setActiveTab] = useState<"builder" | "overview" | "tiktok" | "appeals" | "give">("builder");
+  const [activeTab, setActiveTab] = useState<"modules" | "builder" | "overview" | "tiktok" | "appeals" | "give">("modules");
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -206,6 +210,19 @@ export default function AdminBotPage() {
       {/* Navigation Tabs */}
       <div className="flex flex-wrap gap-2 p-1.5 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-2xl">
         <button
+          onClick={() => setActiveTab("modules")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all",
+            activeTab === "modules"
+              ? "bg-fuchsia-600 text-white shadow-lg shadow-fuchsia-600/30"
+              : "text-[var(--color-text-secondary)] hover:text-white"
+          )}
+        >
+          <Settings className="w-4 h-4" />
+          Modules
+        </button>
+
+        <button
           onClick={() => setActiveTab("overview")}
           className={cn(
             "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all",
@@ -270,6 +287,9 @@ export default function AdminBotPage() {
           Récompenses Joueurs
         </button>
       </div>
+
+      {/* TAB 0: MODULES */}
+      {activeTab === "modules" && <BotModulesConfig />}
 
       {/* TAB 1: OVERVIEW */}
       {activeTab === "overview" && (
@@ -661,3 +681,5 @@ export default function AdminBotPage() {
     </div>
   );
 }
+
+

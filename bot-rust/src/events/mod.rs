@@ -1,4 +1,4 @@
-use sqlx::PgPool;
+﻿use sqlx::PgPool;
 use std::sync::Arc;
 use twilight_gateway::Event;
 use twilight_http::{request::channel::reaction::RequestReactionType, Client as HttpClient};
@@ -8,6 +8,11 @@ use twilight_model::{
 };
 
 use crate::config::Config;
+
+pub mod audit;
+pub mod automod;
+pub mod temp_voice;
+pub mod xp;
 
 pub async fn handle_event(
     event: Event,
@@ -19,6 +24,14 @@ pub async fn handle_event(
         Event::MessageCreate(msg) => {
             if msg.author.bot {
                 return;
+            }
+
+            // XP System
+            xp::give_xp(&msg, &db).await;
+
+            // 1. Auto-Mod Check
+            if automod::check_message(&msg, &http, &db, Some(config.ticket_log_channel_id)).await {
+                return; // Stop if message was deleted
             }
 
             // If user typed !close in a ticket channel
@@ -51,7 +64,7 @@ pub async fn handle_event(
                 .await;
 
             if sync_res.is_ok() {
-                let reaction = RequestReactionType::Unicode { name: "🌐" };
+                let reaction = RequestReactionType::Unicode { name: "ðŸŒ" };
                 let _ = http.create_reaction(msg.channel_id, msg.id, &reaction).await;
             }
         }
@@ -63,6 +76,9 @@ pub async fn handle_event(
                     let cmd_name = cmd.name.clone();
                     let res = match cmd_name.as_str() {
                         "cartes" => crate::commands::cartes::run(inter, http, db).await,
+                        "conference" => crate::commands::conference::run_conference(inter, http).await,
+                        "daily" => crate::commands::economy::run_daily(inter, http, db).await,
+                        "pack" => crate::commands::tcg::run_pack(inter, http, db).await,
                         "pc" => crate::commands::pc::run(inter, http, db).await,
                         "flex" => crate::commands::flex::run(inter, http, db).await,
                         "profile" => crate::commands::profile::run(inter, http, db).await,
@@ -75,6 +91,9 @@ pub async fn handle_event(
                         "kick" => crate::commands::moderation::run_sanction(inter, http, db, "kick").await,
                         "promote" => crate::commands::moderation::run_promote(inter, http).await,
                         "demote" => crate::commands::moderation::run_demote(inter, http).await,
+                        "warn" => crate::commands::moderation::run_warn(inter, http, db).await,
+                        "warnings" => crate::commands::moderation::run_warnings(inter, http, db).await,
+                        "clear" => crate::commands::moderation::run_clear(inter, http).await,
                         "setup_tickets" => crate::commands::tickets::run(inter, http).await,
                         "tiktok" => crate::commands::tiktok::run(inter, http, db).await,
                         _ => Ok(()),
@@ -104,6 +123,12 @@ pub async fn handle_event(
                         crate::commands::moderation::handle_appeal_button(inter, http, sanction_id).await
                     } else if let Some(sanction_id) = cid.strip_prefix("appeal_staff_accept:") {
                         crate::commands::moderation::handle_staff_appeal_decision(inter, http, db, "accept", sanction_id).await
+                    } else if cid.starts_with("hand_raise:") {
+                        crate::commands::conference::handle_hand_raise(inter, http, &cid).await
+                    } else if cid.starts_with("hand_accept:") {
+                        crate::commands::conference::handle_hand_accept(inter, http, &cid).await
+                    } else if cid.starts_with("hand_reject:") {
+                        crate::commands::conference::handle_hand_reject(inter, http, &cid).await
                     } else if let Some(sanction_id) = cid.strip_prefix("appeal_staff_reject:") {
                         crate::commands::moderation::handle_staff_appeal_decision(inter, http, db, "reject", sanction_id).await
                     } else if let Some(cat) = cid.strip_prefix("ticket_open:") {
@@ -162,7 +187,23 @@ pub async fn handle_event(
             }
         }
 
+        Event::MessageUpdate(ev) => {
+            audit::handle_message_update(ev, &http, &db, config.ticket_log_channel_id).await;
+        }
+        Event::MessageDelete(ev) => {
+            audit::handle_message_delete(ev, &http, &db, config.ticket_log_channel_id).await;
+        }
+        Event::MemberAdd(ev) => {
+            audit::handle_member_add(ev, &http, &db, config.ticket_log_channel_id).await;
+        }
+        Event::MemberRemove(ev) => {
+            audit::handle_member_remove(ev, &http, &db, config.ticket_log_channel_id).await;
+        }
+
         Event::VoiceStateUpdate(vsu) => {
+            temp_voice::handle_voice_state(&vsu, &http, &db).await;
+            audit::handle_voice_state_update(vsu.clone(), &http, &db, config.ticket_log_channel_id).await;
+
             if let Some(guild_id) = vsu.guild_id {
                 let user_id = vsu.user_id;
 
@@ -215,9 +256,15 @@ pub async fn handle_event(
         }
 
         Event::Ready(r) => {
-            tracing::info!("Bot prêt connecté sur {} guilds !", r.guilds.len());
+            tracing::info!("Bot prÃªt connectÃ© sur {} guilds !", r.guilds.len());
         }
 
         _ => {}
     }
 }
+
+
+
+
+
+
