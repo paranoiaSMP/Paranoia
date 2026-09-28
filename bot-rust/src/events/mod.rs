@@ -1,4 +1,4 @@
-﻿use sqlx::PgPool;
+use sqlx::PgPool;
 use std::sync::Arc;
 use twilight_gateway::Event;
 use twilight_http::{request::channel::reaction::RequestReactionType, Client as HttpClient};
@@ -129,6 +129,8 @@ pub async fn handle_event(
                         crate::commands::conference::handle_hand_accept(inter, http, &cid).await
                     } else if cid.starts_with("hand_reject:") {
                         crate::commands::conference::handle_hand_reject(inter, http, &cid).await
+                    } else if cid.starts_with("hand_revoke:") {
+                        crate::commands::conference::handle_hand_revoke(inter, http, &cid).await
                     } else if let Some(sanction_id) = cid.strip_prefix("appeal_staff_reject:") {
                         crate::commands::moderation::handle_staff_appeal_decision(inter, http, db, "reject", sanction_id).await
                     } else if let Some(cat) = cid.strip_prefix("ticket_open:") {
