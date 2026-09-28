@@ -1,20 +1,20 @@
 ﻿use std::sync::Arc;
 use twilight_http::Client as HttpClient;
 use twilight_model::{
-    application::interaction::{Interaction, application_command::CommandDataOption},
+    application::interaction::{Interaction, },
     channel::{ChannelType, permission_overwrite::{PermissionOverwrite, PermissionOverwriteType}},
     guild::Permissions,
     http::interaction::{InteractionResponse, InteractionResponseType, InteractionResponseData},
-    id::{Id, marker::{GuildMarker, UserMarker, ChannelMarker}},
+    id::{Id, marker::{UserMarker, ChannelMarker}},
     channel::message::{
         component::{ActionRow, Button, ButtonStyle, Component},
     },
 };
 use twilight_util::builder::{
     command::CommandBuilder,
-    embed::{EmbedBuilder, EmbedFooterBuilder},
+    embed::EmbedBuilder,
 };
-use crate::utils::{COLOR_SUCCESS, COLOR_ERROR, COLOR_PURPLE, FOOTER_TEXT};
+use crate::utils::{COLOR_SUCCESS, COLOR_ERROR, COLOR_PURPLE};
 
 pub fn register_conference() -> twilight_model::application::command::Command {
     CommandBuilder::new("conference", "Gérer une conférence (alternative aux Stages)", twilight_model::application::command::CommandType::ChatInput)
@@ -48,7 +48,7 @@ pub async fn run_conference(interaction: Interaction, http: Arc<HttpClient>) -> 
             allow: Permissions::empty(),
             deny: Permissions::SPEAK,
         };
-        let allow_speak_mod = PermissionOverwrite {
+        let _allow_speak_mod = PermissionOverwrite {
             id: Id::new(author_id.get()),
             kind: PermissionOverwriteType::Member,
             allow: Permissions::SPEAK | Permissions::MANAGE_CHANNELS,
@@ -56,7 +56,7 @@ pub async fn run_conference(interaction: Interaction, http: Arc<HttpClient>) -> 
         };
 
         // Create Public sas
-        let public_sas = http.create_guild_channel(guild_id, "🎧 Sas d'écoute")
+        let _public_sas = http.create_guild_channel(guild_id, "🎧 Sas d'écoute")
             .kind(ChannelType::GuildVoice)
             .parent_id(category.id)
             .permission_overwrites(&[deny_speak.clone()])
@@ -211,7 +211,7 @@ pub async fn handle_hand_accept(interaction: Interaction, http: Arc<HttpClient>,
     let guild_id = interaction.guild_id.unwrap();
 
     // Give connect/speak perms on scene
-    let allow_speak = PermissionOverwrite {
+    let _allow_speak = PermissionOverwrite {
         id: Id::new(target_id.get()),
         kind: PermissionOverwriteType::Member,
         allow: Permissions::CONNECT | Permissions::SPEAK,
@@ -252,3 +252,4 @@ pub async fn handle_hand_reject(interaction: Interaction, http: Arc<HttpClient>,
     http.interaction(interaction.application_id).create_response(interaction.id, &interaction.token, &res).await?;
     Ok(())
 }
+
