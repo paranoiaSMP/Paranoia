@@ -29,7 +29,7 @@ export default function WelcomeEditor() {
       body: JSON.stringify(data)
     });
     setSaving(false);
-    alert("Configuration sauvegardée !");
+    alert("Configuration sauvegardÃ©e !");
   };
 
   if (!loaded) return null;
@@ -37,7 +37,7 @@ export default function WelcomeEditor() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-1">
-        <h3 className="text-xl font-bold text-white tracking-tight">Éditeur de Bienvenue</h3>
+        <h3 className="text-xl font-bold text-white tracking-tight">Ã‰diteur de Bienvenue</h3>
         <p className="text-sm text-[var(--color-text-secondary)]">Personnalisez l'embed de bienvenue automatique.</p>
       </div>
 

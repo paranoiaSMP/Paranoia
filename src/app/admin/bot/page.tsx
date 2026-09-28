@@ -86,14 +86,14 @@ export default function AdminBotPage() {
       });
 
       if (res.ok) {
-        showFeedback("success", `@${tiktokForm.username} ajouté à la surveillance !`);
+        showFeedback("success", `@${tiktokForm.username} ajoutÃ© Ã  la surveillance !`);
         setTiktokForm({ username: "", channelId: "", roleId: "" });
         loadData();
       } else {
         showFeedback("error", "Impossible d'ajouter ce compte");
       }
     } catch {
-      showFeedback("error", "Erreur réseau");
+      showFeedback("error", "Erreur rÃ©seau");
     } finally {
       setActionLoading(false);
     }
@@ -105,7 +105,7 @@ export default function AdminBotPage() {
         method: "DELETE",
       });
       if (res.ok) {
-        showFeedback("success", `@${username} retiré.`);
+        showFeedback("success", `@${username} retirÃ©.`);
         loadData();
       }
     } catch {
@@ -122,13 +122,13 @@ export default function AdminBotPage() {
       });
 
       if (res.ok) {
-        showFeedback("success", `Appel ${status === "accepted" ? "accepté" : "rejeté"} !`);
+        showFeedback("success", `Appel ${status === "accepted" ? "acceptÃ©" : "rejetÃ©"} !`);
         loadData();
       } else {
-        showFeedback("error", "Erreur lors de la mise à jour");
+        showFeedback("error", "Erreur lors de la mise Ã  jour");
       }
     } catch {
-      showFeedback("error", "Erreur réseau");
+      showFeedback("error", "Erreur rÃ©seau");
     }
   }
 
@@ -146,14 +146,14 @@ export default function AdminBotPage() {
 
       if (res.ok) {
         const json = await res.json();
-        showFeedback("success", json.message || "Récompense attribuée !");
+        showFeedback("success", json.message || "RÃ©compense attribuÃ©e !");
         setGiveForm({ ...giveForm, identifier: "", amount: 100 });
       } else {
         const err = await res.text();
         showFeedback("error", err || "Joueur introuvable ou erreur");
       }
     } catch {
-      showFeedback("error", "Erreur réseau");
+      showFeedback("error", "Erreur rÃ©seau");
     } finally {
       setActionLoading(false);
     }
@@ -177,7 +177,7 @@ export default function AdminBotPage() {
               </span>
             </div>
             <p className="text-[var(--color-text-secondary)] text-sm">
-              Supervision temps réel, surveillance TikTok, appels & modération Discord.
+              Supervision temps rÃ©el, surveillance TikTok, appels & modÃ©ration Discord.
             </p>
           </div>
         </div>
@@ -232,7 +232,7 @@ export default function AdminBotPage() {
           )}
         >
           <Activity className="w-4 h-4" />
-          Statut & Métriques
+          Statut & MÃ©triques
         </button>
 
         <button
@@ -245,7 +245,7 @@ export default function AdminBotPage() {
           )}
         >
           <Sparkles className="w-4 h-4" />
-          Créateur d&apos;Embeds V2
+          CrÃ©ateur d&apos;Embeds V2
         </button>
 
         <button
@@ -284,7 +284,7 @@ export default function AdminBotPage() {
           )}
         >
           <Gift className="w-4 h-4" />
-          Récompenses Joueurs
+          RÃ©compenses Joueurs
         </button>
       </div>
 
@@ -307,12 +307,12 @@ export default function AdminBotPage() {
               <div>
                 <p className="text-xs font-semibold uppercase text-[var(--color-text-secondary)]">Passerelle Discord</p>
                 <p className="text-xl font-black text-white">
-                  {data?.status?.online ? "Connecté (OK)" : "Inaccessible"}
+                  {data?.status?.online ? "ConnectÃ© (OK)" : "Inaccessible"}
                 </p>
                 <p className="text-xs text-[var(--color-text-secondary)]">
                   {data?.status?.gateway?.url
                     ? "WSS Ready"
-                    : (data?.status?.error || "Vérifier le token")}
+                    : (data?.status?.error || "VÃ©rifier le token")}
                 </p>
               </div>
             </div>
@@ -335,7 +335,7 @@ export default function AdminBotPage() {
               <div>
                 <p className="text-xs font-semibold uppercase text-[var(--color-text-secondary)]">Appels en Attente</p>
                 <p className="text-xl font-black text-white">{data?.stats?.pendingAppeals ?? 0}</p>
-                <p className="text-xs text-[var(--color-text-secondary)]">À modérer</p>
+                <p className="text-xs text-[var(--color-text-secondary)]">Ã€ modÃ©rer</p>
               </div>
             </div>
 
@@ -349,7 +349,7 @@ export default function AdminBotPage() {
                   {data?.stats?.monitoredTiktoks ?? 0}
                   {data?.stats?.liveTiktoks > 0 && (
                     <span className="text-xs text-red-400 ml-2 font-bold animate-pulse">
-                      🔴 {data.stats.liveTiktoks} Live
+                      ðŸ”´ {data.stats.liveTiktoks} Live
                     </span>
                   )}
                 </p>
@@ -362,13 +362,13 @@ export default function AdminBotPage() {
           <div className="p-6 rounded-2xl bg-[var(--icon-bg)] border border-[var(--card-border)]">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <Bot className="w-5 h-5 text-fuchsia-400" />
-              Environnement & Spécifications Techniques
+              Environnement & SpÃ©cifications Techniques
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)]">
-                <p className="text-xs text-[var(--color-text-secondary)] uppercase font-semibold">Moteur Exécution</p>
+                <p className="text-xs text-[var(--color-text-secondary)] uppercase font-semibold">Moteur ExÃ©cution</p>
                 <p className="text-base font-bold text-white mt-1">Rust natif (tokio async)</p>
-                <p className="text-xs text-emerald-400 mt-1">Zéro fuite mémoire / Haute vélocité</p>
+                <p className="text-xs text-emerald-400 mt-1">ZÃ©ro fuite mÃ©moire / Haute vÃ©locitÃ©</p>
               </div>
               <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)]">
                 <p className="text-xs text-[var(--color-text-secondary)] uppercase font-semibold">Librairie Discord</p>
@@ -376,7 +376,7 @@ export default function AdminBotPage() {
                 <p className="text-xs text-fuchsia-400 mt-1">Gateway Shard + Cache In-Memory</p>
               </div>
               <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)]">
-                <p className="text-xs text-[var(--color-text-secondary)] uppercase font-semibold">Base de Données</p>
+                <p className="text-xs text-[var(--color-text-secondary)] uppercase font-semibold">Base de DonnÃ©es</p>
                 <p className="text-base font-bold text-white mt-1">PostgreSQL (sqlx pool)</p>
                 <p className="text-xs text-indigo-400 mt-1">Sanctions, TikTok & Appeals en DB</p>
               </div>
@@ -395,7 +395,7 @@ export default function AdminBotPage() {
           <div className="p-6 rounded-2xl bg-[var(--icon-bg)] border border-[var(--card-border)]">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <Plus className="w-5 h-5 text-fuchsia-400" />
-              Ajouter un créateur à surveiller
+              Ajouter un crÃ©ateur Ã  surveiller
             </h3>
 
             <form onSubmit={handleAddTiktok} className="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -429,7 +429,7 @@ export default function AdminBotPage() {
 
               <div>
                 <label className="block text-xs font-bold uppercase text-[var(--color-text-secondary)] mb-1">
-                  ID Rôle Notification (opt.)
+                  ID RÃ´le Notification (opt.)
                 </label>
                 <input
                   type="text"
@@ -455,10 +455,10 @@ export default function AdminBotPage() {
 
           {/* Creators List */}
           <div className="p-6 rounded-2xl bg-[var(--icon-bg)] border border-[var(--card-border)]">
-            <h3 className="text-lg font-bold text-white mb-4">Comptes actuellement surveillés</h3>
+            <h3 className="text-lg font-bold text-white mb-4">Comptes actuellement surveillÃ©s</h3>
 
             {data?.tiktokTargets?.length === 0 ? (
-              <p className="text-sm text-[var(--color-text-secondary)] italic">Aucun créateur dans la liste.</p>
+              <p className="text-sm text-[var(--color-text-secondary)] italic">Aucun crÃ©ateur dans la liste.</p>
             ) : (
               <div className="divide-y divide-[var(--card-border)]">
                 {data?.tiktokTargets?.map((t: any) => (
@@ -486,7 +486,7 @@ export default function AdminBotPage() {
                           Salon : <span className="font-mono text-fuchsia-400">{t.channel_id}</span>
                           {t.role_id && (
                             <>
-                              {" "}· Rôle notifié : <span className="font-mono text-indigo-400">{t.role_id}</span>
+                              {" "}Â· RÃ´le notifiÃ© : <span className="font-mono text-indigo-400">{t.role_id}</span>
                             </>
                           )}
                         </p>
@@ -531,7 +531,7 @@ export default function AdminBotPage() {
             </h3>
 
             {data?.appeals?.length === 0 ? (
-              <p className="text-sm text-[var(--color-text-secondary)] italic">Aucun appel enregistré.</p>
+              <p className="text-sm text-[var(--color-text-secondary)] italic">Aucun appel enregistrÃ©.</p>
             ) : (
               <div className="space-y-4">
                 {data?.appeals?.map((a: any) => (
@@ -542,7 +542,7 @@ export default function AdminBotPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--card-border)] pb-2">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-xs text-fuchsia-400">#{a.sanction_id}</span>
-                        <span className="font-bold text-white">Pseudo : {a.pseudo_mc || "Non renseigné"}</span>
+                        <span className="font-bold text-white">Pseudo : {a.pseudo_mc || "Non renseignÃ©"}</span>
                         {a.sanction_type && (
                           <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-red-500/10 text-red-400 border border-red-500/20">
                             {a.sanction_type}
@@ -560,7 +560,7 @@ export default function AdminBotPage() {
                             : "bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse"
                         )}
                       >
-                        {a.status === "pending" ? "En attente" : a.status === "accepted" ? "Accepté" : "Rejeté"}
+                        {a.status === "pending" ? "En attente" : a.status === "accepted" ? "AcceptÃ©" : "RejetÃ©"}
                       </span>
                     </div>
 
@@ -599,10 +599,10 @@ export default function AdminBotPage() {
         <div className="p-6 rounded-2xl bg-[var(--icon-bg)] border border-[var(--card-border)] max-w-xl">
           <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
             <Gift className="w-5 h-5 text-fuchsia-400" />
-            Attribuer des Récompenses
+            Attribuer des RÃ©compenses
           </h3>
           <p className="text-sm text-[var(--color-text-secondary)] mb-6">
-            Créditez instantanément des ParaCoins ou des Boîtes à un joueur (par pseudo Minecraft ou ID Discord).
+            CrÃ©ditez instantanÃ©ment des ParaCoins ou des BoÃ®tes Ã  un joueur (par pseudo Minecraft ou ID Discord).
           </p>
 
           <form onSubmit={handleGiveReward} className="space-y-4">
@@ -623,21 +623,21 @@ export default function AdminBotPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold uppercase text-[var(--color-text-secondary)] mb-1">
-                  Type de récompense
+                  Type de rÃ©compense
                 </label>
                 <select
                   value={giveForm.rewardType}
                   onChange={(e) => setGiveForm({ ...giveForm, rewardType: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] text-white text-sm focus:outline-none focus:border-fuchsia-500"
                 >
-                  <option value="coins">🪙 ParaCoins</option>
-                  <option value="box">📦 Boîte / Booster</option>
+                  <option value="coins">ðŸª™ ParaCoins</option>
+                  <option value="box">ðŸ“¦ BoÃ®te / Booster</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-bold uppercase text-[var(--color-text-secondary)] mb-1">
-                  Quantité
+                  QuantitÃ©
                 </label>
                 <input
                   type="number"
@@ -653,16 +653,16 @@ export default function AdminBotPage() {
             {giveForm.rewardType === "box" && (
               <div>
                 <label className="block text-xs font-bold uppercase text-[var(--color-text-secondary)] mb-1">
-                  Type de Boîte
+                  Type de BoÃ®te
                 </label>
                 <select
                   value={giveForm.boxType}
                   onChange={(e) => setGiveForm({ ...giveForm, boxType: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] text-white text-sm focus:outline-none focus:border-fuchsia-500"
                 >
-                  <option value="standard">Boîte Standard</option>
-                  <option value="premium">Boîte Premium</option>
-                  <option value="mythic">Boîte Mythique</option>
+                  <option value="standard">BoÃ®te Standard</option>
+                  <option value="premium">BoÃ®te Premium</option>
+                  <option value="mythic">BoÃ®te Mythique</option>
                 </select>
               </div>
             )}
@@ -673,7 +673,7 @@ export default function AdminBotPage() {
               className="w-full py-3 rounded-xl font-bold bg-fuchsia-600 hover:bg-fuchsia-500 text-white shadow-lg shadow-fuchsia-600/30 transition-all flex items-center justify-center gap-2"
             >
               <Gift className="w-4 h-4" />
-              {actionLoading ? "Attribution en cours..." : "Attribuer la récompense"}
+              {actionLoading ? "Attribution en cours..." : "Attribuer la rÃ©compense"}
             </button>
           </form>
         </div>

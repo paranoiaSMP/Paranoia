@@ -64,15 +64,15 @@ export default function BotModulesConfig() {
   }
 
   const modulesList = [
-    { key: "moduleTickets", title: "Système de Tickets", desc: "Support, candidatures, contact", icon: MessageSquare },
-    { key: "moduleWelcome", title: "Accueil & Captcha", desc: "Vérification des nouveaux membres", icon: Users },
-    { key: "moduleSecurity", title: "Sécurité Avancée", desc: "Anti-Raid, Anti-Spam", icon: Shield },
-    { key: "moduleAutoMod", title: "Auto-Modération", desc: "Filtres, mots interdits", icon: ShieldAlert },
+    { key: "moduleTickets", title: "SystÃ¨me de Tickets", desc: "Support, candidatures, contact", icon: MessageSquare },
+    { key: "moduleWelcome", title: "Accueil & Captcha", desc: "VÃ©rification des nouveaux membres", icon: Users },
+    { key: "moduleSecurity", title: "SÃ©curitÃ© AvancÃ©e", desc: "Anti-Raid, Anti-Spam", icon: Shield },
+    { key: "moduleAutoMod", title: "Auto-ModÃ©ration", desc: "Filtres, mots interdits", icon: ShieldAlert },
     { key: "moduleAuditLogs", title: "Logs & Traces", desc: "Suivi des actions du serveur", icon: FileText },
-    { key: "moduleTempVoice", title: "Vocaux Temporaires", desc: "Création automatique de salons", icon: Mic },
+    { key: "moduleTempVoice", title: "Vocaux Temporaires", desc: "CrÃ©ation automatique de salons", icon: Mic },
     { key: "moduleEconomy", title: "Economie", desc: "Monnaie virtuelle, boutique", icon: Coins },
-    { key: "moduleXp", title: "Système d'XP", desc: "Niveaux et rôles automatiques", icon: Layers },
-    { key: "moduleTcg", title: "Cartes (TCG)", desc: "Trading Card Game intégré", icon: Layers },
+    { key: "moduleXp", title: "SystÃ¨me d'XP", desc: "Niveaux et rÃ´les automatiques", icon: Layers },
+    { key: "moduleTcg", title: "Cartes (TCG)", desc: "Trading Card Game intÃ©grÃ©", icon: Layers },
   ] as const;
 
   return (
@@ -80,7 +80,7 @@ export default function BotModulesConfig() {
       <div className="flex flex-col gap-1">
         <h3 className="text-xl font-bold text-white tracking-tight">Modules du Bot</h3>
         <p className="text-sm text-[var(--color-text-secondary)]">
-          Activez ou désactivez les fonctionnalités principales du bot.
+          Activez ou dÃ©sactivez les fonctionnalitÃ©s principales du bot.
         </p>
       </div>
 
