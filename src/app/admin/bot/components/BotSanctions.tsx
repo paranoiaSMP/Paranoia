@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Trash2 } from "lucide-react";
@@ -36,7 +36,7 @@ export default function BotSanctions() {
   const handleDelete = async (id: string) => {
     if (!confirm("Supprimer cet avertissement ?")) return;
     try {
-      const res = await fetch(/api/admin/bot/warns?id= + id, { method: "DELETE" });
+      const res = await fetch("/api/admin/bot/warns?id=" + id, { method: "DELETE" });
       if (res.ok) {
         setWarns(warns.filter(w => w.id !== id));
       }
@@ -52,13 +52,13 @@ export default function BotSanctions() {
       <div className="flex flex-col gap-1">
         <h3 className="text-xl font-bold text-white tracking-tight">Registre des Avertissements</h3>
         <p className="text-sm text-[var(--color-text-secondary)]">
-          GÃ©rez les sanctions (/warn) appliquÃ©es sur le serveur Discord.
+          GÃƒÂ©rez les sanctions (/warn) appliquÃƒÂ©es sur le serveur Discord.
         </p>
       </div>
 
       {warns.length === 0 ? (
         <div className="p-4 bg-black/20 rounded-xl border border-[var(--card-border)] text-sm text-neutral-400">
-          Aucun avertissement enregistrÃ©.
+          Aucun avertissement enregistrÃƒÂ©.
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-[var(--card-border)]">
