@@ -63,7 +63,7 @@ services:
       - web
   bot:
     build:
-      context: ./bot-rust
+      context: ./bot-python
       dockerfile: Dockerfile
     container_name: paranoia_bot_rust
     restart: unless-stopped
@@ -72,3 +72,4 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
