@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Trash2 } from "lucide-react";
@@ -52,13 +52,13 @@ export default function BotSanctions() {
       <div className="flex flex-col gap-1">
         <h3 className="text-xl font-bold text-white tracking-tight">Registre des Avertissements</h3>
         <p className="text-sm text-[var(--color-text-secondary)]">
-          GÃƒÂ©rez les sanctions (/warn) appliquÃƒÂ©es sur le serveur Discord.
+          {"G\u00E9rez les sanctions (/warn) appliqu\u00E9es sur le serveur Discord."}
         </p>
       </div>
 
       {warns.length === 0 ? (
         <div className="p-4 bg-black/20 rounded-xl border border-[var(--card-border)] text-sm text-neutral-400">
-          Aucun avertissement enregistrÃƒÂ©.
+          {"Aucun avertissement enregistr\u00E9."}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-[var(--card-border)]">
@@ -80,7 +80,7 @@ export default function BotSanctions() {
                   <td className="p-3 text-neutral-400">{w.authorId}</td>
                   <td className="p-3 text-neutral-500">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</td>
                   <td className="p-3 text-right">
-                    <button 
+                    <button
                       onClick={() => handleDelete(w.id)}
                       className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
                     >

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
@@ -29,7 +29,7 @@ export default function WelcomeEditor() {
       body: JSON.stringify(data)
     });
     setSaving(false);
-    alert("Configuration sauvegardÃƒÂ©e !");
+    alert("Configuration sauvegardee !");
   };
 
   if (!loaded) return null;
@@ -37,8 +37,8 @@ export default function WelcomeEditor() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-1">
-        <h3 className="text-xl font-bold text-white tracking-tight">Ãƒâ€°diteur de Bienvenue</h3>
-        <p className="text-sm text-[var(--color-text-secondary)]">Personnalisez l'embed de bienvenue automatique.</p>
+        <h3 className="text-xl font-bold text-white tracking-tight">Editeur de Bienvenue</h3>
+        <p className="text-sm text-[var(--color-text-secondary)]">Personnalisez l&apos;embed de bienvenue automatique.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -48,11 +48,11 @@ export default function WelcomeEditor() {
             <input type="text" value={data.welcomeChannelId} onChange={e => setData({...data, welcomeChannelId: e.target.value})} className="w-full bg-black/40 border border-neutral-800 rounded-lg p-2 text-sm text-white" placeholder="ex: 1234567890" />
           </div>
           <div>
-            <label className="text-xs text-neutral-400 font-medium mb-1 block">Titre de l'embed</label>
+            <label className="text-xs text-neutral-400 font-medium mb-1 block">Titre de l&apos;embed</label>
             <input type="text" value={data.welcomeTitle} onChange={e => setData({...data, welcomeTitle: e.target.value})} className="w-full bg-black/40 border border-neutral-800 rounded-lg p-2 text-sm text-white" />
           </div>
           <div>
-            <label className="text-xs text-neutral-400 font-medium mb-1 block">Description (Markdown, variables: {'{user}'}, {'{server}'})</label>
+            <label className="text-xs text-neutral-400 font-medium mb-1 block">{"Description (Markdown, variables: {user}, {server})"}</label>
             <textarea value={data.welcomeDesc} onChange={e => setData({...data, welcomeDesc: e.target.value})} className="w-full bg-black/40 border border-neutral-800 rounded-lg p-2 text-sm text-white h-24" />
           </div>
           <div className="flex gap-4">
@@ -61,7 +61,7 @@ export default function WelcomeEditor() {
               <input type="color" value={data.welcomeColor} onChange={e => setData({...data, welcomeColor: e.target.value})} className="w-full h-10 rounded-lg cursor-pointer bg-black/40 border border-neutral-800 p-1" />
             </div>
             <div className="flex-[3]">
-              <label className="text-xs text-neutral-400 font-medium mb-1 block">URL de l'image (optionnel)</label>
+              <label className="text-xs text-neutral-400 font-medium mb-1 block">URL de l&apos;image (optionnel)</label>
               <input type="text" value={data.welcomeImage} onChange={e => setData({...data, welcomeImage: e.target.value})} className="w-full bg-black/40 border border-neutral-800 rounded-lg p-2 text-sm text-white" placeholder="https://..." />
             </div>
           </div>
