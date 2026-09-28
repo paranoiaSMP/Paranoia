@@ -3,9 +3,10 @@ use twilight_http::Client as HttpClient;
 use twilight_model::{
     application::interaction::Interaction,
     channel::{ChannelType, permission_overwrite::{PermissionOverwrite, PermissionOverwriteType}},
+    http::permission_overwrite::{PermissionOverwrite as HttpPermissionOverwrite, PermissionOverwriteType as HttpPermissionOverwriteType},
     guild::Permissions,
     http::interaction::{InteractionResponse, InteractionResponseType, InteractionResponseData},
-    id::{Id, marker::{UserMarker, ChannelMarker}},
+    id::{Id, marker::ChannelMarker},
     channel::message::{
         component::{ActionRow, Button, ButtonStyle, Component},
     },
@@ -188,11 +189,11 @@ pub async fn handle_hand_accept(interaction: Interaction, http: Arc<HttpClient>,
     let target_id: u64 = parts[1].parse().unwrap();
     let voice_id = Id::<ChannelMarker>::new(parts[2].parse().unwrap());
 
-    let _ = http.update_channel_permission(voice_id, &PermissionOverwrite {
+    let _ = http.update_channel_permission(voice_id, &HttpPermissionOverwrite {
         id: Id::new(target_id),
-        kind: PermissionOverwriteType::Member,
-        allow: Permissions::SPEAK,
-        deny: Permissions::empty(),
+        kind: HttpPermissionOverwriteType::Member,
+        allow: Some(Permissions::SPEAK),
+        deny: Some(Permissions::empty()),
     }).await;
 
     let res = InteractionResponse {
@@ -245,7 +246,7 @@ pub async fn handle_hand_revoke(interaction: Interaction, http: Arc<HttpClient>,
     let target_id: u64 = parts[1].parse().unwrap();
     let voice_id = Id::<ChannelMarker>::new(parts[2].parse().unwrap());
 
-    let _ = http.delete_channel_permission(voice_id, Id::new(target_id)).await;
+    let _ = http.delete_channel_permission(voice_id).member(Id::new(target_id)).await;
 
     let res = InteractionResponse {
         kind: InteractionResponseType::UpdateMessage,
