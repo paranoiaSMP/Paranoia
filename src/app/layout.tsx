@@ -65,7 +65,6 @@ export const metadata: Metadata = {
   },
 };
 
-import SplashScreen from "@/components/layout/SplashScreen";
 import { prisma } from "@/lib/db";
 import { SettingsProvider } from "@/components/providers/SettingsProvider";
 import { siteConfig } from "@/config/site";
@@ -131,11 +130,9 @@ export default async function RootLayout({
               },
             }}
           />
-          <SplashScreen>
-            <NavigationManager>
-              {children}
-            </NavigationManager>
-          </SplashScreen>
+          <NavigationManager>
+            {children}
+          </NavigationManager>
           </Providers>
         </SettingsProvider>
       </body>
