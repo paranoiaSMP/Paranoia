@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signIn } from "next-auth/react";
-import { Sparkles, Dice5, Check, Plus, LogIn } from "lucide-react";
+import { Sparkles, Dice5, Check, Plus, LogIn, ChevronDown } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 export default function HeroSection() {
@@ -11,41 +11,50 @@ export default function HeroSection() {
   const isLoggedIn = status === "authenticated";
 
   return (
-    <section className="relative w-full overflow-hidden pt-12 pb-16">
-      {/* Halo d'ambiance 100% pleine largeur */}
+    <section className="relative w-full min-h-[calc(100vh-4rem)] flex flex-col justify-between items-center text-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12 overflow-hidden">
+      {/* Halo d'ambiance 100% pleine largeur et hauteur */}
       <div 
-        className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(157,13,242,0.18),transparent_70%)]" 
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_35%,rgba(157,13,242,0.18),transparent_75%)]" 
         aria-hidden="true" 
       />
 
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Titre & Sous-titre direct sans badge superflu */}
-        <h1 className="font-outfit text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase mb-4 text-balance">
-        Paranoia <span className="text-[#b366ff]">Studio</span>
-      </h1>
+      {/* Grille d'arrière-plan discrète */}
+      <div 
+        className="pointer-events-none absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:4rem_4rem]" 
+        aria-hidden="true" 
+      />
 
-      <p className="text-base sm:text-lg text-zinc-400 max-w-xl mx-auto mb-10 leading-relaxed font-normal text-balance">
-        Ouvrez des boosters de cartes exclusives et jouez avec vos jetons dans notre salle de jeux en temps réel.
-      </p>
+      {/* Spacer pour équilibre visuel */}
+      <div className="w-full shrink-0 h-2" aria-hidden="true" />
 
-      {/* Deux boutons d'action majeurs (CTA) avec palette unifiée */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
-        <Link
-          href="/cards"
-          className="w-full sm:w-auto min-h-[48px] px-7 py-3 rounded-xl bg-[#9d0df2] hover:bg-[#8508cf] text-white font-outfit font-bold text-sm uppercase tracking-wider transition-colors flex items-center justify-center gap-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-        >
-          <Sparkles className="w-4 h-4" />
-          <span>Ouvrir des Boosters</span>
-        </Link>
+      <div className="relative w-full max-w-4xl mx-auto my-auto z-10 flex flex-col items-center">
+        {/* Titre 100% percutant */}
+        <h1 className="font-outfit text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-white tracking-tight uppercase mb-4 text-balance">
+          Paranoia <span className="text-[#b366ff]">Studio</span>
+        </h1>
 
-        <Link
-          href="/jeux"
-          className="w-full sm:w-auto min-h-[48px] px-7 py-3 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800 text-zinc-200 font-outfit font-bold text-sm tracking-wider transition-colors flex items-center justify-center gap-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-        >
-          <Dice5 className="w-4 h-4 text-purple-400" />
-          <span>Salle des Jeux</span>
-        </Link>
-      </div>
+        <p className="text-base sm:text-xl md:text-2xl text-zinc-400 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-normal text-balance">
+          Ouvrez des boosters de cartes exclusives et jouez avec vos jetons dans notre salle de jeux en temps réel.
+        </p>
+
+        {/* Deux boutons d'action majeurs (CTA) avec palette unifiée */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto mb-10 sm:mb-12">
+          <Link
+            href="/cards"
+            className="w-full sm:w-auto min-h-[50px] px-8 py-3.5 rounded-xl bg-[#9d0df2] hover:bg-[#8508cf] text-white font-outfit font-bold text-sm uppercase tracking-wider transition-colors flex items-center justify-center gap-2.5 shadow-lg shadow-purple-900/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Ouvrir des Boosters</span>
+          </Link>
+
+          <Link
+            href="/jeux"
+            className="w-full sm:w-auto min-h-[50px] px-8 py-3.5 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800 text-zinc-200 font-outfit font-bold text-sm tracking-wider transition-colors flex items-center justify-center gap-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+          >
+            <Dice5 className="w-4 h-4 text-purple-400" />
+            <span>Salle des Jeux</span>
+          </Link>
+        </div>
 
       {/* HUD de profil sobre et unifié */}
       <div className="max-w-xl mx-auto rounded-2xl border border-zinc-800/80 bg-zinc-950/80 p-4 sm:p-5">
@@ -125,6 +134,12 @@ export default function HeroSection() {
           </div>
         )}
       </div>
+      </div>
+
+      {/* Indicateur de défilement vers le bas */}
+      <div className="relative pt-4 pb-2 z-10 flex flex-col items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors animate-bounce">
+        <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-600 mb-0.5">Explorer</span>
+        <ChevronDown className="w-4 h-4 text-zinc-500" />
       </div>
     </section>
   );

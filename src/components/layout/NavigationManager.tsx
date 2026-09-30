@@ -8,7 +8,7 @@ export default function NavigationManager({ children }: { children: React.ReactN
   return (
     <>
       <Navbar />
-      <main className="flex-grow pt-20 pb-12">
+      <main className="flex-grow pt-16 pb-12">
         {children}
       </main>
       <Footer />
