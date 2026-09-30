@@ -45,6 +45,17 @@ export default function PackOpenerClient({
   const [boosterStep, setBoosterStep] = useState<"idle" | "fetching" | "waiting_click" | "charging" | "exploding">("idle");
   const fetchedCardsRef = useRef<TradingCard[]>([]);
 
+  const [openingGlow, setOpeningGlow] = useState<string | null>(null);
+  const [forceFlipAll, setForceFlipAll] = useState(false);
+  const [showRatesModal, setShowRatesModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<"opener" | "collection" | "catalogue">("opener");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [rarityFilter, setRarityFilter] = useState("ALL");
+  const [filterEdition, setFilterEdition] = useState("ALL");
+  const [filterEffect, setFilterEffect] = useState("ALL");
+  const [selectedCatalogueEdition, setSelectedCatalogueEdition] = useState<string>("Toutes");
+  const router = useRouter();
+
   useEffect(() => {
     if (selectedCard || isOpening || showReveal) {
       document.body.style.overflow = "hidden";
@@ -67,17 +78,6 @@ export default function PackOpenerClient({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [selectedCard, isOpening, showReveal, showRatesModal]);
-
-  const [openingGlow, setOpeningGlow] = useState<string | null>(null);
-  const [forceFlipAll, setForceFlipAll] = useState(false);
-  const [showRatesModal, setShowRatesModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<"opener" | "collection" | "catalogue">("opener");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [rarityFilter, setRarityFilter] = useState("ALL");
-  const [filterEdition, setFilterEdition] = useState("ALL");
-  const [filterEffect, setFilterEffect] = useState("ALL");
-  const [selectedCatalogueEdition, setSelectedCatalogueEdition] = useState<string>("Toutes");
-  const router = useRouter();
 
   const buyBooster = async (type: string, price: number) => {
     if (!isLoggedIn) {

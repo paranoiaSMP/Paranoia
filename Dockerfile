@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json* pnpm-lock.yaml* ./
 COPY prisma ./prisma
-RUN npm ci --legacy-peer-deps
+RUN if [ -f package-lock.json ]; then npm ci --legacy-peer-deps; else npm install --legacy-peer-deps; fi
 
 FROM base AS builder
 WORKDIR /app
