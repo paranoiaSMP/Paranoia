@@ -1,40 +1,36 @@
 import Link from "next/link";
-import { Bomb, TrendingUp, Disc, Layers, ChevronRight, Dice5 } from "lucide-react";
+import { Bomb, TrendingUp, Disc, Layers, ChevronRight } from "lucide-react";
 
 const GAMES_LIST = [
   {
     id: "mines",
-    title: "Démineur (Mines 5x5)",
-    tag: "Grille 5x5 · Multiplicateur progressif",
-    description: "Révélez un maximum de diamants sans tomber sur une mine. Cashout disponible à tout moment.",
-    badgeColor: "text-amber-400 bg-amber-500/10 border-amber-500/30",
+    title: "Démineur 5x5",
+    tag: "Multiplicateur progressif",
+    description: "Trouvez un maximum d'étoiles sans toucher de mine. Cashout possible à tout moment.",
     icon: Bomb,
     href: "/jeux/mines",
   },
   {
     id: "crash",
     title: "Crash Multiplier",
-    tag: "Courbe Live · Temps réel SSE",
-    description: "La courbe s'envole en direct vers les sommets. Encaissez vos gains avant l'explosion.",
-    badgeColor: "text-indigo-400 bg-indigo-500/10 border-indigo-500/30",
+    tag: "Courbe en direct",
+    description: "La courbe s'élève en continu. Encaissez avant l'interruption pour multiplier votre mise.",
     icon: TrendingUp,
     href: "/jeux/crash",
   },
   {
     id: "roulette",
     title: "Roulette 14x",
-    tag: "Rouge x2 · Noir x2 · Vert x14",
-    description: "Misez sur votre couleur préférée et observez le ruban défiler à chaque tour.",
-    badgeColor: "text-rose-400 bg-rose-500/10 border-rose-500/30",
+    tag: "Rouge / Noir / Vert",
+    description: "Choisissez votre camp et observez le ruban horizontal se synchroniser à chaque rotation.",
     icon: Disc,
     href: "/jeux/roulette",
   },
   {
     id: "blackjack",
     title: "Blackjack 21",
-    tag: "Table classique · Versus Croupier",
-    description: "Tirez, doublez ou assurez vos cartes. Rapprochez-vous de 21 sans jamais le dépasser.",
-    badgeColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
+    tag: "Versus Croupier",
+    description: "Tirez, doublez ou restez pour battre la main du croupier selon les règles classiques.",
     icon: Layers,
     href: "/jeux/blackjack",
   },
@@ -42,29 +38,24 @@ const GAMES_LIST = [
 
 export default function GamesPreviewSection() {
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-white/10 mb-8">
+    <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+      <div className="flex items-end justify-between gap-4 pb-3 border-b border-zinc-800 mb-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-mono font-bold mb-3">
-            <Dice5 className="w-3.5 h-3.5" />
-            4 Mini-Jeux Disponibles
-          </div>
-          <h2 className="font-outfit text-2xl sm:text-4xl font-black text-white uppercase tracking-tight">
-            La Salle des Jeux
+          <h2 className="font-outfit text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+            Salle des Jeux
           </h2>
         </div>
 
         <Link
           href="/jeux"
-          className="text-sm font-outfit font-black text-purple-400 hover:text-purple-300 flex items-center gap-1.5 transition-colors shrink-0"
+          className="text-xs font-mono font-bold text-zinc-400 hover:text-white flex items-center gap-1 transition-colors shrink-0"
         >
-          <span>Voir tous les jeux</span>
-          <ChevronRight className="w-4 h-4" />
+          <span>Tous les jeux</span>
+          <ChevronRight className="w-3.5 h-3.5 text-purple-400" />
         </Link>
       </div>
 
-      {/* Grille des 4 jeux */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {GAMES_LIST.map((game) => {
           const Icon = game.icon;
 
@@ -72,32 +63,30 @@ export default function GamesPreviewSection() {
             <Link
               key={game.id}
               href={game.href}
-              className="group rounded-3xl border border-white/10 bg-[#12111a] hover:bg-[#161522] hover:border-purple-500/40 p-6 sm:p-8 transition-all duration-150 flex flex-col justify-between focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+              className="group rounded-2xl border border-zinc-800/80 bg-zinc-950/60 hover:border-zinc-700 hover:bg-zinc-900/40 p-5 transition-all flex flex-col justify-between focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
             >
               <div>
-                <div className="flex items-center justify-between gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-purple-400 group-hover:scale-105 group-hover:bg-purple-600/20 group-hover:border-purple-500/40 transition-all">
-                    <Icon className="w-6 h-6" />
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300 group-hover:text-purple-400 group-hover:border-zinc-700 transition-colors">
+                    <Icon className="w-4 h-4" />
                   </div>
-                  <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${game.badgeColor}`}>
+                  <span className="text-[11px] font-mono text-zinc-500">
                     {game.tag}
                   </span>
                 </div>
 
-                <h3 className="font-outfit text-xl font-black text-white mb-2 group-hover:text-purple-300 transition-colors">
+                <h3 className="font-outfit font-bold text-white text-base mb-1.5 group-hover:text-purple-300 transition-colors">
                   {game.title}
                 </h3>
 
-                <p className="text-sm text-slate-400 leading-relaxed font-medium mb-6">
+                <p className="text-xs text-zinc-400 leading-relaxed mb-4 font-normal">
                   {game.description}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-mono font-bold text-slate-400 group-hover:text-white transition-colors">
-                <span>Jouer avec vos PARA Coins</span>
-                <span className="flex items-center gap-1 text-purple-400 group-hover:translate-x-1 transition-transform">
-                  Entrer dans la salle <ChevronRight className="w-4 h-4" />
-                </span>
+              <div className="pt-3 border-t border-zinc-900 flex items-center justify-between text-xs font-mono text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                <span>Jouer avec des PARA Coins</span>
+                <ChevronRight className="w-3.5 h-3.5 text-purple-400 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </Link>
           );
