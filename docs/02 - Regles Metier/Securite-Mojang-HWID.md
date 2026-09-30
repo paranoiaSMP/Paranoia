@@ -5,8 +5,18 @@ La sécurité du serveur Paranoia repose sur une synchronisation tripartite : **
 ---
 
 ## 1. Processus de Liaison Mojang
+ 
+### 1.1 Mode Actif : Liaison Directe Web & API Mojang (100% Autonome)
+Puisqu'aucun serveur de jeu Minecraft n'est requis pour faire fonctionner la plateforme web, les boosters TCG et les mini-jeux, la liaison de compte s'effectue directement via l'API officielle Mojang :
+1. Le joueur renseigne son pseudo Minecraft sur le formulaire `/setup`.
+2. L'API Next.js (`POST /api/user/setup`) contacte `https://api.mojang.com/users/profiles/minecraft/{username}`.
+3. Mojang renvoie l'UUID officiel et la casse exacte du joueur.
+4. Le système enregistre l'UUID au format standard avec tirets (`8-4-4-4-12`), crée le profil `Player` en base de données PostgreSQL et passe `isMcVerified` à `true`.
+5. Le skin est automatiquement résolu via le CDN officiel de textures Minecraft (`vzge.me` / session server).
+6. **Résultat : Zéro dépendance à un serveur Minecraft actif.**
 
-Pour prouver que le joueur connecté sur le site est bien le propriétaire de son compte Minecraft :
+### 1.2 Mode Futur : Vérification In-Game via Plugin (Optionnel)
+Lorsque le serveur SMP sera officiellement ouvert au public, un contrôle supplémentaire optionnel pourra être activé :
 
 ```mermaid
 sequenceDiagram
@@ -17,13 +27,13 @@ sequenceDiagram
     actor MC as Joueur en jeu (Minecraft)
     participant Server as Serveur Minecraft (Paper/Spigot)
 
-    Player->>Web: Clic sur "Lier mon compte Minecraft"
+    Player->>Web: Clic sur "Vérifier en jeu"
     Web->>Web: Génération d'un code alphanumérique sécurisé (ex: "PARA-8492")
     Web->>DB: Sauvegarde du mcVerificationCode sur l'utilisateur
     Web-->>Player: Affiche la consigne : Taper "/verify PARA-8492" en jeu
     MC->>Server: Exécute "/verify PARA-8492"
     Server->>Web: Webhook API POST /api/user/verify-link { uuid, username, code }
-    Web->>DB: Validation du code, passage de isMcVerified à true, stockage uuid & minecraftName
+    Web->>DB: Validation du code, passage de isMcVerified à true
     Web-->>Server: 200 OK (Compte validé)
     Server-->>MC: Message de confirmation en jeu vert fluo !
 ```

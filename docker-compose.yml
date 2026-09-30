@@ -1,0 +1,63 @@
+volumes:
+  paranoia_pgdata:
+  caddy_data:
+  caddy_config:
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: paranoia_web
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./public/uploads:/app/public/uploads
+      - ./data:/app/data
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: paranoia_db
+    restart: unless-stopped
+    ports:
+      - "8543:5432"
+    env_file:
+      - .env
+    volumes:
+      - paranoia_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-paranoia} -d $${POSTGRES_DB:-paranoia_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db-migrator:
+    image: node:22-alpine
+    container_name: paranoia_migrator
+    volumes:
+      - ./:/app
+    working_dir: /app
+    env_file:
+      - .env
+    command: sh -c "npm install && npx prisma db push"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: paranoia_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web

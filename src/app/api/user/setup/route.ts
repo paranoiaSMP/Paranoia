@@ -1,0 +1,74 @@
+import { prisma } from "@/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { NextResponse } from "next/server";
+
+export async function POST(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return new NextResponse("Non autorisé", { status: 401 });
+    }
+
+    const body = await req.json();
+    const { minecraftName } = body;
+
+    if (!minecraftName || minecraftName.length < 3) {
+      return new NextResponse("Pseudo invalide", { status: 400 });
+    }
+
+    const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${minecraftName}`);
+    if (!mojangRes.ok) {
+      return new NextResponse("Pseudo Minecraft introuvable", { status: 404 });
+    }
+
+    const mojangData = await mojangRes.json();
+    let uuid = mojangData.id;
+
+    if (uuid && uuid.length === 32) {
+      uuid = `${uuid.slice(0, 8)}-${uuid.slice(8, 12)}-${uuid.slice(12, 16)}-${uuid.slice(16, 20)}-${uuid.slice(20)}`;
+    }
+
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { 
+        minecraftName: mojangData.name,
+        minecraftUuid: uuid,
+        isMcVerified: true
+      },
+    });
+
+    const existingPlayer = await prisma.player.findFirst({
+      where: {
+        OR: [
+          { uuid: mojangData.id },
+          { uuid: uuid },
+          { minecraftName: mojangData.name }
+        ]
+      }
+    });
+
+    if (existingPlayer) {
+      await prisma.player.update({
+        where: { id: existingPlayer.id },
+        data: {
+          minecraftName: mojangData.name,
+          uuid: uuid,
+        }
+      });
+    } else {
+      await prisma.player.create({
+        data: {
+          minecraftName: mojangData.name,
+          uuid: uuid,
+          status: "ACTIVE"
+        }
+      });
+    }
+
+    return NextResponse.json({ success: true, minecraftName: mojangData.name, uuid });
+  } catch (error: any) {
+    console.error("[SETUP_POST]", error);
+    return new NextResponse(`Erreur interne: ${error.message}`, { status: 500 });
+  }
+}

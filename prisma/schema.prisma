@@ -1,0 +1,354 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id                 String    @id @default(cuid())
+  name               String?
+  email              String?   @unique
+  emailVerified      DateTime?
+  image              String?
+  discordId          String?   @unique
+  minecraftName      String?
+  minecraftUuid      String?   @unique
+  customSkinUrl      String?
+  mcVerificationCode String?   @unique
+  isMcVerified       Boolean   @default(false)
+  role               String    @default("MEMBER")
+  paraCoins          Int       @default(0)
+  xp                 Int       @default(0)
+  level              Int       @default(1)
+  lastDaily          DateTime?
+  createdAt          DateTime  @default(now())
+
+  accounts        Account[]
+  sessions        Session[]
+  topics          Topic[]
+  comments        Comment[]
+  tierLists       TierList[]
+  createdCards    TradingCard[]
+  inventory       UserCard[]
+  applications    Application[]
+  modApplications ModApplication[]
+  boxes           UserBox[]
+  marketListings  MarketListing[]
+}
+
+model Topic {
+  id        String    @id @default(cuid())
+  title     String
+  content   String    @db.Text
+  category  String    @default("general")
+  pinned    Boolean   @default(false)
+  locked    Boolean   @default(false)
+  views     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  content   String    @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  topicId   String
+  topic     Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+}
+
+model TierList {
+  id        String   @id @default(cuid())
+  title     String
+  data      String   @db.Text
+  gameMode  String   @default("GENERAL")
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model Application {
+  id            String   @id @default(cuid())
+  minecraftName String
+  age           Int
+  motivation    String   @db.Text
+  experience    String   @db.Text
+  referral      String?
+  status        String   @default("PENDING")
+  reviewNote    String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  applicantId   String
+  applicant     User     @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+}
+
+model TradingCard {
+  id                String   @id @default(cuid())
+  title             String
+  playerId          String?
+  player            Player?  @relation(fields: [playerId], references: [id], onDelete: SetNull)
+  description       String?  @db.Text
+  imageUrl          String?
+  layer1Url         String?
+  layer2Url         String?
+  layer3Url         String?
+  renderedImageUrl  String?
+  customBackground  String?
+  customBadges      String   @default("[]") @db.Text
+  characterPosition String   @default("{\"x\":50,\"y\":50,\"scale\":100}") @db.Text
+  rarity            String   @default("COMMON")
+  level             String   @default("Normal")
+  edition           String   @default("Standard")
+  proba             Float    @default(100)
+  attributes        String   @default("{}") @db.Text
+  template          String   @default("classic")
+  isPublished       Boolean  @default(false)
+  isVariant         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  authorId          String
+  author            User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  owners         UserCard[]
+  motherLinks    CardVariantLink[] @relation("MotherCard")
+  asVariantLinks CardVariantLink[] @relation("TargetCard")
+}
+
+model CardTemplate {
+  id                String   @id @default(cuid())
+  name              String
+  customBackground  String?
+  customBadges      String   @default("[]") @db.Text
+  characterPosition String   @default("{\"x\":50,\"y\":50,\"scale\":100}") @db.Text
+  level             String   @default("Normal")
+  attributes        String   @default("{}") @db.Text
+  createdAt         DateTime @default(now())
+}
+
+model UserCard {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tradingCardId String
+  tradingCard   TradingCard @relation(fields: [tradingCardId], references: [id], onDelete: Cascade)
+  obtainedAt    DateTime    @default(now())
+  specialEffect String?
+
+  marketListing MarketListing?
+}
+
+model Player {
+  id            String   @id @default(cuid())
+  minecraftName String   @unique
+  hwid          String?
+  uuid          String?  @unique
+  customSkinUrl String?
+  status        String   @default("ACTIVE")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cards TradingCard[]
+  bans  Ban[]
+
+  @@index([uuid])
+}
+
+model Ban {
+  id         String    @id @default(cuid())
+  playerId   String
+  player     Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  hwid       String?
+  reason     String    @db.Text
+  bannedBy   String
+  bannedAt   DateTime  @default(now())
+  isActive   Boolean   @default(true)
+  unbannedAt DateTime?
+  unbannedBy String?
+}
+
+model Edition {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  iconUrl         String?
+  bannerUrl       String?
+  mobileBannerUrl String?
+  description     String?  @db.Text
+  showInShop      Boolean  @default(false)
+  isPurchasable   Boolean  @default(false)
+  createdAt       DateTime @default(now())
+}
+
+model VariantProfile {
+  id        String            @id @default(cuid())
+  name      String            @unique
+  iconUrl   String?
+  createdAt DateTime          @default(now())
+  links     CardVariantLink[]
+}
+
+model CardVariantLink {
+  id               String         @id @default(cuid())
+  motherCardId     String
+  motherCard       TradingCard    @relation("MotherCard", fields: [motherCardId], references: [id], onDelete: Cascade)
+  variantProfileId String
+  variantProfile   VariantProfile @relation(fields: [variantProfileId], references: [id], onDelete: Cascade)
+  targetCardId     String
+  targetCard       TradingCard    @relation("TargetCard", fields: [targetCardId], references: [id], onDelete: Cascade)
+
+  @@unique([motherCardId, variantProfileId])
+}
+
+model SystemSetting {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}
+
+model UserBox {
+  id      String @id @default(cuid())
+  userId  String
+  boxType String
+  amount  Int    @default(0)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, boxType])
+}
+
+model ModApplication {
+  id            String   @id @default(cuid())
+  discordName   String
+  minecraftName String?
+  platform      String
+  experience    String   @db.Text
+  motivation    String   @db.Text
+  additions     String   @db.Text
+  other         String?  @db.Text
+  status        String   @default("PENDING")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  applicantId   String?
+  applicant     User?    @relation(fields: [applicantId], references: [id], onDelete: SetNull)
+}
+
+model LauncherShopItem {
+  id          String   @id @default(cuid())
+  itemId      String   @unique
+  name        String
+  description String   @db.Text
+  price       Int
+  currency    String   @default("paracoins")
+  imageUrl    String?
+  modelUrl    String?
+  category    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BugReport {
+  id               String   @id @default(cuid())
+  title            String
+  description      String   @db.Text
+  category         String   @default("Crash")
+  status           String   @default("OPEN")
+  accountName      String?
+  profileName      String?
+  minecraftVersion String?
+  profileType      String?
+  graphicsMode     String?
+  gpu              String?
+  screenResolution String?
+  cpu              String?
+  ramSystem        String?
+  ramAllocated     String?
+  osInfo           String?
+  jvmArgs          String?  @db.Text
+  javaPath         String?
+  logs             String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model GuildConfig {
+  guildId          String   @id
+  moduleTickets    Boolean  @default(true)
+  moduleWelcome    Boolean  @default(false)
+  moduleSecurity   Boolean  @default(false)
+  moduleAutoMod    Boolean  @default(false)
+  moduleAuditLogs  Boolean  @default(false)
+  moduleTempVoice  Boolean  @default(false)
+  moduleEconomy    Boolean  @default(false)
+  moduleXp         Boolean  @default(false)
+  moduleTcg        Boolean  @default(false)
+  welcomeChannelId String?
+  welcomeTitle     String?
+  welcomeDesc      String?  @db.Text
+  welcomeColor     String?
+  welcomeImage     String?
+  updatedAt        DateTime @updatedAt
+}
+
+model MarketListing {
+  id         String   @id @default(cuid())
+  sellerId   String
+  userCardId String   @unique
+  price      Int
+  createdAt  DateTime @default(now())
+
+  seller   User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  userCard UserCard @relation(fields: [userCardId], references: [id], onDelete: Cascade)
+}
+
+model Warn {
+  id        String   @id @default(cuid())
+  userId    String
+  guildId   String
+  reason    String   @db.Text
+  authorId  String
+  createdAt DateTime @default(now())
+}

@@ -15,10 +15,10 @@ Elle remplit **5 missions capitales** :
    - Proposer des mini-jeux équitables alimentés par la monnaie du serveur (*Paracoins*) : Mines, Crash en direct, Roulette 14x, Blackjack 21.
    - Créer une boucle d'engagement quotidienne (récompenses journalières, progression d'XP et niveaux de compte).
 
-3. **Passerelle d'Identité & Sécurité (Minecraft ↔ Web ↔ Discord)** :
+3. **Passerelle d'Identité & Sécurité (Autonome : Web ↔ Mojang ↔ Discord)** :
    - Authentification unifiée via Discord OAuth2.
-   - Liaison officielle de compte Mojang (via code de vérification in-game).
-   - Intégration directe avec le **Launcher personnalisé** : vérification de session, contrôle strict du HWID (Hardware ID) pour bannir définitivement les tricheurs et bloquer les doubles comptes.
+   - Liaison directe de compte Mojang via l'API REST officielle Mojang (résolution UUID + validation pseudo + rendu de skin), fonctionnant à 100% de manière autonome sans nécessiter de serveur Minecraft actif en ligne.
+   - Intégration prête pour le **Launcher personnalisé** : vérification de session, contrôle strict du HWID (Hardware ID) pour bloquer les doubles-comptes et bannir les tricheurs dès l'ouverture du serveur.
 
 4. **Support & Service Joueur Hybride** :
    - Système de billetterie/tickets synchronisé en temps réel entre le site web et le serveur Discord du staff.
