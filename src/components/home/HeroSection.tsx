@@ -11,9 +11,16 @@ export default function HeroSection() {
   const isLoggedIn = status === "authenticated";
 
   return (
-    <section className="pt-12 pb-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
-      {/* Titre & Sous-titre direct sans badge superflu */}
-      <h1 className="font-outfit text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase mb-4 text-balance">
+    <section className="relative w-full overflow-hidden pt-12 pb-16">
+      {/* Halo d'ambiance 100% pleine largeur */}
+      <div 
+        className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(157,13,242,0.18),transparent_70%)]" 
+        aria-hidden="true" 
+      />
+
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        {/* Titre & Sous-titre direct sans badge superflu */}
+        <h1 className="font-outfit text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase mb-4 text-balance">
         Paranoia <span className="text-[#b366ff]">Studio</span>
       </h1>
 
@@ -117,6 +124,7 @@ export default function HeroSection() {
             </button>
           </div>
         )}
+      </div>
       </div>
     </section>
   );

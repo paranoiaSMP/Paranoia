@@ -6,28 +6,94 @@ Toute interface développée doit respecter strictement les principes ergonomiqu
 
 ---
 
-## 1. Principes Fondamentaux UX & Ergonomie
+## 1. Lois Cognitives & Principes Fondamentaux UX
 
-1. **Vitesse & Réactivité Instantanée** :
-   - Toute interaction (clic, mise, sélection de filtre) doit produire un retour visuel en moins de **100 ms**.
-   - Pas de loaders plein écran pour des actions légères : privilégier des indicateurs discrets (skeletons ou spinners intégrés dans le bouton).
-   - Les animations d'interface ne doivent jamais bloquer la navigation : durée maximale de **200 ms** (sauf animations narratives volontaires comme la détonation d'un booster).
+L'ensemble des interfaces de **Paranoia Studio** s'appuie rigoureusement sur les lois de psychologie cognitive et d'ergonomie numérique ci-dessous :
 
-2. **Accessibilité & Inclusivité (WCAG AA)** :
-   - Ratio de contraste texte / fond $\ge 4.5:1$ sur tous les éléments informatifs.
-   - Contour de focus clavier distinctif obligatoire (`:focus-visible:outline-2 outline-purple-500`).
-   - Cibles tactiles d'au moins **44 × 44 px** sur tous les boutons, onglets et contrôles interactifs.
-   - Support natif de la touche `Escape` pour refermer n'importe quelle modale ou tiroir latéral.
+### 1.1 Lois de Prise de Décision et d'Effort
 
-3. **Mobile-First & Ergonomie du Pouce** :
-   - Les contrôles critiques (mise, bouton jouer, filtres rapides) sont positionnés dans la moitié inférieure de l'écran sur mobile pour être accessibles à une main.
-   - Pas de défilement horizontal involontaire (`overflow-x: hidden` strict sur la page).
-   - Redimensionnement fluide des grilles : 1 colonne (Mobile) ➔ 2 colonnes (Tablette) ➔ 3 ou 4 colonnes (Desktop).
+1. **Loi de Jakob** :
+   - *Principe* : Les utilisateurs passent la majorité de leur temps sur d'autres plateformes et s'attendent à ce que votre interface fonctionne selon les mêmes conventions. Il faut privilégier les structures de navigation et les icônes standards plutôt que de réinventer la roue.
+   - *Application Paranoia* :
+     - Navigation horizontale en haut de page, occupant **100% de la largeur**, avec logo à gauche, liens de navigation clairs au centre, et zone compte / connexion à droite.
+     - Icônes standards universelles (Maison pour Accueil, Cartes pour TCG, Dé pour Jeux, Panier pour Boutique, Manette pour Launcher).
+     - Modales avec fermeture standard par clic extérieur, croix en haut à droite et touche `Escape`.
 
-4. **Règles Anti-Slop (Zéro Pollution Visuelle)** :
-   - **Typographie** : 0 tiret cadratin (`—`). Utiliser les deux-points (`:`), la barre verticale (`|`) ou le point médian (`·`).
-   - **Zéro fausses métriques** : Ne pas afficher de faux compteurs ("10 000 joueurs satisfaits", "99.9% uptime"). Afficher uniquement des données réelles ou des règles de jeu concrètes.
-   - **Vocabulaire naturel** : Bannir les superlatifs marketing creux ("révolutionnaire", "seamless", "cutting-edge"). Privilégier des termes clairs, directs et en français soigné.
+2. **Loi de Hick** :
+   - *Principe* : Le temps nécessaire pour prendre une décision augmente de façon logarithmique avec le nombre et la complexité des choix proposés. Il est indispensable de simplifier les menus, masquer les options secondaires et scinder les formulaires complexes en plusieurs étapes.
+   - *Application Paranoia* :
+     - Navigation limitée à 5 éléments primaires maximum.
+     - Dans les jeux (Mines, Crash, etc.), sélection de mise pré-configurée (10, 50, 100, Max) pour éliminer la friction de saisie.
+     - Processus de liaison de compte en une seule action (via l'API Mojang ou Discord).
+
+3. **Loi de Fitts** :
+   - *Principe* : Le temps requis pour atteindre une cible dépend de sa distance et de sa taille. Les boutons d'appel à l'action (CTA) doivent être suffisamment larges et placés dans des zones facilement accessibles (comme le bas de l'écran sur mobile).
+   - *Application Paranoia* :
+     - Taille minimale absolue de toute cible interactive : **44 × 44 px** (WCAG AA).
+     - Boutons d'action principaux (CTA) à **48 px de hauteur** avec marge de confort.
+     - Sur mobile, boutons majeurs (Cashout, Ouvrir, Valider) positionnés en bas de l'écran dans la "zone naturelle du pouce".
+     - Header en 100% pleine largeur permettant de projeter le logo et le menu utilisateur aux coins supérieurs gauche et droit, maximisant la vitesse de visée.
+
+---
+
+### 1.2 Lois de Mémorisation et d'Attention
+
+4. **Loi de Miller** :
+   - *Principe* : La mémoire de travail d'un être humain ne peut retenir en moyenne que 7 éléments (± 2) simultanément. Pour éviter la surcharge cognitive, il faut regrouper les informations en blocs logiques (le "chunking"), comme on le fait naturellement pour formater un numéro de téléphone ou une carte bancaire.
+   - *Application Paranoia* :
+     - Découpage des pages en sections thématiques distinctes et aérées.
+     - Formatage systématique des grands nombres et soldes (`1 250 PC` avec espace insécable et police à espacement fixe `font-mono`).
+     - Grille des 4 mini-jeux essentiels (Mines, Crash, Roulette, Blackjack) sans encombrement inutile.
+
+5. **Effet de Von Restorff (Effet d'isolation)** :
+   - *Principe* : Parmi un ensemble d'éléments similaires, celui qui se démarque visuellement sera le plus facilement mémorisé ou cliqué. C'est le principe qui dicte de donner une couleur très contrastante au bouton de validation principal par rapport aux boutons d'annulation.
+   - *Application Paranoia* :
+     - **Discipline stricte à couleur d'accent unique** : Le violet `#9d0df2` / `#b366ff` est réservé exclusivement à l'action primaire et à l'identité de marque.
+     - Bannissement des palettes "arc-en-ciel" anarchiques où chaque carte ou tag arbore une couleur différente (vert, bleu, rouge, jaune, rose) qui noie le signal visuel.
+     - Les boutons secondaires adoptent des surfaces neutres sombres (`bg-zinc-900 border-zinc-800`), rendant le bouton principal immédiatement identifiable.
+
+6. **Effet Zeigarnik** :
+   - *Principe* : Les individus se souviennent beaucoup mieux des tâches inachevées ou interrompues que des tâches terminées. L'intégration de barres de progression ou de checklists incite l'utilisateur à revenir finaliser une configuration ou un achat.
+   - *Application Paranoia* :
+     - Indicateurs de complétion de collection TCG (ex : "Collection : 14/150 cartes découvertes - 9%").
+     - Statut de configuration du compte (ex : "Pseudo Minecraft non lié" avec bouton d'action directe).
+     - Progression visuelle de niveau ou de quêtes quotidiennes.
+
+---
+
+### 1.3 Lois de Performance Technique
+
+7. **Seuil de Doherty** :
+   - *Principe* : L'engagement est maximisé lorsque le système répond à une action en moins de 400 millisecondes, créant une illusion d'immédiateté. Si un traitement serveur est plus long, l'interface doit utiliser des écrans de chargement structurels (skeleton screens) ou des animations pour occuper l'utilisateur et masquer la latence.
+   - *Application Paranoia* :
+     - Rendu et feedback interactif instantané sous **100 ms** (optimistic UI sur les sélections et clics).
+     - Transitions CSS fluides de **150 à 200 ms** maximum.
+     - Utilisation systématique de skeleton screens (écrans structurels grisés) pendant le chargement des données plutôt que de spinners bloquants.
+
+---
+
+### 1.4 Les Principes de la Gestalt (Organisation Visuelle)
+
+8. **Loi de Proximité** :
+   - *Principe* : Les éléments graphiques rapprochés sont automatiquement perçus par le cerveau comme appartenant au même groupe (ex : un titre, son paragraphe et son image).
+   - *Application Paranoia* : Regroupement serré des paires label / valeur (ex : Solde + montant + bouton recharger), espacements cohérents (`gap-2` pour les éléments conjoints, `gap-6` à `gap-12` entre sections).
+
+9. **Loi de Similarité** :
+   - *Principe* : Les éléments partageant les mêmes attributs visuels (couleur, forme, typographie) sont perçus comme ayant la même fonction ou importance, même s'ils ne sont pas à côté.
+   - *Application Paranoia* : Tous les boutons interactifs partagent les mêmes rayons de courbure (`rounded-xl`), la même graisse (`font-bold`) et le même comportement au survol.
+
+10. **Loi de Région Commune** :
+    - *Principe* : Placer des éléments dans une zone délimitée (comme une "card" avec des bordures ou un fond d'une autre couleur) suffit à créer un groupe distinct du reste de la page.
+    - *Application Paranoia* : Délimitation systématique des unités fonctionnelles par des conteneurs (`cards`) avec arrière-plan sombre distinct (`bg-zinc-950/80` ou `bg-[#12111a]`) et bordure nette (`border border-zinc-800`).
+
+---
+
+### 1.5 Règles Complémentaires Anti-Slop (Zéro Pollution Visuelle)
+
+- **Zéro Pill Badges superflus** : Bannir les pastilles décoratives d'en-tête (ex : `[ 🛡️ Infrastructure ]`) qui alourdissent la page. Aller droit au but avec des titres lisibles et expressifs.
+- **Typographie soignée** : 0 tiret cadratin (`—`). Utiliser les deux-points (`:`), la barre verticale (`|`) ou le point médian (`·`).
+- **Zéro fausses métriques** : Aucun faux compteur marketing artificiel. Données réelles uniquement.
+- **Vocabulaire direct** : Français naturel, pas de verbiage commercial creux.
 
 ---
 
