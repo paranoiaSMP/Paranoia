@@ -129,19 +129,3 @@ export async function linkUserToProfile(userId: string, profile: MojangProfileRe
   }
   return "ok";
 }
-
-export function getPlayerSkinUrl(
-  player: {
-    uuid?: string | null;
-    minecraftName?: string | null;
-    customSkinUrl?: string | null;
-  },
-  type: "bust" | "face" | "body" = "bust"
-): string {
-  if (player.customSkinUrl) {
-    return player.customSkinUrl;
-  }
-
-  const identifier = player.uuid ? player.uuid.replace(/-/g, "") : player.minecraftName || "Steve";
-  return `https://vzge.me/${type}/512/${identifier}.png`;
-}

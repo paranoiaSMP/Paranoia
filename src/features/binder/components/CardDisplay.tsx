@@ -11,6 +11,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { TradingCard, CardVariantLink, CustomBadge } from "@/types/cards";
+import { getPlayerSkinUrl } from "@/lib/skin";
 
 export type RarityKey = "COMMON" | "UNCOMMON" | "RARE" | "EPIC" | "LEGENDARY" | "MYTHIC";
 
@@ -490,8 +491,9 @@ export default function CardDisplay({
                 </>
               ) : card.imageUrl || card.player?.minecraftName || card.player?.uuid ? (
                 (() => {
-                  const identifier = card.player?.uuid || card.player?.minecraftName || card.title;
-                  const avatarUrl = card.imageUrl || `https://vzge.me/bust/512/${identifier}.png`;
+                  const avatarUrl =
+                    card.imageUrl ||
+                    getPlayerSkinUrl({ ...card.player, minecraftName: card.player?.minecraftName || card.title });
                   const isVideo = avatarUrl.match(/\.(mp4|webm|mov)$/i);
                   const commonProps = {
                     className: `h-full w-full object-cover object-top drop-shadow-2xl ${dragCls}`,
