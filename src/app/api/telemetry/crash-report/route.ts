@@ -1,12 +1,19 @@
 import { NextResponse } from "next/server";
+import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
   try {
-    const crashReport = await req.json();
+    if (!rateLimit(`crash:${clientIp(req)}`, 5, 10 * 60 * 1000)) {
+      return NextResponse.json({ error: "Too many reports" }, { status: 429 });
+    }
+    const raw = await req.text();
+    if (raw.length > 64_000) {
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    }
+    const crashReport = JSON.parse(raw);
     
     console.error("[CRASH REPORT RECEIVED]", crashReport);
 
-    // TODO: Sauvegarder en base de données ou envoyer sur un webhook Discord
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (webhookUrl) {
       await fetch(webhookUrl, {
@@ -14,6 +21,7 @@ export async function POST(req: Request) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           content: "🚨 **Nouveau rapport de crash reçu**",
+          allowed_mentions: { parse: [] },
           embeds: [
             {
               title: "Crash Report",

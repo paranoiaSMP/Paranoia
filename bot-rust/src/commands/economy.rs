@@ -1,4 +1,4 @@
-﻿use sqlx::{PgPool, Row};
+use sqlx::{PgPool, Row};
 use std::sync::Arc;
 use twilight_http::Client as HttpClient;
 use twilight_model::{
@@ -27,38 +27,7 @@ pub async fn run_daily(interaction: Interaction, http: Arc<HttpClient>, db: PgPo
         None => return Ok(()),
     };
 
-    // Check module_economy toggle
-    let config = sqlx::query(r#"SELECT "moduleEconomy" FROM "GuildConfig" WHERE "guildId" = 'default'"#)
-        .fetch_optional(&db).await.unwrap_or(None);
-
-    let economy_enabled = if let Some(r) = config {
-        r.try_get("moduleEconomy").unwrap_or(false)
-    } else {
-        false
-    };
-
-    if !economy_enabled {
-        let embed = EmbedBuilder::new()
-            .title("Module Désactivé")
-            .description("Le module Économie est actuellement désactivé sur le serveur.")
-            .color(COLOR_ERROR)
-            .build();
-        
-        let response = InteractionResponse {
-            kind: InteractionResponseType::ChannelMessageWithSource,
-            data: Some(InteractionResponseData {
-                embeds: Some(vec![embed]),
-                flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL),
-                ..Default::default()
-            }),
-        };
-        http.interaction(interaction.application_id)
-            .create_response(interaction.id, &interaction.token, &response)
-            .await?;
-        return Ok(());
-    }
-
-    let row = sqlx::query(r#"SELECT id, "lastDaily" FROM "User" WHERE "discordId" =  LIMIT 1"#)
+    let row = sqlx::query(r#"SELECT id, "lastDaily" FROM "User" WHERE "discordId" = $1 LIMIT 1"#)
         .bind(&author_id)
         .fetch_optional(&db)
         .await?;
@@ -66,23 +35,24 @@ pub async fn run_daily(interaction: Interaction, http: Arc<HttpClient>, db: PgPo
     let response_data = match row {
         Some(record) => {
             let user_id: String = record.try_get("id").unwrap();
-            let last_daily: Option<chrono::DateTime<chrono::Utc>> = record.try_get("lastDaily").unwrap_or(None);
-            
-            let now = Utc::now();
-            let can_claim = match last_daily {
-                Some(ld) => now.signed_duration_since(ld) >= Duration::hours(24),
-                None => true,
-            };
+            let last_daily: Option<chrono::NaiveDateTime> = record.try_get("lastDaily").unwrap_or(None);
 
-            if can_claim {
-                let reward = 50; // 50 ParaCoins
-                sqlx::query(r#"UPDATE "User" SET "paraCoins" = "paraCoins" + , "lastDaily" =  WHERE id = "#)
-                    .bind(reward)
-                    .bind(now)
-                    .bind(&user_id)
-                    .execute(&db)
-                    .await?;
+            let now = Utc::now().naive_utc();
+            let reward = 50;
+            let claimed = sqlx::query(
+                r#"UPDATE "User" SET "paraCoins" = "paraCoins" + $1, "lastDaily" = $2
+                   WHERE id = $3 AND ("lastDaily" IS NULL OR "lastDaily" <= $4)
+                   RETURNING id"#,
+            )
+            .bind(reward)
+            .bind(now)
+            .bind(&user_id)
+            .bind(now - Duration::hours(24))
+            .fetch_optional(&db)
+            .await?
+            .is_some();
 
+            if claimed {
                 let embed = EmbedBuilder::new()
                     .title("Récompense Quotidienne")
                     .description(format!("Félicitations ! Tu as récupéré tes **{} ParaCoins** quotidiens.", reward))
@@ -95,7 +65,10 @@ pub async fn run_daily(interaction: Interaction, http: Arc<HttpClient>, db: PgPo
                     ..Default::default()
                 }
             } else {
-                let remaining = Duration::hours(24) - now.signed_duration_since(last_daily.unwrap());
+                let remaining = last_daily
+                    .map(|ld| Duration::hours(24) - now.signed_duration_since(ld))
+                    .unwrap_or_else(Duration::zero)
+                    .max(Duration::minutes(1));
                 let hours = remaining.num_hours();
                 let mins = remaining.num_minutes() % 60;
                 

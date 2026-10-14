@@ -44,3 +44,23 @@ pnpm-debug.log*
 public/uploads/*
 !public/uploads/.gitkeep
 data/
+
+# IA
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+.mcp.json
+AGENTS.md
+.cursor/
+.cursorrules
+.cursorignore
+.windsurf/
+.windsurfrules
+.github/copilot-instructions.md
+.gemini/
+GEMINI.md
+.codex/
+.aider*
+graphify-out/
+anti-slop/
+DESIGN.md

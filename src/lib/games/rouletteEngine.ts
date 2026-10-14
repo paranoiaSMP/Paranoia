@@ -1,5 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "@/lib/db";
+import { recordWin } from "./wallet";
+import { notifyWallet } from "@/lib/realtime/emit";
 import { 
   RouletteColor, 
   RoulettePhase, 
@@ -20,7 +22,7 @@ class RouletteEngine {
   private winningNumber: number | null = null;
   private winningOffset: number | null = null;
   private bets: Map<string, RouletteBet> = new Map();
-  private history: number[] = [2, 11, 0, 7, 14, 3, 5, 8, 1];
+  private history: number[] = [];
   private listeners: Set<RouletteListener> = new Set();
   private timer: NodeJS.Timeout | null = null;
 
@@ -120,6 +122,8 @@ class RouletteEngine {
             where: { id: bet.userId },
             data: { paraCoins: { increment: payout } },
           });
+          await recordWin(bet.userId, payout);
+          notifyWallet(bet.userId);
         } catch {}
       }
     }

@@ -1,0 +1,12 @@
+Sons du combat de /ferme (facultatif).
+
+Dépose ici des fichiers .mp3, .wav ou .ogg avec ces noms exacts :
+  blip       une lettre du dialogue
+  select     choix d'un bouton, ligne suivante
+  encounter  rencontre (cœur qui clignote)
+  hit        Attaquer
+  spare      Épargner
+
+Exemple : public/sounds/hit.mp3
+Un son absent est remplacé par un son 8 bits généré par le navigateur.
+N'utilise que des fichiers que tu as le droit de diffuser.

@@ -1,4 +1,4 @@
-#![allow(deprecated, unused_imports)]
+#![allow(deprecated)]
 
 use chrono::Utc;
 use sqlx::{PgPool, Row};
@@ -6,10 +6,11 @@ use std::sync::Arc;
 use twilight_http::{request::AuditLogReason, Client as HttpClient};
 use twilight_model::{
     application::interaction::{
-        application_command::CommandOptionValue, modal::{ModalInteractionComponent, ModalInteractionData}, Interaction, InteractionData,
+        application_command::CommandOptionValue, modal::ModalInteractionData, Interaction, InteractionData,
     },
     channel::message::{
         component::{ActionRow, Button, ButtonStyle, Component, TextInput, TextInputStyle},
+        Embed, MessageFlags,
     },
     guild::Permissions,
     http::interaction::{InteractionResponse, InteractionResponseType, InteractionResponseData},
@@ -74,24 +75,19 @@ fn gen_sanction_id() -> String {
     format!("{:06x}", rand::random::<u32>() & 0x00ffffff)
 }
 
-pub fn extract_text_inputs(components: &[ModalInteractionComponent]) -> Vec<(String, String)> {
-    let mut res = Vec::new();
-    for comp in components {
-        match comp {
-            ModalInteractionComponent::TextInput(input) => {
-                res.push((input.custom_id.clone(), input.value.clone()));
-            }
-            ModalInteractionComponent::ActionRow(row) => {
-                for inner in &row.components {
-                    if let ModalInteractionComponent::TextInput(input) = inner {
-                        res.push((input.custom_id.clone(), input.value.clone()));
-                    }
-                }
-            }
-            _ => {}
-        }
-    }
-    res
+async fn reply_with(http: &HttpClient, i: &Interaction, data: InteractionResponseData) -> anyhow::Result<()> {
+    let resp = InteractionResponse { kind: InteractionResponseType::ChannelMessageWithSource, data: Some(data) };
+    http.interaction(i.application_id).create_response(i.id, &i.token, &resp).await?;
+    Ok(())
+}
+
+async fn reply_embed(http: &HttpClient, i: &Interaction, embed: Embed, ephemeral: bool) -> anyhow::Result<()> {
+    let flags = ephemeral.then_some(MessageFlags::EPHEMERAL);
+    reply_with(http, i, InteractionResponseData { embeds: Some(vec![embed]), flags, ..Default::default() }).await
+}
+
+async fn reply_text(http: &HttpClient, i: &Interaction, content: String) -> anyhow::Result<()> {
+    reply_with(http, i, InteractionResponseData { content: Some(content), flags: Some(MessageFlags::EPHEMERAL), ..Default::default() }).await
 }
 
 pub async fn run_sanction(
@@ -147,18 +143,7 @@ pub async fn run_sanction(
             .description("Vous ne pouvez pas vous sanctionner vous-même !")
             .color(COLOR_ERROR)
             .build();
-        let resp = InteractionResponse {
-            kind: InteractionResponseType::ChannelMessageWithSource,
-            data: Some(InteractionResponseData {
-                embeds: Some(vec![embed]),
-                flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL),
-                ..Default::default()
-            }),
-        };
-        http.interaction(interaction.application_id)
-            .create_response(interaction.id, &interaction.token, &resp)
-            .await?;
-        return Ok(());
+        return reply_embed(&http, &interaction, embed, true).await;
     }
 
     let sanction_id = gen_sanction_id();
@@ -252,19 +237,7 @@ pub async fn run_sanction(
         .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
         .build();
 
-    let response = InteractionResponse {
-        kind: InteractionResponseType::ChannelMessageWithSource,
-        data: Some(InteractionResponseData {
-            embeds: Some(vec![confirm_embed]),
-            ..Default::default()
-        }),
-    };
-
-    http.interaction(interaction.application_id)
-        .create_response(interaction.id, &interaction.token, &response)
-        .await?;
-
-    Ok(())
+    reply_embed(&http, &interaction, confirm_embed, false).await
 }
 
 pub async fn run_promote(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
@@ -310,19 +283,7 @@ pub async fn run_promote(interaction: Interaction, http: Arc<HttpClient>) -> any
         .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
         .build();
 
-    let response = InteractionResponse {
-        kind: InteractionResponseType::ChannelMessageWithSource,
-        data: Some(InteractionResponseData {
-            embeds: Some(vec![embed]),
-            ..Default::default()
-        }),
-    };
-
-    http.interaction(interaction.application_id)
-        .create_response(interaction.id, &interaction.token, &response)
-        .await?;
-
-    Ok(())
+    reply_embed(&http, &interaction, embed, false).await
 }
 
 pub async fn run_demote(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
@@ -368,19 +329,7 @@ pub async fn run_demote(interaction: Interaction, http: Arc<HttpClient>) -> anyh
         .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
         .build();
 
-    let response = InteractionResponse {
-        kind: InteractionResponseType::ChannelMessageWithSource,
-        data: Some(InteractionResponseData {
-            embeds: Some(vec![embed]),
-            ..Default::default()
-        }),
-    };
-
-    http.interaction(interaction.application_id)
-        .create_response(interaction.id, &interaction.token, &response)
-        .await?;
-
-    Ok(())
+    reply_embed(&http, &interaction, embed, false).await
 }
 
 pub async fn handle_appeal_button(
@@ -445,7 +394,7 @@ pub async fn handle_appeal_modal_submit(
     let mut pseudo_mc = None;
     let mut arguments = String::new();
 
-    let inputs = extract_text_inputs(&modal_data.components);
+    let inputs = crate::utils::extract_modal_inputs(&modal_data.components);
     for (custom_id, val) in inputs {
         match custom_id.as_str() {
             "pseudo_mc" => {
@@ -528,20 +477,7 @@ pub async fn handle_appeal_modal_submit(
         })])
         .await;
 
-    let response = InteractionResponse {
-        kind: InteractionResponseType::ChannelMessageWithSource,
-        data: Some(InteractionResponseData {
-            content: Some("Votre demande d'appel a été envoyée à l'équipe de modération. Vous recevrez une réponse prochainement.".to_string()),
-            flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL),
-            ..Default::default()
-        }),
-    };
-
-    http.interaction(interaction.application_id)
-        .create_response(interaction.id, &interaction.token, &response)
-        .await?;
-
-    Ok(())
+    reply_text(&http, &interaction, "Votre demande d'appel a été envoyée à l'équipe de modération. Vous recevrez une réponse prochainement.".into()).await
 }
 
 pub async fn handle_staff_appeal_decision(
@@ -594,20 +530,7 @@ pub async fn handle_staff_appeal_decision(
         }
     }
 
-    let response = InteractionResponse {
-        kind: InteractionResponseType::ChannelMessageWithSource,
-        data: Some(InteractionResponseData {
-            content: Some(format!("Décision enregistrée : appel **{}**.", new_status)),
-            flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL),
-            ..Default::default()
-        }),
-    };
-
-    http.interaction(interaction.application_id)
-        .create_response(interaction.id, &interaction.token, &response)
-        .await?;
-
-    Ok(())
+    reply_text(&http, &interaction, format!("Décision enregistrée : appel **{}**.", new_status)).await
 }
 pub fn register_warn() -> twilight_model::application::command::Command {
     CommandBuilder::new("warn", "Avertir un membre", twilight_model::application::command::CommandType::ChatInput)
@@ -647,7 +570,8 @@ pub async fn run_warn(interaction: Interaction, http: Arc<HttpClient>, db: PgPoo
     let guild_id = interaction.guild_id.unwrap().get().to_string();
     let author_id = interaction.author_id().unwrap().get().to_string();
 
-    sqlx::query(r#"INSERT INTO "Warn" ("userId", "guildId", "reason", "authorId") VALUES (, , , )"#)
+    sqlx::query(r#"INSERT INTO "Warn" (id, "userId", "guildId", "reason", "authorId") VALUES ($1, $2, $3, $4, $5)"#)
+        .bind(uuid::Uuid::new_v4().to_string())
         .bind(target_id.get().to_string())
         .bind(&guild_id)
         .bind(&reason)
@@ -655,9 +579,7 @@ pub async fn run_warn(interaction: Interaction, http: Arc<HttpClient>, db: PgPoo
         .execute(&db).await?;
 
     let embed = EmbedBuilder::new().title("⚠️ Avertissement").description(format!("<@{}> a été averti.\n**Raison:** {}", target_id, reason)).color(COLOR_ERROR).build();
-    let res = InteractionResponse { kind: InteractionResponseType::ChannelMessageWithSource, data: Some(InteractionResponseData { embeds: Some(vec![embed]), ..Default::default() }) };
-    http.interaction(interaction.application_id).create_response(interaction.id, &interaction.token, &res).await?;
-    Ok(())
+    reply_embed(&http, &interaction, embed, false).await
 }
 
 pub async fn run_warnings(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) -> anyhow::Result<()> {
@@ -669,7 +591,7 @@ pub async fn run_warnings(interaction: Interaction, http: Arc<HttpClient>, db: P
 
     let guild_id = interaction.guild_id.unwrap().get().to_string();
 
-    let rows = sqlx::query(r#"SELECT reason, "authorId", "createdAt" FROM "Warn" WHERE "userId" =  AND "guildId" =  ORDER BY "createdAt" DESC LIMIT 10"#)
+    let rows = sqlx::query(r#"SELECT reason, "authorId", "createdAt" FROM "Warn" WHERE "userId" = $1 AND "guildId" = $2 ORDER BY "createdAt" DESC LIMIT 10"#)
         .bind(target_id.get().to_string())
         .bind(&guild_id)
         .fetch_all(&db).await?;
@@ -683,9 +605,7 @@ pub async fn run_warnings(interaction: Interaction, http: Arc<HttpClient>, db: P
     if desc.is_empty() { desc = "Aucun avertissement.".to_string(); }
 
     let embed = EmbedBuilder::new().title(format!("Avertissements de <@{}>", target_id)).description(desc).color(COLOR_ERROR).build();
-    let res = InteractionResponse { kind: InteractionResponseType::ChannelMessageWithSource, data: Some(InteractionResponseData { embeds: Some(vec![embed]), ..Default::default() }) };
-    http.interaction(interaction.application_id).create_response(interaction.id, &interaction.token, &res).await?;
-    Ok(())
+    reply_embed(&http, &interaction, embed, false).await
 }
 
 pub async fn run_clear(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
@@ -705,7 +625,5 @@ pub async fn run_clear(interaction: Interaction, http: Arc<HttpClient>) -> anyho
         }
     }
     let embed = EmbedBuilder::new().description(format!("✅ {} messages supprimés.", count)).color(COLOR_SUCCESS).build();
-    let res = InteractionResponse { kind: InteractionResponseType::ChannelMessageWithSource, data: Some(InteractionResponseData { embeds: Some(vec![embed]), flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL), ..Default::default() }) };
-    http.interaction(interaction.application_id).create_response(interaction.id, &interaction.token, &res).await?;
-    Ok(())
+    reply_embed(&http, &interaction, embed, true).await
 }

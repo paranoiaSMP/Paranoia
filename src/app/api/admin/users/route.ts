@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { isFounderUuid } from "@/lib/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +54,17 @@ export async function PUT(req: Request) {
 
     if ((role === "DEV" || role === "ADMIN") && session.user.role !== "DEV") {
       return new NextResponse("Seul un DEV peut attribuer ce rôle", { status: 403 });
+    }
+
+    const target = await prisma.user.findUnique({ where: { id: userId }, select: { minecraftUuid: true, role: true } });
+    if ((target?.role === "DEV" || target?.role === "ADMIN") && session.user.role !== "DEV") {
+      return new NextResponse("Seul un DEV peut modifier le rôle d'un Admin ou d'un DEV", { status: 403 });
+    }
+
+    if (role !== "ADMIN" && role !== "DEV") {
+      if (isFounderUuid(target?.minecraftUuid)) {
+        return new NextResponse("Le fondateur reste Admin.", { status: 400 });
+      }
     }
 
     if (userId === session.user.id && role !== session.user.role) {

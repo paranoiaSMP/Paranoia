@@ -85,7 +85,6 @@ pub async fn handle_button(interaction: Interaction, http: Arc<HttpClient>, db: 
         .create_response(interaction_id, &interaction_token, &defer_response)
         .await?;
 
-    // custom_id format: "cartes:page:discord_id:pseudo"
     let parts: Vec<&str> = custom_id.splitn(4, ':').collect();
     if parts.len() < 4 {
         return Ok(());

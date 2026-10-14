@@ -65,115 +65,25 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Res
         "embeds": [],
         "components": [
             {
-                "type": 12,
-                "items": [
-                    {
-                        "media": {
-                            "url": "https://files.catbox.moe/g1etwk.png"
-                        }
-                    }
-                ]
-            },
-            {
                 "type": 17,
-                "accent_color": 11032055,
+                "accent_color": 15132390,
                 "components": [
-                    {
-                        "type": 10,
-                        "content": "# Contact Support\nVous souhaitez entrer en contact avec l'équipe de **Paranoia Studio** ?\nSuivez les indications ci-dessous et sélectionnez la catégorie adaptée à votre situation.\n\n*Ce salon est strictement réservé aux demandes d'assistance légitimes. Tout abus sera sanctionné.*"
-                    },
-                    {
-                        "type": 14,
-                        "spacing": 1,
-                        "divider": true
-                    },
-                    {
-                        "type": 10,
-                        "content": "### 🛠️ Support Général & Technique\nUne question sur le serveur, un problème avec le launcher, la boutique ou un bug en jeu ?"
-                    },
+                    { "type": 12, "items": [{ "media": { "url": "https://files.catbox.moe/g1etwk.png" } }] },
+                    { "type": 14, "divider": true, "spacing": 2 },
+                    { "type": 10, "content": "**Ouvre un ticket avec le bouton qui correspond à ta demande.\nUn membre de l'équipe te répond dans ton salon privé.**" },
+                    { "type": 14, "divider": true, "spacing": 2 },
+                    { "type": 10, "content": "**Aide générale** · Une question sur le site, le launcher ou le Discord" },
+                    { "type": 10, "content": "**Signalement** · Un joueur qui ne respecte pas le règlement" },
+                    { "type": 10, "content": "**Vidéaste** · Rejoindre les créateurs du studio" },
+                    { "type": 10, "content": "**Contestation** · Faire appel d'une sanction" },
                     {
                         "type": 1,
                         "components": [
-                            {
-                                "type": 2,
-                                "style": 1,
-                                "label": "Ticket Support",
-                                "emoji": {"name": "🛠️"},
-                                "custom_id": "btn_open_general_ticket"
-                            }
+                            { "type": 2, "style": 1, "label": "Aide générale", "custom_id": "btn_open_general_ticket" },
+                            { "type": 2, "style": 1, "label": "Signaler", "custom_id": "btn_open_report_ticket" },
+                            { "type": 2, "style": 1, "label": "Devenir créateur", "custom_id": "btn_open_videaste_ticket" },
+                            { "type": 2, "style": 1, "label": "Contester une sanction", "custom_id": "btn_open_appeal_ticket" }
                         ]
-                    },
-                    {
-                        "type": 14,
-                        "spacing": 1,
-                        "divider": true
-                    },
-                    {
-                        "type": 10,
-                        "content": "### 🚨 Signalement Joueur (Report)\nUn joueur enfreint le règlement (cheat, grief, propos inappropriés ou comportement toxique) ?"
-                    },
-                    {
-                        "type": 1,
-                        "components": [
-                            {
-                                "type": 2,
-                                "style": 4,
-                                "label": "Signaler un joueur",
-                                "emoji": {"name": "🚨"},
-                                "custom_id": "btn_open_report_ticket"
-                            }
-                        ]
-                    },
-                    {
-                        "type": 14,
-                        "spacing": 1,
-                        "divider": true
-                    },
-                    {
-                        "type": 10,
-                        "content": "### 🎥 Candidature Vidéaste & Partenariat\nTu crées du contenu sur YouTube, Twitch ou TikTok ? Postule pour intégrer le programme créateur officiel."
-                    },
-                    {
-                        "type": 1,
-                        "components": [
-                            {
-                                "type": 2,
-                                "style": 1,
-                                "label": "Postuler Vidéaste",
-                                "emoji": {"name": "🎥"},
-                                "custom_id": "btn_open_videaste_ticket"
-                            }
-                        ]
-                    },
-                    {
-                        "type": 14,
-                        "spacing": 1,
-                        "divider": true
-                    },
-                    {
-                        "type": 10,
-                        "content": "### ⚖️ Contestation de Sanction (Appeals)\nTu as reçu une sanction (ban, mute) et tu souhaites déposer une demande de révision argumentée ?"
-                    },
-                    {
-                        "type": 1,
-                        "components": [
-                            {
-                                "type": 2,
-                                "style": 2,
-                                "label": "Faire un appel",
-                                "emoji": {"name": "⚖️"},
-                                "custom_id": "btn_open_appeal_ticket"
-                            }
-                        ]
-                    },
-                    {
-                        "type": 14,
-                        "spacing": 1,
-                        "divider": true
-                    },
-                    {
-                        "type": 10,
-                        "content": "> 📌 **Important :** Ne mentionnez aucun membre du staff dans votre ticket afin de ne pas ralentir le traitement.\n> 🌐 **Recrutement Staff :** Les candidatures (Modérateur, Helper) s'effectuent sur [paranoiastudio.fr/candidature](https://paranoiastudio.fr/candidature)."
                     }
                 ]
             }
@@ -207,30 +117,18 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Res
 
     if !sent_v2 {
         let description = "\
-Vous souhaitez entrer en contact avec l'équipe de **Paranoia Studio** ?\n\
-Suivez les indications ci-dessous et sélectionnez la catégorie adaptée à votre situation.\n\n\
-*Ce salon est strictement réservé aux demandes d'assistance légitimes. Tout abus sera sanctionné.*\n\n\
-───────────────────────────────\n\n\
-**🛠️ Support Général & Technique**\n\
-Une question sur le serveur, un problème avec le launcher, la boutique ou un bug en jeu ?\n\n\
-───────────────────────────────\n\n\
-**🚨 Signalement Joueur (Report)**\n\
-Un joueur enfreint le règlement (cheat, grief, propos inappropriés ou comportement toxique) ?\n\n\
-───────────────────────────────\n\n\
-**🎥 Candidature Vidéaste & Partenariat**\n\
-Tu crées du contenu sur YouTube, Twitch ou TikTok ? Postule pour intégrer le programme créateur officiel.\n\n\
-───────────────────────────────\n\n\
-**⚖️ Contestation de Sanction (Appeals)**\n\
-Tu as reçu une sanction (ban, mute) et tu souhaites déposer une demande de révision argumentée ?\n\n\
-───────────────────────────────\n\n\
-> 📌 **Important :** Ne mentionnez aucun membre du staff dans votre ticket afin de ne pas ralentir le traitement.\n\
-> 🌐 **Recrutement Staff :** Les candidatures (Modérateur, Helper) s'effectuent sur [paranoiastudio.fr/candidature](https://paranoiastudio.fr/candidature).";
+**Ouvre un ticket avec le bouton qui correspond à ta demande.**\n\
+Un membre de l'équipe te répond dans ton salon privé.\n\n\
+**Aide générale** · Une question sur le site, le launcher ou le Discord\n\
+**Signalement** · Un joueur qui ne respecte pas le règlement\n\
+**Vidéaste** · Rejoindre les créateurs du studio\n\
+**Contestation** · Faire appel d'une sanction";
 
         let mut embed_builder = EmbedBuilder::new()
-            .title("Contact Support")
+            .title("Besoin d'aide ?")
             .description(description)
-            .color(COLOR_PURPLE)
-            .footer(EmbedFooterBuilder::new(format!("{} • Support Officiel", FOOTER_TEXT)));
+            .color(0xe6e6e6)
+            .footer(EmbedFooterBuilder::new(format!("{} • Support", FOOTER_TEXT)));
 
         if let Ok(src) = ImageSource::url("https://files.catbox.moe/g1etwk.png") {
             embed_builder = embed_builder.image(src);
@@ -249,7 +147,7 @@ Tu as reçu une sanction (ban, mute) et tu souhaites déposer une demande de ré
                     custom_id: Some("btn_open_general_ticket".to_string()),
                     disabled: false,
                     emoji: None,
-                    label: Some("🛠️ Ticket Support".to_string()),
+                    label: Some("Aide générale".to_string()),
                     style: ButtonStyle::Primary,
                     url: None,
                     sku_id: None,
@@ -259,8 +157,8 @@ Tu as reçu une sanction (ban, mute) et tu souhaites déposer une demande de ré
                     custom_id: Some("btn_open_report_ticket".to_string()),
                     disabled: false,
                     emoji: None,
-                    label: Some("🚨 Signaler un joueur".to_string()),
-                    style: ButtonStyle::Danger,
+                    label: Some("Signaler".to_string()),
+                    style: ButtonStyle::Primary,
                     url: None,
                     sku_id: None,
                 }),
@@ -275,8 +173,8 @@ Tu as reçu une sanction (ban, mute) et tu souhaites déposer une demande de ré
                     custom_id: Some("btn_open_videaste_ticket".to_string()),
                     disabled: false,
                     emoji: None,
-                    label: Some("🎥 Postuler Vidéaste".to_string()),
-                    style: ButtonStyle::Secondary,
+                    label: Some("Devenir créateur".to_string()),
+                    style: ButtonStyle::Primary,
                     url: None,
                     sku_id: None,
                 }),
@@ -285,19 +183,9 @@ Tu as reçu une sanction (ban, mute) et tu souhaites déposer une demande de ré
                     custom_id: Some("btn_open_appeal_ticket".to_string()),
                     disabled: false,
                     emoji: None,
-                    label: Some("⚖️ Faire un appel".to_string()),
-                    style: ButtonStyle::Secondary,
+                    label: Some("Contester une sanction".to_string()),
+                    style: ButtonStyle::Primary,
                     url: None,
-                    sku_id: None,
-                }),
-                Component::Button(Button {
-                    id: None,
-                    custom_id: None,
-                    disabled: false,
-                    emoji: None,
-                    label: Some("🌐 Recrutement Staff".to_string()),
-                    style: ButtonStyle::Link,
-                    url: Some("https://paranoiastudio.fr/candidature".to_string()),
                     sku_id: None,
                 }),
             ],

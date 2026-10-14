@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
+import { debit, credit, recordBet, recordWin } from "@/lib/games/wallet";
 import { crashEngine } from "@/lib/games/crashEngine";
 
 export async function POST(req: Request) {
@@ -22,10 +23,14 @@ export async function POST(req: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { name: true, image: true, minecraftName: true, paraCoins: true },
+      select: { name: true, image: true, minecraftName: true },
     });
+    if (!user) {
+      return NextResponse.json({ error: "Compte introuvable" }, { status: 400 });
+    }
 
-    if (!user || user.paraCoins < betAmount) {
+    const afterDebit = await debit(userId, betAmount);
+    if (afterDebit === null) {
       return NextResponse.json({ error: "Solde insuffisant" }, { status: 400 });
     }
 
@@ -38,18 +43,14 @@ export async function POST(req: Request) {
     });
 
     if (!placeResult.success) {
+      await credit(userId, betAmount);
       return NextResponse.json({ error: placeResult.error }, { status: 400 });
     }
-
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { paraCoins: { decrement: betAmount } },
-      select: { paraCoins: true },
-    });
+    await recordBet(userId, betAmount);
 
     return NextResponse.json({
       success: true,
-      paraCoins: updatedUser.paraCoins,
+      paraCoins: afterDebit,
     });
   }
 
@@ -59,17 +60,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: cashoutResult.error }, { status: 400 });
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { paraCoins: { increment: cashoutResult.payout! } },
-      select: { paraCoins: true },
-    });
+    const paraCoins = await credit(userId, cashoutResult.payout!);
+    await recordWin(userId, cashoutResult.payout!);
 
     return NextResponse.json({
       success: true,
       payout: cashoutResult.payout,
       multiplier: cashoutResult.multiplier,
-      paraCoins: updatedUser.paraCoins,
+      paraCoins,
     });
   }
 

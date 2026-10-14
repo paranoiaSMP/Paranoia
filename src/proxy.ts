@@ -1,12 +1,18 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { isSiteClosed } from "@/lib/maintenance";
 
 export default withAuth(
-  function middleware(req) {
+  async function middleware(req) {
     const token = req.nextauth.token;
+    const path = req.nextUrl.pathname;
+
+    const isStaffToken = ["ADMIN", "DEV", "MODERATOR"].includes(token?.role as string);
+    const isAsset = /\.[a-z0-9]+$/i.test(path);
+    if (!isStaffToken && !isAsset && path !== "/ferme" && (await isSiteClosed())) {
+      return NextResponse.redirect(new URL("/ferme", req.url));
+    }
     const isSetupPage = req.nextUrl.pathname === "/setup";
-    const isComingSoonPage = req.nextUrl.pathname === "/coming-soon";
-    const isAdmin = token && token.role === "ADMIN";
 
     if (token && !token.minecraftName && !isSetupPage) {
       return NextResponse.redirect(new URL("/setup", req.url));
@@ -15,8 +21,8 @@ export default withAuth(
       return NextResponse.redirect(new URL("/", req.url));
     }
 
-    if (req.nextUrl.pathname.startsWith("/admin")) {
-      if (!token || (token.role !== "ADMIN" && token.role !== "DEV")) {
+    if (req.nextUrl.pathname.startsWith("/admin") || req.nextUrl.pathname.startsWith("/bot")) {
+      if (!token || !["ADMIN", "DEV", "MODERATOR"].includes(token.role as string)) {
         return NextResponse.redirect(new URL("/", req.url));
       }
     }
@@ -29,5 +35,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|Paranoia_no_effect.png).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|Paranoia_no_effect.png|opengraph-image|sitemap.xml|robots.txt).*)"],
 };

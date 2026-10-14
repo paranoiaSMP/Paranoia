@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { isAdmin } from "@/lib/roles";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
+import { notifyWallet } from "@/lib/realtime/emit";
 
 const manageSchema = z.object({
   action: z.string().min(1),
@@ -17,7 +19,7 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     const admin = session?.user as any;
-    if (!session || !admin || admin.role !== "ADMIN") {
+    if (!session || !admin || !isAdmin(admin.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -44,6 +46,7 @@ export async function POST(req: Request) {
         update: { amount: { increment: amount } },
         create: { userId: user.id, boxType, amount }
       });
+      notifyWallet(user.id);
       return NextResponse.json({ success: true, message: `${amount} Box ${boxType} donnée avec succès` });
     }
 
@@ -58,6 +61,7 @@ export async function POST(req: Request) {
           tradingCardId: cardId
         }
       });
+      notifyWallet(user.id);
       return NextResponse.json({ success: true, message: "Carte donnée avec succès" });
     }
 

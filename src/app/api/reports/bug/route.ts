@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { siteConfig } from "@/config/site";
+import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 const DISCORD_API = "https://discord.com/api/v10";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { title, description, category, accountName, systemInfo, logs } = body;
+    if (!rateLimit(`bug:${clientIp(req)}`, 5, 10 * 60 * 1000)) {
+      return new NextResponse("Trop de rapports, réessaie plus tard.", { status: 429 });
+    }
+    const body = await req.json().catch(() => ({}));
+    const { title, description, category, accountName, logs } = body;
+    const systemInfo = typeof body.systemInfo === "object" && body.systemInfo !== null ? body.systemInfo : {};
+    const s = (v: unknown, max = 300) => (v ? String(v).slice(0, max) : null);
 
     if (!title || !description) {
       return new NextResponse("Titre et description requis", { status: 400 });
@@ -17,21 +23,21 @@ export async function POST(req: Request) {
       data: {
         title: String(title).slice(0, 200),
         description: String(description).slice(0, 8000),
-        category: category ? String(category) : "Crash",
-        accountName: accountName ? String(accountName) : null,
-        profileName: systemInfo?.profileName ? String(systemInfo.profileName) : null,
-        minecraftVersion: systemInfo?.minecraftVersion ? String(systemInfo.minecraftVersion) : null,
-        profileType: systemInfo?.profileType ? String(systemInfo.profileType) : null,
-        graphicsMode: systemInfo?.graphicsMode ? String(systemInfo.graphicsMode) : null,
-        gpu: systemInfo?.gpu ? String(systemInfo.gpu) : null,
-        screenResolution: systemInfo?.screenResolution ? String(systemInfo.screenResolution) : null,
-        cpu: systemInfo?.cpu ? String(systemInfo.cpu) : null,
-        ramSystem: systemInfo?.ramSystem ? String(systemInfo.ramSystem) : null,
-        ramAllocated: systemInfo?.ramAllocated ? String(systemInfo.ramAllocated) : null,
-        osInfo: systemInfo?.osInfo ? String(systemInfo.osInfo) : null,
-        jvmArgs: systemInfo?.jvmArgs ? String(systemInfo.jvmArgs) : null,
-        javaPath: systemInfo?.javaPath ? String(systemInfo.javaPath) : null,
-        logs: logs ? String(logs) : null,
+        category: s(category, 60) ?? "Crash",
+        accountName: s(accountName, 100),
+        profileName: s(systemInfo.profileName),
+        minecraftVersion: s(systemInfo.minecraftVersion),
+        profileType: s(systemInfo.profileType),
+        graphicsMode: s(systemInfo.graphicsMode),
+        gpu: s(systemInfo.gpu),
+        screenResolution: s(systemInfo.screenResolution),
+        cpu: s(systemInfo.cpu),
+        ramSystem: s(systemInfo.ramSystem),
+        ramAllocated: s(systemInfo.ramAllocated),
+        osInfo: s(systemInfo.osInfo),
+        jvmArgs: s(systemInfo.jvmArgs, 2000),
+        javaPath: s(systemInfo.javaPath),
+        logs: s(logs, 200_000),
       },
     });
 
@@ -75,7 +81,7 @@ export async function POST(req: Request) {
       await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ embeds: [discordEmbed] }),
+        body: JSON.stringify({ embeds: [discordEmbed], allowed_mentions: { parse: [] } }),
       }).catch(() => null);
     } else if (process.env.DISCORD_TOKEN) {
       const channelId =

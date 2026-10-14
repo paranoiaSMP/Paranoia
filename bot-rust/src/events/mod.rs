@@ -25,16 +25,25 @@ pub async fn handle_event(
             if msg.author.bot {
                 return;
             }
+            crate::modules::message_log::on_create(&msg);
 
-            // XP System
-            xp::give_xp(&msg, &db).await;
+            if crate::modules::enabled("xp") {
+                xp::give_xp(&msg, &http, &db).await;
+            }
+            crate::modules::activity::count_message(msg.author.id);
+            crate::modules::drops::on_message(&msg, &http).await;
+            crate::modules::quiz::on_message(&msg, &http, &db).await;
 
-            // 1. Auto-Mod Check
-            if automod::check_message(&msg, &http, &db, Some(config.ticket_log_channel_id)).await {
-                return; // Stop if message was deleted
+            if crate::modules::enabled("automod")
+                && automod::check_message(&msg, &http, &db, Some(config.ticket_log_channel_id)).await
+            {
+                return;
             }
 
-            // If user typed !close in a ticket channel
+            if !crate::modules::enabled("tickets") {
+                return;
+            }
+
             if msg.content.trim() == "!close" {
                 crate::commands::tickets::close_ticket_channel(
                     msg.channel_id,
@@ -46,12 +55,15 @@ pub async fn handle_event(
                 return;
             }
 
-            // Sync message to web API
+            let is_staff = msg
+                .member
+                .as_ref()
+                .is_some_and(|m| m.roles.iter().any(|r| r.get() == config.role_staff_id));
             let client = reqwest::Client::new();
             let payload = serde_json::json!({
                 "channelId": msg.channel_id.to_string(),
-                "authorName": msg.author.name,
-                "authorRole": "STAFF",
+                "authorName": msg.author.global_name.clone().unwrap_or_else(|| msg.author.name.clone()),
+                "authorRole": if is_staff { "STAFF" } else { "USER" },
                 "content": msg.content,
             });
 
@@ -64,7 +76,7 @@ pub async fn handle_event(
                 .await;
 
             if sync_res.is_ok() {
-                let reaction = RequestReactionType::Unicode { name: "ðŸŒ" };
+                let reaction = RequestReactionType::Unicode { name: "🌐" };
                 let _ = http.create_reaction(msg.channel_id, msg.id, &reaction).await;
             }
         }
@@ -74,9 +86,15 @@ pub async fn handle_event(
             match &inter.data {
                 Some(InteractionData::ApplicationCommand(cmd)) => {
                     let cmd_name = cmd.name.clone();
+                    if let Some(owner) = crate::modules::command_owner(&cmd_name) {
+                        if !crate::modules::enabled(owner) {
+                            crate::modules::reply_disabled(&http, &inter).await;
+                            return;
+                        }
+                    }
                     let res = match cmd_name.as_str() {
                         "cartes" => crate::commands::cartes::run(inter, http, db).await,
-                        "conference" => crate::commands::conference::run_conference(inter, http).await,
+                        "conference" => crate::modules::conference::run(inter, http, db).await,
                         "daily" => crate::commands::economy::run_daily(inter, http, db).await,
                         "pack" => crate::commands::tcg::run_pack(inter, http, db).await,
                         "pc" => crate::commands::pc::run(inter, http, db).await,
@@ -85,7 +103,7 @@ pub async fn handle_event(
                         "creators" => crate::commands::creators::run(inter, http).await,
                         "notifications" => crate::commands::notifications::run(inter, http).await,
                         "event" => crate::commands::events::run(inter, http).await,
-                        "quetes" => crate::commands::quests::run(inter, http).await,
+                        "quetes" => crate::commands::quests::run(inter, http, db).await,
                         "ban" => crate::commands::moderation::run_sanction(inter, http, db, "ban").await,
                         "mute" => crate::commands::moderation::run_sanction(inter, http, db, "mute").await,
                         "kick" => crate::commands::moderation::run_sanction(inter, http, db, "kick").await,
@@ -96,6 +114,15 @@ pub async fn handle_event(
                         "clear" => crate::commands::moderation::run_clear(inter, http).await,
                         "setup_tickets" => crate::commands::tickets::run(inter, http).await,
                         "tiktok" => crate::commands::tiktok::run(inter, http, db).await,
+                        "rang" => crate::commands::levels::run_rank(inter, http, db).await,
+                        "quiz" => crate::modules::quiz::run(inter, http).await,
+                        "classement" => crate::commands::levels::run_leaderboard(inter, http, db).await,
+                        "note" => crate::modules::staff::run_note(inter, http, db).await,
+                        "statsmodo" => crate::modules::staff::run_stats(inter, http, db).await,
+                        "absence" => crate::modules::staff::run_absence(inter, http, db).await,
+                        "candidature" => crate::modules::applications::run(inter, http, db).await,
+                        "sauvegarde" => crate::modules::backup::run(inter, http, db).await,
+                        "verrouillage" => crate::modules::security::run(inter, http, config.ticket_log_channel_id).await,
                         _ => Ok(()),
                     };
                     if let Err(e) = res {
@@ -106,8 +133,16 @@ pub async fn handle_event(
                 Some(InteractionData::MessageComponent(comp)) => {
                     let cid = comp.custom_id.clone();
                     let values = comp.values.clone();
+                    if let Some(owner) = crate::modules::component_owner(&cid) {
+                        if !crate::modules::enabled(owner) {
+                            crate::modules::reply_disabled(&http, &inter).await;
+                            return;
+                        }
+                    }
 
-                    let res = if cid.starts_with("cartes:") {
+                    let res = if cid.starts_with(crate::modules::drops::PREFIX) {
+                        crate::modules::drops::handle_claim(inter, http, db, &cid).await
+                    } else if cid.starts_with("cartes:") {
                         crate::commands::cartes::handle_button(inter, http, db, &cid).await
                     } else if cid == "creators_select_menu" {
                         crate::commands::creators::handle_select(inter, http, &values).await
@@ -117,20 +152,18 @@ pub async fn handle_event(
                         crate::commands::events::handle_button(inter, http, "join").await
                     } else if cid == "event_leave" {
                         crate::commands::events::handle_button(inter, http, "leave").await
-                    } else if cid == "quest_verify_status" {
-                        crate::commands::quests::handle_verify_status(inter, http, db).await
+                    } else if cid.starts_with(crate::modules::applications::ACCEPT) || cid.starts_with(crate::modules::applications::REFUSE) {
+                        crate::modules::applications::handle_review(inter, http, db, &cid).await
+                    } else if cid.starts_with(crate::modules::backup::CONFIRM) {
+                        crate::modules::backup::handle_confirm(inter, http, db, &cid).await
+                    } else if cid.starts_with(crate::commands::quests::PREFIX) {
+                        crate::commands::quests::handle_claim(inter, http, db, &cid).await
                     } else if let Some(sanction_id) = cid.strip_prefix("appeal_open:") {
                         crate::commands::moderation::handle_appeal_button(inter, http, sanction_id).await
                     } else if let Some(sanction_id) = cid.strip_prefix("appeal_staff_accept:") {
                         crate::commands::moderation::handle_staff_appeal_decision(inter, http, db, "accept", sanction_id).await
-                    } else if cid.starts_with("hand_raise:") {
-                        crate::commands::conference::handle_hand_raise(inter, http, &cid).await
-                    } else if cid.starts_with("hand_accept:") {
-                        crate::commands::conference::handle_hand_accept(inter, http, &cid).await
-                    } else if cid.starts_with("hand_reject:") {
-                        crate::commands::conference::handle_hand_reject(inter, http, &cid).await
-                    } else if cid.starts_with("hand_revoke:") {
-                        crate::commands::conference::handle_hand_revoke(inter, http, &cid).await
+                    } else if cid.starts_with(crate::modules::conference::PREFIX) || crate::modules::conference::LEGACY.iter().any(|p| cid.starts_with(p)) {
+                        crate::modules::conference::handle_component(inter, http, db, &cid).await
                     } else if let Some(sanction_id) = cid.strip_prefix("appeal_staff_reject:") {
                         crate::commands::moderation::handle_staff_appeal_decision(inter, http, db, "reject", sanction_id).await
                     } else if let Some(cat) = cid.strip_prefix("ticket_open:") {
@@ -158,8 +191,22 @@ pub async fn handle_event(
                 Some(InteractionData::ModalSubmit(modal_data)) => {
                     let cid = modal_data.custom_id.clone();
                     let modal = modal_data.clone();
+                    if let Some(owner) = crate::modules::component_owner(&cid) {
+                        if !crate::modules::enabled(owner) {
+                            crate::modules::reply_disabled(&http, &inter).await;
+                            return;
+                        }
+                    }
 
-                    if let Some(sanction_id) = cid.strip_prefix("modal_appeal:") {
+                    if cid.starts_with(crate::modules::conference::PREFIX) {
+                        if let Err(e) = crate::modules::conference::handle_modal(inter, http, db, &modal).await {
+                            tracing::error!("Conférence : {:?}", e);
+                        }
+                    } else if cid == crate::modules::applications::MODAL {
+                        if let Err(e) = crate::modules::applications::handle_modal(inter, http, db, &modal).await {
+                            tracing::error!("Candidature : {:?}", e);
+                        }
+                    } else if let Some(sanction_id) = cid.strip_prefix("modal_appeal:") {
                         let _ = crate::commands::moderation::handle_appeal_modal_submit(
                             inter,
                             http,
@@ -190,27 +237,52 @@ pub async fn handle_event(
         }
 
         Event::MessageUpdate(ev) => {
-            audit::handle_message_update(ev, &http, &db, config.ticket_log_channel_id).await;
+            crate::modules::message_log::on_update(&ev, &http, config.ticket_log_channel_id).await;
         }
         Event::MessageDelete(ev) => {
-            audit::handle_message_delete(ev, &http, &db, config.ticket_log_channel_id).await;
+            crate::modules::message_log::on_delete(&ev, &http, config.ticket_log_channel_id).await;
+        }
+        Event::MessageDeleteBulk(ev) => {
+            crate::modules::message_log::on_delete_bulk(&ev, &http, config.ticket_log_channel_id).await;
         }
         Event::MemberAdd(ev) => {
+            if crate::modules::security::on_member_add(&ev, &http, config.ticket_log_channel_id).await {
+                return;
+            }
             audit::handle_member_add(ev, &http, &db, config.ticket_log_channel_id).await;
         }
         Event::MemberRemove(ev) => {
             audit::handle_member_remove(ev, &http, &db, config.ticket_log_channel_id).await;
         }
 
+        Event::GuildCreate(gc) => {
+            if let twilight_model::gateway::payload::incoming::GuildCreate::Available(guild) = gc.as_ref() {
+                crate::modules::staff::remember_guild(guild.id);
+                for vs in &guild.voice_states {
+                    let mut vs = vs.clone();
+                    vs.guild_id.get_or_insert(guild.id);
+                    crate::modules::activity::on_voice_state(&vs);
+                }
+            }
+        }
+
         Event::VoiceStateUpdate(vsu) => {
-            temp_voice::handle_voice_state(&vsu, &http, &db).await;
+            crate::modules::activity::on_voice_state(&vsu.0);
+            if !vsu.0.member.as_ref().is_some_and(|m| m.user.bot) {
+                crate::modules::conference::on_voice_state(&http, &db, vsu.0.user_id, vsu.0.channel_id).await;
+            }
+            if crate::modules::enabled("temp_voice") {
+                temp_voice::handle_voice_state(&vsu, &http, &db).await;
+            }
             audit::handle_voice_state_update(vsu.clone(), &http, &db, config.ticket_log_channel_id).await;
 
+            if !crate::modules::enabled("vocal_roles") {
+                return;
+            }
             if let Some(guild_id) = vsu.guild_id {
                 let user_id = vsu.user_id;
 
                 if let Some(channel_id) = vsu.channel_id {
-                    // User joined a voice channel
                     if let Ok(ch) = http.channel(channel_id).await {
                         if let Ok(chan) = ch.model().await {
                             if let Some(cname) = chan.name {
@@ -221,7 +293,6 @@ pub async fn handle_event(
                                         if let Some(r) = role_match {
                                             let _ = http.add_guild_member_role(guild_id, user_id, r.id).await;
                                         } else {
-                                            // Create role with purple color
                                             if let Ok(new_role) = http.create_role(guild_id)
                                                 .name(&cname)
                                                 .color(crate::utils::COLOR_PURPLE)
@@ -242,6 +313,9 @@ pub async fn handle_event(
         }
 
         Event::ChannelDelete(cd) => {
+            if !crate::modules::enabled("vocal_roles") {
+                return;
+            }
             if let Some(guild_id) = cd.guild_id {
                 if cd.kind == ChannelType::GuildVoice || cd.kind == ChannelType::GuildStageVoice {
                     if let Some(name) = &cd.name {
@@ -258,15 +332,10 @@ pub async fn handle_event(
         }
 
         Event::Ready(r) => {
-            tracing::info!("Bot prÃªt connectÃ© sur {} guilds !", r.guilds.len());
+            tracing::info!("Bot prêt, connecté sur {} serveurs", r.guilds.len());
         }
 
         _ => {}
     }
 }
-
-
-
-
-
 

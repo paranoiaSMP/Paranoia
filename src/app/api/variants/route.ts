@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { notifyCards } from "@/lib/realtime/emit";
+import { isAdmin } from "@/lib/roles";
 
 export async function GET() {
   try {
@@ -17,7 +19,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || !isAdmin(session.user.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -28,6 +30,7 @@ export async function POST(req: Request) {
       data: { name, iconUrl },
     });
 
+    notifyCards();
     return NextResponse.json(variant);
   } catch (error) {
     console.error("Error creating variant profile:", error);
@@ -38,7 +41,7 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || !isAdmin(session.user.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -47,6 +50,7 @@ export async function DELETE(req: Request) {
     if (!id) return new NextResponse("Missing id", { status: 400 });
 
     await prisma.variantProfile.delete({ where: { id } });
+    notifyCards();
     return new NextResponse("Deleted", { status: 200 });
   } catch (error) {
     console.error("Error deleting variant profile:", error);

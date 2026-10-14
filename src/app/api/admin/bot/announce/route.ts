@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { isStaff } from "@/lib/roles";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
+  if (!session?.user || (!isStaff(session.user.role))) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -79,7 +80,6 @@ export async function POST(req: Request) {
 
       embedsToSend.push(formattedEmbed);
     } else if (body.message) {
-      // Legacy fallback
       embedsToSend.push({
         title: body.title || undefined,
         description: body.message,
@@ -89,10 +89,8 @@ export async function POST(req: Request) {
       });
     }
 
-    // Process V2 Discord Button Components
     let formattedComponents: any[] = [];
     if (Array.isArray(components) && components.length > 0) {
-      // Chunk buttons into action rows (max 5 per row, max 5 rows)
       const validButtons = components.filter((b: any) => b.label?.trim() || b.emoji?.trim());
       
       const rows: any[][] = [];

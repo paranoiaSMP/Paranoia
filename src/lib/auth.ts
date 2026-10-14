@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
+import { isAdmin, isFounderUuid } from "@/lib/roles";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -13,6 +14,7 @@ export const authOptions: NextAuthOptions = {
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID!,
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+      issuer: "https://discord.com",
       allowDangerousEmailAccountLinking: true,
       profile(profile) {
         if (profile.avatar === null) {
@@ -78,15 +80,36 @@ export const authOptions: NextAuthOptions = {
         token.isMcVerified = user.isMcVerified;
         token.paraCoins = user.paraCoins;
       }
-      if (account && account.provider === 'discord' && account.providerAccountId === process.env.ADMIN_DISCORD_ID) {
-        token.role = 'DEV';
+      if (account?.provider === "discord") {
+        token.discordId = account.providerAccountId;
       }
       if (trigger === "update" && token.id) {
-        const dbUser = await prisma.user.findUnique({ where: { id: token.id as string } });
-        if (dbUser) {
-          token.minecraftName = dbUser.minecraftName ?? undefined;
-          token.isMcVerified = dbUser.isMcVerified;
-          token.paraCoins = dbUser.paraCoins;
+        token.refreshedAt = 0;
+      }
+
+      const REFRESH_MS = 5 * 60 * 1000;
+      if (token.id && (!token.refreshedAt || Date.now() - (token.refreshedAt as number) > REFRESH_MS)) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { role: true, minecraftName: true, minecraftUuid: true, isMcVerified: true, paraCoins: true, discordId: true },
+          });
+          if (dbUser) {
+            const owner =
+              !!process.env.ADMIN_DISCORD_ID &&
+              (token.discordId ?? dbUser.discordId) === process.env.ADMIN_DISCORD_ID;
+            const founder = isFounderUuid(dbUser.minecraftUuid);
+            const role = owner ? "DEV" : founder && !isAdmin(dbUser.role) ? "ADMIN" : dbUser.role;
+            if (role !== dbUser.role) {
+              await prisma.user.update({ where: { id: token.id as string }, data: { role } });
+            }
+            token.role = role;
+            token.minecraftName = dbUser.minecraftName ?? undefined;
+            token.isMcVerified = dbUser.isMcVerified;
+            token.paraCoins = dbUser.paraCoins;
+          }
+          token.refreshedAt = Date.now();
+        } catch {
         }
       }
       return token;

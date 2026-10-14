@@ -1,4 +1,4 @@
-﻿use sqlx::{PgPool, Row};
+use sqlx::{PgPool, Row};
 use std::sync::Arc;
 use twilight_http::Client as HttpClient;
 use twilight_model::{
@@ -27,31 +27,7 @@ pub async fn run_pack(interaction: Interaction, http: Arc<HttpClient>, db: PgPoo
         None => return Ok(()),
     };
 
-    let config = sqlx::query(r#"SELECT "moduleTcg" FROM "GuildConfig" WHERE "guildId" = 'default'"#)
-        .fetch_optional(&db).await.unwrap_or(None);
-
-    let tcg_enabled = if let Some(r) = config {
-        r.try_get("moduleTcg").unwrap_or(false)
-    } else {
-        false
-    };
-
-    if !tcg_enabled {
-        let embed = EmbedBuilder::new()
-            .title("Module Désactivé")
-            .description("Le module TCG est actuellement désactivé sur le serveur.")
-            .color(COLOR_ERROR)
-            .build();
-        
-        let response = InteractionResponse {
-            kind: InteractionResponseType::ChannelMessageWithSource,
-            data: Some(InteractionResponseData { embeds: Some(vec![embed]), flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL), ..Default::default() }),
-        };
-        http.interaction(interaction.application_id).create_response(interaction.id, &interaction.token, &response).await?;
-        return Ok(());
-    }
-
-    let user_row = sqlx::query(r#"SELECT id, "paraCoins" FROM "User" WHERE "discordId" =  LIMIT 1"#)
+    let user_row = sqlx::query(r#"SELECT id, "paraCoins" FROM "User" WHERE "discordId" = $1 LIMIT 1"#)
         .bind(&author_id)
         .fetch_optional(&db).await?;
 
@@ -61,11 +37,9 @@ pub async fn run_pack(interaction: Interaction, http: Arc<HttpClient>, db: PgPoo
             let coins: i32 = record.try_get("paraCoins").unwrap_or(0);
 
             if coins >= 100 {
-                // Deduct coins
-                sqlx::query(r#"UPDATE "User" SET "paraCoins" = "paraCoins" - 100 WHERE id = "#)
+                sqlx::query(r#"UPDATE "User" SET "paraCoins" = "paraCoins" - 100 WHERE id = $1"#)
                     .bind(&user_id).execute(&db).await?;
 
-                // Fetch a random card
                 let card_row = sqlx::query(r#"SELECT id, title, rarity, "imageUrl" FROM "TradingCard" WHERE "isPublished" = true ORDER BY RANDOM() LIMIT 1"#)
                     .fetch_optional(&db).await?;
 
@@ -76,8 +50,7 @@ pub async fn run_pack(interaction: Interaction, http: Arc<HttpClient>, db: PgPoo
                         let rarity: String = card.try_get("rarity").unwrap_or_default();
                         let image: Option<String> = card.try_get("imageUrl").unwrap_or(None);
 
-                        // Give card
-                        sqlx::query(r#"INSERT INTO "UserCard" (id, "userId", "tradingCardId", "obtainedAt") VALUES (, , , NOW())"#)
+                        sqlx::query(r#"INSERT INTO "UserCard" (id, "userId", "tradingCardId", "obtainedAt") VALUES ($1, $2, $3, NOW())"#)
                             .bind(Uuid::new_v4().to_string())
                             .bind(&user_id)
                             .bind(&card_id)

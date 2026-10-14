@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { createHash } from "crypto";
+import { memo } from "@/lib/cache";
+import { notifyCards } from "@/lib/realtime/emit";
 import { z } from "zod";
+import { isAdmin } from "@/lib/roles";
 
 const cardSchema = z.object({
   title: z.string().optional().nullable(),
@@ -31,7 +34,7 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     const user = session?.user;
 
-    if (!session || !user || user.role !== "ADMIN") {
+    if (!session || !user || !isAdmin(user.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const body = await req.json();
@@ -71,6 +74,7 @@ export async function POST(req: Request) {
       },
     });
 
+    notifyCards();
     return NextResponse.json(card);
   } catch (error) {
     console.error("[CARDS_POST]", error);
@@ -83,25 +87,21 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const edition = searchParams.get("edition");
 
-    const where: Prisma.TradingCardWhereInput = {};
-    if (edition) {
-      where.edition = edition;
-    }
-
-    const cards = await prisma.tradingCard.findMany({
-      where,
-      include: {
-        player: true,
-        motherLinks: {
-          include: { variantProfile: true }
-        }
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+    const entry = await memo(`cards:${edition ?? "*"}`, async () => {
+      const cards = await prisma.tradingCard.findMany({
+        where: edition ? { edition } : {},
+        include: { player: true, motherLinks: { include: { variantProfile: true } } },
+        orderBy: { createdAt: "desc" },
+      });
+      const body = JSON.stringify(cards);
+      return { body, etag: `"${createHash("sha1").update(body).digest("base64url")}"` };
     });
 
-    return NextResponse.json(cards);
+    const headers = { ETag: entry.etag, "Cache-Control": "private, no-cache" };
+    if (req.headers.get("if-none-match") === entry.etag) {
+      return new Response(null, { status: 304, headers });
+    }
+    return new Response(entry.body, { headers: { ...headers, "Content-Type": "application/json" } });
   } catch (error) {
     console.error("[CARDS_GET]", error);
     return new NextResponse("Internal Error", { status: 500 });
@@ -113,7 +113,7 @@ export async function PUT(req: Request) {
     const session = await getServerSession(authOptions);
     const user = session?.user;
 
-    if (!session || !user || user.role !== "ADMIN") {
+    if (!session || !user || !isAdmin(user.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -132,6 +132,7 @@ export async function PUT(req: Request) {
         where: { id },
         data: { renderedImageUrl },
       });
+      notifyCards();
       return NextResponse.json(card);
     }
 
@@ -170,6 +171,7 @@ export async function PUT(req: Request) {
       },
     });
 
+    notifyCards();
     return NextResponse.json(card);
   } catch (error) {
     console.error("[CARDS_PUT]", error);
@@ -182,7 +184,7 @@ export async function DELETE(req: Request) {
     const session = await getServerSession(authOptions);
     const user = session?.user;
 
-    if (!session || !user || user.role !== "ADMIN") {
+    if (!session || !user || !isAdmin(user.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -212,6 +214,7 @@ export async function DELETE(req: Request) {
       where: { id: stringId }
     });
 
+    notifyCards();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[CARDS_DELETE]", error);

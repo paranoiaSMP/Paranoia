@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { isAdmin } from "@/lib/roles";
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
-    if (!session || !user || user.role !== "ADMIN") {
+    if (!session || !user || !isAdmin(user.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
-    if (!session || !user || user.role !== "ADMIN") {
+    if (!session || !user || !isAdmin(user.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -54,7 +55,7 @@ export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
-    if (!session || !user || user.role !== "ADMIN") {
+    if (!session || !user || !isAdmin(user.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 

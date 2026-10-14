@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { isStaff } from "@/lib/roles";
 import { prisma } from "@/lib/db";
+import { notifyWallet } from "@/lib/realtime/emit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
+  if (!session?.user || !isStaff(session.user.role)) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -54,6 +56,7 @@ export async function POST(req: Request) {
       return new NextResponse("Invalid action", { status: 400 });
     }
 
+    notifyWallet(userId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to update user economy", error);

@@ -39,7 +39,8 @@ impl Config {
         dotenvy::from_path("../.env").ok();
 
         let discord_token = get_clean_var("DISCORD_TOKEN")
-            .context("DISCORD_TOKEN is missing")?;
+            .or_else(|| get_clean_var("DISCORD_BOT_TOKEN"))
+            .context("DISCORD_TOKEN ou DISCORD_BOT_TOKEN manquant")?;
 
         let raw_db_url = get_clean_var("DATABASE_URL")
             .context("DATABASE_URL is missing")?;

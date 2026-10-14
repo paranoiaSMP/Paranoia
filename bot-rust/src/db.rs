@@ -48,7 +48,9 @@ pub async fn health_check(pool: &PgPool) -> Result<()> {
 }
 
 pub async fn run_migrations(pool: &PgPool) -> Result<()> {
-    sqlx::migrate!("./migrations")
+    let mut migrator = sqlx::migrate!("./migrations");
+    migrator.set_ignore_missing(true);
+    migrator
         .run(pool)
         .await
         .context("Failed to run SQL migrations")?;

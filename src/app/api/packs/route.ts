@@ -3,10 +3,38 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
+import { memo } from "@/lib/cache";
+import { notifyWallet, walletSnapshot } from "@/lib/realtime/emit";
+import { eventFor } from "@/lib/events";
+
+const getCardPool = () =>
+  memo("card-pool", () =>
+    prisma.tradingCard.findMany({
+      include: {
+        player: true,
+        motherLinks: { include: { variantProfile: true } },
+        asVariantLinks: { include: { variantProfile: true } },
+      },
+    })
+  );
 
 const packSchema = z.object({
   boxType: z.string().optional().default("standard")
 });
+
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id;
+    if (!userId) {
+      return NextResponse.json({ error: "Non connecté" }, { status: 401 });
+    }
+    return NextResponse.json(await walletSnapshot(userId));
+  } catch (error) {
+    console.error("Pack inventory error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -17,11 +45,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
     }
 
-    const userExists = await prisma.user.findUnique({ where: { id: userId } });
-    if (!userExists) {
-      return NextResponse.json({ error: "Compte introuvable. Veuillez vous déconnecter et vous reconnecter." }, { status: 401 });
-    }
-
     let body;
     try { body = await req.json(); } catch { body = {}; }
     const parsed = packSchema.safeParse(body);
@@ -30,26 +53,7 @@ export async function POST(req: Request) {
     }
     const boxType = parsed.data.boxType;
 
-    const userBox = await prisma.userBox.findUnique({
-      where: { userId_boxType: { userId, boxType: boxType || "standard" } }
-    });
-
-    if (!userBox || userBox.amount <= 0) {
-      return NextResponse.json({ error: `Vous n'avez pas de Box ${boxType || "standard"}.` }, { status: 400 });
-    }
-
-    await prisma.userBox.update({
-      where: { id: userBox.id },
-      data: { amount: { decrement: 1 } }
-    });
-
-    const cards = await prisma.tradingCard.findMany({
-      include: {
-        player: true,
-        motherLinks: { include: { variantProfile: true } },
-        asVariantLinks: { include: { variantProfile: true } }
-      },
-    });
+    const cards = await getCardPool();
 
     if (cards.length === 0) {
       return NextResponse.json({ error: "No cards available in the database yet!" }, { status: 404 });
@@ -132,6 +136,9 @@ export async function POST(req: Request) {
       { name: "Glitch", prob: 0.02 }, 
       { name: "Cosmic", prob: 0.005 }, 
     ];
+    const eventSetting = await prisma.systemSetting.findUnique({ where: { key: "event" } });
+    const season = eventFor(eventSetting?.value, new Date());
+    if (season) EFFECTS_PROBABILITY.push({ name: season === "halloween" ? "Hot" : "Cold", prob: 0.03 });
 
     const drawEffect = () => {
       let rand = Math.random();
@@ -142,32 +149,31 @@ export async function POST(req: Request) {
       return null;
     };
 
-    const userCards = [];
-    for (const card of drawnCards) {
-      const specialEffect = drawEffect();
+    const drawn = drawnCards.map((card) => ({ card, specialEffect: drawEffect() }));
 
-      const userCard = await prisma.userCard.create({
-        data: {
-          userId: userId,
-          tradingCardId: card.id,
-          specialEffect: specialEffect,
-        },
-        include: {
-          tradingCard: {
-            include: {
-              player: true,
-              motherLinks: { include: { variantProfile: true } },
-              asVariantLinks: { include: { variantProfile: true } }
-            }
-          }
-        }
+    const created = await prisma.$transaction(async (tx) => {
+      const dec = await tx.userBox.updateMany({
+        where: { userId, boxType: currentType, amount: { gt: 0 } },
+        data: { amount: { decrement: 1 } },
       });
-      userCards.push(userCard);
+      if (dec.count === 0) return null;
+      return tx.userCard.createManyAndReturn({
+        data: drawn.map((d) => ({ userId, tradingCardId: d.card.id, specialEffect: d.specialEffect })),
+      });
+    });
+
+    if (!created) {
+      return NextResponse.json({ error: `Vous n'avez pas de Box ${currentType}.` }, { status: 400 });
     }
 
+    notifyWallet(userId);
+
+    const byId = new Map(cards.map((c) => [c.id, c]));
+    const userCards = created.map((uc) => ({ ...uc, tradingCard: byId.get(uc.tradingCardId)! }));
+
     return NextResponse.json({
-      drawnCards: userCards.map(uc => uc.tradingCard),
-      userCards
+      drawnCards: userCards.map((uc) => uc.tradingCard),
+      userCards,
     });
   } catch (error) {
     console.error("Pack Opening Error:", error);

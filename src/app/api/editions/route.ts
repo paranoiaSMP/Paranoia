@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
+import { notifyCards } from "@/lib/realtime/emit";
+import { isAdmin } from "@/lib/roles";
 
 const editionSchema = z.object({
   name: z.string().min(1),
@@ -27,7 +29,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || !isAdmin(session.user.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -48,6 +50,7 @@ export async function POST(req: Request) {
       },
     });
 
+    notifyCards();
     return NextResponse.json(edition);
   } catch (error) {
     console.error("Error creating edition:", error);
@@ -58,7 +61,7 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || !isAdmin(session.user.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -81,6 +84,7 @@ export async function PUT(req: Request) {
       },
     });
 
+    notifyCards();
     return NextResponse.json(edition);
   } catch (error) {
     console.error("Error updating edition:", error);
@@ -91,7 +95,7 @@ export async function PUT(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || !isAdmin(session.user.role)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -100,6 +104,7 @@ export async function DELETE(req: Request) {
     if (!id) return new NextResponse("Missing id", { status: 400 });
 
     await prisma.edition.delete({ where: { id } });
+    notifyCards();
     return new NextResponse("Deleted", { status: 200 });
   } catch (error) {
     console.error("Error deleting edition:", error);

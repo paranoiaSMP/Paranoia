@@ -190,6 +190,7 @@ model Player {
   uuid          String?  @unique
   customSkinUrl String?
   status        String   @default("ACTIVE")
+  mcNameCheckedAt DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -274,6 +275,8 @@ model ModApplication {
   updatedAt     DateTime @updatedAt
   applicantId   String?
   applicant     User?    @relation(fields: [applicantId], references: [id], onDelete: SetNull)
+  discordId     String?
+  reviewedBy    String?
 }
 
 model LauncherShopItem {
@@ -351,4 +354,150 @@ model Warn {
   reason    String   @db.Text
   authorId  String
   createdAt DateTime @default(now())
+}
+
+model BotModule {
+  id          String   @id
+  name        String
+  description String   @db.Text
+  category    String   @default("Général")
+  commands    String[]
+  settings    Json     @default("[]")
+  enabled     Boolean  @default(true)
+  config      Json     @default("{}")
+  declaredAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BotDailyProgress {
+  userId       String
+  day          String
+  messages     Int      @default(0)
+  voiceMinutes Int      @default(0)
+  claimed      String[] @default([])
+  updatedAt    DateTime @default(now())
+
+  @@id([userId, day])
+}
+
+model CasinoStat {
+  userId     String   @id
+  wagered    Int      @default(0)
+  won        Int      @default(0)
+  biggestWin Int      @default(0)
+  games      Int      @default(0)
+  updatedAt  DateTime @default(now())
+}
+
+model StaffNote {
+  id        String   @id @default(cuid())
+  targetId  String
+  authorId  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([targetId])
+}
+
+model StaffAbsence {
+  id        String   @id @default(cuid())
+  discordId String
+  startDay  String
+  endDay    String
+  reason    String?  @db.Text
+  createdAt DateTime @default(now())
+}
+
+model GuildBackup {
+  id        String   @id @default(cuid())
+  guildId   String
+  label     String
+  data      Json
+  createdBy String
+  createdAt DateTime @default(now())
+}
+
+model BotSanction {
+  id            String       @id @db.VarChar(6)
+  guild_id      BigInt
+  user_id       BigInt
+  mod_id        BigInt
+  sanction_type String       @db.VarChar(20)
+  duration      String?
+  reason        String?
+  created_at    DateTime?    @default(now()) @db.Timestamptz(6)
+  appealed      Boolean?     @default(false)
+  appeals       BotAppeal[]
+
+  @@index([user_id], map: "idx_sanctions_user")
+  @@index([guild_id, user_id], map: "idx_sanctions_guild_user")
+  @@map("sanctions")
+}
+
+model BotAppeal {
+  id          String       @id
+  sanction_id String?      @db.VarChar(6)
+  pseudo_mc   String?
+  arguments   String
+  status      String?      @default("pending") @db.VarChar(20)
+  created_at  DateTime?    @default(now()) @db.Timestamptz(6)
+  sanction    BotSanction? @relation(fields: [sanction_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "appeals_sanction_id_fkey")
+
+  @@index([sanction_id], map: "idx_appeals_sanction_id")
+  @@index([status], map: "idx_appeals_status")
+  @@map("appeals")
+}
+
+model BotTiktokTarget {
+  username      String   @id
+  channel_id    BigInt
+  role_id       BigInt?
+  last_video_id String?
+  is_live       Boolean? @default(false)
+
+  @@map("tiktok_targets")
+}
+
+model SqlxMigration {
+  version        BigInt   @id
+  description    String
+  installed_on   DateTime @default(now()) @db.Timestamptz(6)
+  success        Boolean
+  checksum       Bytes
+  execution_time BigInt
+
+  @@map("_sqlx_migrations")
+}
+
+model BotRuntime {
+  key        String   @id
+  value      String
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("bot_runtime")
+}
+
+model Tournament {
+  id         BigInt            @id @default(autoincrement())
+  guild_id   BigInt
+  name       String
+  status     String            @default("running") @db.VarChar(12)
+  created_by BigInt
+  created_at DateTime          @default(now()) @db.Timestamptz(6)
+  matches    TournamentMatch[]
+
+  @@map("tournaments")
+}
+
+model TournamentMatch {
+  tournament_id BigInt
+  round         Int
+  position      Int
+  p1            String?
+  p2            String?
+  winner        String?
+  tournament    Tournament @relation(fields: [tournament_id], references: [id], onDelete: Cascade, map: "tournament_matches_tournament_id_fkey")
+
+  @@id([tournament_id, round, position])
+  @@map("tournament_matches")
 }

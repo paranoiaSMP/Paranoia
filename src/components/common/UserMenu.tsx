@@ -1,57 +1,43 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { ChevronDown, LayoutDashboard, LogOut, LogIn } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
-interface UserMenuProps {
-  className?: string;
-}
-
-export default function UserMenu({ className = "" }: UserMenuProps) {
+export default function UserMenu({ className = "" }: { className?: string }) {
   const { data: session, status } = useSession();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!dropdownOpen) return;
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
+    if (!open) return;
+    const onPointer = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false);
     };
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setDropdownOpen(false);
-      }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", onPointer);
+    document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("keydown", onKey);
     };
-  }, [dropdownOpen]);
+  }, [open]);
 
   if (status === "loading") {
-    return (
-      <div className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-mono text-zinc-500 flex items-center justify-center border border-zinc-800/80 bg-zinc-900/40 ${className}`.trim()}>
-        ...
-      </div>
-    );
+    return <div aria-hidden className={`h-11 w-28 animate-pulse rounded-md bg-zinc-900 ${className}`} />;
   }
 
   if (!session) {
     return (
-      <button 
+      <button
         type="button"
-        onClick={() => signIn("discord")} 
-        className={`min-h-[44px] px-4 py-2 rounded-xl bg-[#9d0df2] hover:bg-[#8508cf] text-white font-outfit font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500 cursor-pointer ${className}`.trim()}
+        onClick={() => signIn("discord")}
+        className={`min-h-11 rounded-md bg-white px-4 text-sm font-semibold text-black transition-colors hover:bg-zinc-200 ${className}`}
       >
-        <LogIn className="w-3.5 h-3.5" />
-        <span>Connexion</span>
+        Connexion Discord
       </button>
     );
   }
@@ -59,55 +45,89 @@ export default function UserMenu({ className = "" }: UserMenuProps) {
   const avatarUrl = session.user?.image || siteConfig.discordAvatarFallback;
 
   return (
-    <div ref={menuRef} className={`relative ${className}`.trim()}>
-      <button 
+    <div ref={menuRef} className={`relative ${className}`}>
+      <button
         type="button"
-        aria-expanded={dropdownOpen}
-        aria-haspopup="true"
-        aria-label="Menu utilisateur"
-        onClick={() => setDropdownOpen((prev) => !prev)}
-        className="flex items-center gap-2.5 px-3 py-1.5 min-h-[44px] rounded-xl bg-zinc-900/80 hover:bg-zinc-800 text-zinc-100 border border-zinc-800 hover:border-zinc-700 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500 cursor-pointer"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className="flex min-h-11 items-center gap-2 rounded-md px-2 transition-colors hover:bg-zinc-900"
       >
-        <img 
-          src={avatarUrl} 
-          alt="Avatar utilisateur" 
-          className="w-7 h-7 rounded-lg object-cover border border-zinc-700"
+        <img
+          src={avatarUrl}
+          alt=""
+          className="h-7 w-7 rounded-sm object-cover"
           referrerPolicy="no-referrer"
-          onError={(e) => { e.currentTarget.src = siteConfig.discordAvatarFallback; }}
+          onError={(e) => {
+            e.currentTarget.src = siteConfig.discordAvatarFallback;
+          }}
         />
-        <span className="font-outfit font-bold text-sm max-w-[110px] truncate">{session.user?.name}</span>
-        <ChevronDown className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
+        <span className="hidden max-w-[120px] truncate text-sm font-medium text-zinc-200 sm:block">
+          {session.user?.name}
+        </span>
       </button>
 
-      {dropdownOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-zinc-950/95 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 animate-in fade-in slide-in-from-top-2">
-          <div className="px-3 py-2.5 border-b border-zinc-800/80 mb-1">
-            <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">Connecté en tant que</p>
-            <p className="font-outfit font-bold text-white text-sm truncate">{session.user?.name}</p>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 mt-2 w-56 rounded-md border border-zinc-800 bg-[#0b0b0d] p-1"
+        >
+          <div className="border-b border-zinc-900 px-3 py-2">
+            <p className="text-xs text-zinc-400">Connecté en tant que</p>
+            <p className="truncate text-sm font-medium text-white">{session.user?.name}</p>
           </div>
-          <div className="space-y-0.5">
-            {["ADMIN", "DEV"].includes(session.user?.role as string) && (
-              <Link 
-                href="/admin" 
-                onClick={() => setDropdownOpen(false)}
-                className="flex items-center gap-2.5 w-full min-h-[40px] px-3 py-2 text-xs font-semibold text-purple-300 hover:bg-purple-500/10 rounded-xl transition-colors"
+          <Link href="/collection" role="menuitem" onClick={() => setOpen(false)} className="mt-1 flex min-h-11 w-full items-center rounded-sm px-3 text-sm text-zinc-200 transition-colors hover:bg-zinc-900 hover:text-white">
+            Ma collection
+          </Link>
+          {session.user?.minecraftName && (
+            <Link href={`/joueur/${session.user.minecraftName}`} role="menuitem" onClick={() => setOpen(false)} className="flex min-h-11 w-full items-center rounded-sm px-3 text-sm text-zinc-200 transition-colors hover:bg-zinc-900 hover:text-white">
+              Mon profil
+            </Link>
+          )}
+          <Link href="/support" role="menuitem" onClick={() => setOpen(false)} className="flex min-h-11 w-full items-center rounded-sm px-3 text-sm text-zinc-200 transition-colors hover:bg-zinc-900 hover:text-white">
+            Support
+          </Link>
+          {["ADMIN", "DEV", "MODERATOR"].includes(session.user?.role as string) && (
+            <>
+              <Link
+                href="/admin"
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="mt-1 flex min-h-11 w-full items-center rounded-sm px-3 text-sm text-zinc-200 transition-colors hover:bg-zinc-900 hover:text-white"
               >
-                <LayoutDashboard className="w-4 h-4 text-purple-400" />
-                <span>Administration</span>
+                Administration
               </Link>
-            )}
-            <button 
-              type="button"
-              onClick={() => {
-                setDropdownOpen(false);
-                signOut({ callbackUrl: "/" });
-              }}
-              className="flex items-center gap-2.5 w-full min-h-[40px] px-3 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer"
-            >
-              <LogOut className="w-4 h-4 text-rose-400" />
-              <span>Se déconnecter</span>
-            </button>
-          </div>
+              <Link
+                href="/bot"
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="flex min-h-11 w-full items-center rounded-sm px-3 text-sm text-zinc-200 transition-colors hover:bg-zinc-900 hover:text-white"
+              >
+                Bot Discord
+              </Link>
+              {session.user?.role !== "MODERATOR" && (
+                <Link
+                  href="/admin/cartes"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="flex min-h-11 w-full items-center rounded-sm px-3 text-sm text-zinc-200 transition-colors hover:bg-zinc-900 hover:text-white"
+                >
+                  Éditeur de cartes
+                </Link>
+              )}
+            </>
+          )}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              signOut({ callbackUrl: "/" });
+            }}
+            className="mt-1 flex min-h-11 w-full items-center rounded-sm px-3 text-left text-sm text-zinc-200 transition-colors hover:bg-zinc-900 hover:text-white"
+          >
+            Déconnexion
+          </button>
         </div>
       )}
     </div>

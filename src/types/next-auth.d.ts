@@ -26,5 +26,7 @@ declare module "next-auth/jwt" {
     minecraftName?: string;
     isMcVerified?: boolean;
     paraCoins?: number;
+    discordId?: string;
+    refreshedAt?: number;
   }
 }

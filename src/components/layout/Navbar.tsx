@@ -1,102 +1,136 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, Layers, Dice5, ShoppingBag, Gamepad2, Home } from "lucide-react";
 import UserMenu from "@/components/common/UserMenu";
+import { useSettings } from "@/components/providers/SettingsProvider";
 
 const NAV_LINKS = [
-  { href: "/", label: "Accueil", icon: Home },
-  { href: "/cards", label: "Cartes TCG", icon: Layers },
-  { href: "/jeux", label: "Mini-Jeux", icon: Dice5 },
-  { href: "/shop", label: "Boutique", icon: ShoppingBag },
-  { href: "/launcher", label: "Launcher", icon: Gamepad2 },
+  { name: "Accueil", href: "/" },
+  { name: "Cartes", href: "/cards" },
+  { name: "Jeux", href: "/jeux" },
+  { name: "Launcher", href: "/launcher" },
 ];
 
 export default function Navbar() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { discordUrl } = useSettings();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-[#090810]/90 backdrop-blur-md border-b border-white/10">
-      <div className="w-full px-4 sm:px-8 lg:px-12 h-16 flex items-center justify-between">
-        {/* Logo / Brand */}
-        <Link 
-          href="/" 
-          className="flex items-center gap-2.5 min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500 rounded-lg"
-          aria-label="Retour à l'accueil"
+    <header className="fixed top-0 inset-x-0 z-50 bg-black/70 backdrop-blur-xl border-b border-white/10">
+      <nav
+        aria-label="Navigation principale"
+        className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5 md:px-10"
+      >
+        <Link
+          href="/"
+          className="flex min-h-11 items-center text-lg font-bold tracking-tight text-white"
         >
-          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-[#7a0aad] flex items-center justify-center text-white font-black text-sm shadow-md">
-            P
-          </div>
-          <span className="font-outfit font-black text-lg text-white tracking-wider uppercase">
-            Paranoia <span className="text-[#b366ff]">Studio</span>
-          </span>
+          Paranoia Studio
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1" aria-label="Navigation principale">
-          {NAV_LINKS.map((link) => {
-            const Icon = link.icon;
-            const isActive = pathname === link.href;
-
+        <ul className="hidden items-center gap-1 md:flex">
+          {NAV_LINKS.map((item) => {
+            const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500 ${
-                  isActive
-                    ? "bg-purple-600/20 text-purple-300 border border-purple-500/30"
-                    : "text-slate-300 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <Icon className="w-4 h-4 text-purple-400" />
-                <span>{link.label}</span>
-              </Link>
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`flex min-h-11 items-center px-4 text-sm font-medium transition-colors ${
+                    active ? "text-white" : "text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              </li>
             );
           })}
-        </nav>
+          <li>
+            <a
+              href={discordUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-11 items-center px-4 text-sm font-medium text-zinc-400 transition-colors hover:text-white"
+            >
+              Discord
+            </a>
+          </li>
+        </ul>
 
-        {/* User Account & Mobile Toggle */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <UserMenu />
-
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-            className="md:hidden min-w-[44px] min-h-[44px] p-2 rounded-xl bg-white/5 border border-white/10 text-white flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="menu-mobile"
+            aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+            className="flex h-11 w-11 items-center justify-center rounded-md border border-zinc-800 text-white md:hidden"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <span className="relative block h-3 w-5">
+              <span
+                className={`absolute left-0 h-px w-5 bg-white transition-all duration-150 ${
+                  open ? "top-1.5 rotate-45" : "top-0"
+                }`}
+              />
+              <span
+                className={`absolute left-0 top-1.5 h-px w-5 bg-white transition-opacity duration-150 ${
+                  open ? "opacity-0" : "opacity-100"
+                }`}
+              />
+              <span
+                className={`absolute left-0 h-px w-5 bg-white transition-all duration-150 ${
+                  open ? "top-1.5 -rotate-45" : "top-3"
+                }`}
+              />
+            </span>
           </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-white/10 bg-[#090810]/95 backdrop-blur-xl px-4 py-4 space-y-1 animate-in fade-in slide-in-from-top-2">
-          {NAV_LINKS.map((link) => {
-            const Icon = link.icon;
-            const isActive = pathname === link.href;
-
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`min-h-[44px] w-full px-4 py-3 rounded-xl text-sm font-semibold transition-colors flex items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500 ${
-                  isActive
-                    ? "bg-purple-600/20 text-purple-300 border border-purple-500/30"
-                    : "text-slate-300 hover:text-white hover:bg-white/5"
-                }`}
+      {open && (
+        <div
+          id="menu-mobile"
+          ref={menuRef}
+          className="border-t border-zinc-900 bg-black px-5 pb-6 pt-2 md:hidden"
+        >
+          <ul className="flex flex-col">
+            {NAV_LINKS.map((item) => (
+              <li key={item.href} className="border-b border-zinc-900">
+                <Link
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="flex min-h-14 items-center text-2xl font-semibold text-white"
+                >
+                  {item.name}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <a
+                href={discordUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="flex min-h-14 items-center text-2xl font-semibold text-white"
               >
-                <Icon className="w-5 h-5 text-purple-400" />
-                <span>{link.label}</span>
-              </Link>
-            );
-          })}
+                Discord
+              </a>
+            </li>
+          </ul>
         </div>
       )}
     </header>

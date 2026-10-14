@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { isAdmin, isStaff } from "@/lib/roles";
 
 const SETTING_KEY = "shared_embed_templates";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
+  if (!session?.user || (!isStaff(session.user.role))) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -26,7 +27,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
+  if (!session?.user || (!isStaff(session.user.role))) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -53,7 +54,6 @@ export async function POST(req: Request) {
       components: components || [],
     };
 
-    // Replace if same name, or prepend
     const existingIndex = templates.findIndex((t) => t.name.toLowerCase() === name.trim().toLowerCase());
     if (existingIndex >= 0) {
       templates[existingIndex] = newTemplate;
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== "ADMIN") {
+  if (!session?.user || !isAdmin(session.user.role)) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 

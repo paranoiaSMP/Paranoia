@@ -43,7 +43,7 @@ class CrashEngine {
   private startedAt: number | null = null;
   private crashPoint: number = 1.00;
   private players: Map<string, CrashPlayer> = new Map();
-  private history: number[] = [1.42, 2.15, 1.10, 5.80, 1.95, 12.40, 1.05];
+  private history: number[] = [];
   private listeners: Set<CrashListener> = new Set();
   private timer: NodeJS.Timeout | null = null;
 

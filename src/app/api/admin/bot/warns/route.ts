@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { isStaff } from "@/lib/roles";
 
 export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) return new NextResponse('Unauthorized', { status: 401 });
+    if (!session?.user?.id || !isStaff(session.user.role)) return new NextResponse('Unauthorized', { status: 401 });
     
-    // In a real app, verify if user is admin. For now, assume yes based on route protection.
     
     const warns = await prisma.warn.findMany({
       orderBy: { createdAt: 'desc' },
@@ -25,7 +25,7 @@ export async function GET(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) return new NextResponse('Unauthorized', { status: 401 });
+    if (!session?.user?.id || !isStaff(session.user.role)) return new NextResponse('Unauthorized', { status: 401 });
 
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');

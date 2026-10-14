@@ -1,4 +1,4 @@
-﻿use sqlx::{PgPool, Row};
+use sqlx::PgPool;
 use std::sync::Arc;
 use twilight_http::Client as HttpClient;
 use twilight_model::{
@@ -10,7 +10,7 @@ use twilight_model::{
 pub async fn handle_voice_state(
     vsu: &twilight_model::gateway::payload::incoming::VoiceStateUpdate,
     http: &Arc<HttpClient>,
-    db: &PgPool
+    _db: &PgPool
 ) {
     let guild_id = match vsu.guild_id {
         Some(gid) => gid,
@@ -22,20 +22,6 @@ pub async fn handle_voice_state(
         None => return,
     };
 
-    let row = sqlx::query(r#"SELECT "moduleTempVoice" FROM "GuildConfig" WHERE "guildId" = 'default'"#)
-        .fetch_optional(db)
-        .await
-        .unwrap_or(None);
-
-    let temp_voice_enabled = if let Some(r) = row {
-        r.try_get("moduleTempVoice").unwrap_or(false)
-    } else {
-        false
-    };
-
-    if !temp_voice_enabled {
-        return;
-    }
 
     if let Ok(ch) = http.channel(channel_id).await {
         if let Ok(chan) = ch.model().await {

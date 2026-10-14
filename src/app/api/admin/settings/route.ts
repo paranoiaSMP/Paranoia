@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { clearMaintenanceCache } from "@/lib/maintenance";
+import { EVENT_MODES } from "@/lib/events";
 
 export async function GET(req: NextRequest) {
   try {
@@ -40,12 +42,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing key or value" }, { status: 400 });
     }
 
+    if (key === "maintenance" && !["on", "off"].includes(String(value))) {
+      return NextResponse.json({ error: "Valeur attendue : on ou off." }, { status: 400 });
+    }
+    if (key === "event" && !(EVENT_MODES as readonly string[]).includes(String(value))) {
+      return NextResponse.json({ error: "Valeur attendue : auto, off, halloween ou noel." }, { status: 400 });
+    }
+    if (key === "discord_url" && !/^https:\/\/(discord\.gg|discord\.com\/invite)\/[A-Za-z0-9-]+\/?$/.test(String(value))) {
+      return NextResponse.json({ error: "Lien invalide : https://discord.gg/… attendu." }, { status: 400 });
+    }
+
     const setting = await prisma.systemSetting.upsert({
       where: { key },
       update: { value: String(value) },
       create: { key, value: String(value) },
     });
 
+    if (key === "maintenance") clearMaintenanceCache();
     const { revalidatePath } = require("next/cache");
     revalidatePath("/", "layout");
 

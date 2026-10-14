@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import crypto from "crypto";
-import { prisma } from "@/lib/db";
+import { seal, openOnce } from "@/lib/games/sealedState";
+import { debit, credit, recordBet, recordWin } from "@/lib/games/wallet";
 import { authOptions } from "@/lib/auth";
 
 interface MinesGameState {
@@ -15,30 +16,7 @@ interface MinesGameState {
   createdAt: number;
 }
 
-function getSecretKey(): string {
-  return process.env.NEXTAUTH_SECRET || "paranoia-mines-secret-key-fallback";
-}
-
-function signState(state: MinesGameState): string {
-  const payload = Buffer.from(JSON.stringify(state)).toString("base64url");
-  const signature = crypto.createHmac("sha256", getSecretKey()).update(payload).digest("base64url");
-  return `${payload}.${signature}`;
-}
-
-function verifyState(token: string): MinesGameState | null {
-  const parts = token.split(".");
-  if (parts.length !== 2) return null;
-  const [payload, signature] = parts;
-  const expected = crypto.createHmac("sha256", getSecretKey()).update(payload).digest("base64url");
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return null;
-  try {
-    return JSON.parse(Buffer.from(payload, "base64url").toString("utf-8"));
-  } catch {
-    return null;
-  }
-}
-
-export function calculateMultiplier(minesCount: number, revealedCount: number): number {
+function calculateMultiplier(minesCount: number, revealedCount: number): number {
   if (revealedCount <= 0) return 1.00;
   let prob = 1.0;
   for (let i = 0; i < revealedCount; i++) {
@@ -80,20 +58,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Nombre de mines invalide (entre 1 et 24)" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { paraCoins: true },
-    });
-
-    if (!user || user.paraCoins < betAmount) {
+    const newBalance = await debit(userId, betAmount);
+    if (newBalance === null) {
       return NextResponse.json({ error: "Solde insuffisant" }, { status: 400 });
     }
-
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { paraCoins: { decrement: betAmount } },
-      select: { paraCoins: true },
-    });
+    await recordBet(userId, betAmount);
 
     const minePositions = generateMinePositions(mines);
     const state: MinesGameState = {
@@ -111,13 +80,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      token: signState(state),
+      token: seal(state),
       minesCount: mines,
       bet: betAmount,
       nextMultiplier: nextMult,
       currentMultiplier: 1.00,
       currentPayout: betAmount,
-      paraCoins: updatedUser.paraCoins,
+      paraCoins: newBalance,
     });
   }
 
@@ -126,13 +95,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Paramètres manquants" }, { status: 400 });
     }
 
-    const state = verifyState(token);
+    const state = openOnce<MinesGameState>(token);
     if (!state || state.userId !== userId || state.status !== "playing") {
       return NextResponse.json({ error: "Partie invalide ou expirée" }, { status: 400 });
     }
 
     if (tileIndex < 0 || tileIndex > 24 || state.revealedTiles.includes(tileIndex)) {
-      return NextResponse.json({ error: "Case déjà révélée ou invalide" }, { status: 400 });
+      return NextResponse.json({ error: "Case déjà révélée ou invalide", token: seal(state) }, { status: 400 });
     }
 
     if (state.minePositions.includes(tileIndex)) {
@@ -154,11 +123,8 @@ export async function POST(req: Request) {
       state.status = "cashed_out";
       const payout = Math.floor(state.bet * currentMult);
 
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: { paraCoins: { increment: payout } },
-        select: { paraCoins: true },
-      });
+      const newBalance = await credit(userId, payout);
+      await recordWin(userId, payout);
 
       return NextResponse.json({
         status: "cashed_out",
@@ -167,7 +133,7 @@ export async function POST(req: Request) {
         multiplier: currentMult,
         minePositions: state.minePositions,
         revealedTiles: state.revealedTiles,
-        paraCoins: updatedUser.paraCoins,
+        paraCoins: newBalance,
       });
     }
 
@@ -176,7 +142,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       status: "playing",
-      token: signState(state),
+      token: seal(state),
       revealedTiles: state.revealedTiles,
       currentMultiplier: currentMult,
       nextMultiplier: nextMult,
@@ -189,24 +155,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Token manquant" }, { status: 400 });
     }
 
-    const state = verifyState(token);
+    const state = openOnce<MinesGameState>(token);
     if (!state || state.userId !== userId || state.status !== "playing") {
       return NextResponse.json({ error: "Partie invalide ou déjà terminée" }, { status: 400 });
     }
 
     if (state.revealedTiles.length === 0) {
-      return NextResponse.json({ error: "Aucune case découverte" }, { status: 400 });
+      return NextResponse.json({ error: "Aucune case découverte", token: seal(state) }, { status: 400 });
     }
 
     state.status = "cashed_out";
     const currentMult = calculateMultiplier(state.minesCount, state.revealedTiles.length);
     const payout = Math.floor(state.bet * currentMult);
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { paraCoins: { increment: payout } },
-      select: { paraCoins: true },
-    });
+    const newBalance = await credit(userId, payout);
+      await recordWin(userId, payout);
 
     return NextResponse.json({
       status: "cashed_out",
@@ -214,7 +177,7 @@ export async function POST(req: Request) {
       multiplier: currentMult,
       minePositions: state.minePositions,
       revealedTiles: state.revealedTiles,
-      paraCoins: updatedUser.paraCoins,
+      paraCoins: newBalance,
     });
   }
 

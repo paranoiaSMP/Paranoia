@@ -2,6 +2,7 @@ mod commands;
 mod config;
 mod db;
 mod events;
+mod modules;
 mod utils;
 
 use anyhow::Result;
@@ -18,7 +19,7 @@ async fn main() -> Result<()> {
         )
         .init();
 
-    tracing::info!("Initializing Paranoia SMP Discord Bot (Rust/Twilight)...");
+    tracing::info!("Initializing Paranoia Studio Discord Bot (Rust/Twilight)...");
 
     let config = Arc::new(config::Config::load()?);
     tracing::info!("Configuration loaded successfully");
@@ -62,19 +63,31 @@ async fn main() -> Result<()> {
     tracing::info!("Bot ready: {} (ID: {})", current_user.name, current_user.id);
 
     let application = http.current_user_application().await?.model().await?;
-    let commands = commands::get_commands();
-    http.interaction(application.id)
-        .set_global_commands(&commands)
-        .await?;
-    tracing::info!("Registered {} global commands", commands.len());
 
-    // Background task: TikTok monitoring loop
+    if let Err(e) = modules::declare(&pool).await {
+        tracing::warn!("Modules : déclaration impossible ({:?}). Valeurs par défaut utilisées.", e);
+    }
+    if let Err(e) = modules::reload(&pool).await {
+        tracing::warn!("Modules : lecture de l'état impossible ({:?})", e);
+    }
+    if let Err(e) = modules::sync_commands(&http, application.id).await {
+        tracing::error!("Commandes slash non envoyées : {:?}", e);
+    }
+    modules::spawn_watcher(pool.clone(), Arc::clone(&http), application.id);
+    modules::quiz::spawn_scheduler(Arc::clone(&http));
+    modules::activity::spawn(Arc::clone(&http), pool.clone());
+    modules::staff::spawn_absence_sync(Arc::clone(&http), pool.clone());
+    modules::conference::restore(Arc::clone(&http), pool.clone());
+
     let http_tiktok = Arc::clone(&http);
     let pool_tiktok = pool.clone();
     tokio::spawn(async move {
         let mut interval = tokio::time::interval(std::time::Duration::from_secs(90));
         loop {
             interval.tick().await;
+            if !modules::enabled("tiktok") {
+                continue;
+            }
             if let Err(e) = commands::tiktok::check_all_tiktok(&http_tiktok, &pool_tiktok).await {
                 tracing::warn!("TikTok background check error: {:?}", e);
             }

@@ -6,16 +6,18 @@ import { authOptions } from '@/lib/auth';
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    const body = await req.json();
-    const {
-      discordName,
-      minecraftName,
-      platform,
-      experience,
-      motivation,
-      additions,
-      other
-    } = body;
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Connecte-toi pour envoyer une candidature." }, { status: 401 });
+    }
+    const body = await req.json().catch(() => ({}));
+    const s = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+    const discordName = s(body.discordName, 100);
+    const minecraftName = s(body.minecraftName, 16);
+    const platform = s(body.platform, 100);
+    const experience = s(body.experience, 4000);
+    const motivation = s(body.motivation, 4000);
+    const additions = s(body.additions, 4000);
+    const other = s(body.other, 4000);
 
     if (!discordName || !platform || !experience || !motivation || !additions) {
       return NextResponse.json({ error: 'Veuillez remplir tous les champs obligatoires.' }, { status: 400 });
@@ -30,7 +32,7 @@ export async function POST(req: Request) {
         motivation,
         additions,
         other: other || null,
-        applicantId: session?.user?.id || null,
+        applicantId: session.user.id,
       }
     });
 

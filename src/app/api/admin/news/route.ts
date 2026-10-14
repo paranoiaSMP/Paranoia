@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { isAdmin } from "@/lib/roles";
+import { notifyNews } from "@/lib/realtime/emit";
 
 export async function GET() {
   try {
@@ -30,7 +32,7 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
 
-    if (!user || !user.id) {
+    if (!user?.id || !isAdmin(user.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -50,6 +52,7 @@ export async function POST(req: Request) {
       }
     });
 
+    notifyNews();
     return NextResponse.json(newTopic);
   } catch (error) {
     console.error("Error creating news:", error);
@@ -62,7 +65,7 @@ export async function DELETE(req: Request) {
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
 
-    if (!user) {
+    if (!user?.id || !isAdmin(user.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -77,6 +80,7 @@ export async function DELETE(req: Request) {
       where: { id }
     });
 
+    notifyNews();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting news:", error);

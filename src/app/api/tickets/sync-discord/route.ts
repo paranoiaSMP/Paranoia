@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import { getAllTickets, addMessageToTicket, closeTicket } from "@/lib/tickets";
+import { safeEqual } from "@/lib/secrets";
 
 export async function POST(req: Request) {
   try {
-    const authHeader = req.headers.get("authorization");
-    const expectedToken = process.env.DISCORD_TOKEN;
-
-    if (!expectedToken || authHeader !== `Bearer ${expectedToken}`) {
+    const authHeader = req.headers.get("authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ") || !safeEqual(authHeader.slice(7), process.env.DISCORD_TOKEN)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -37,7 +36,7 @@ export async function POST(req: Request) {
       ticket.id,
       {
         authorName: authorName || "Staff Discord",
-        authorRole: (authorRole as any) || "STAFF",
+        authorRole: authorRole === "USER" ? "USER" : "STAFF",
         authorImage: authorImage || undefined,
         content: content.trim(),
       },
