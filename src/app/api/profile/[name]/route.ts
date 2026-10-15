@@ -16,6 +16,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ name: s
         role: true,
         createdAt: true,
         xp: true,
+        showcase: true,
         inventory: {
           select: {
             id: true,
@@ -31,7 +32,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ name: s
     const distinct = new Set(cards.map((c) => c.tradingCard.id)).size;
     const byRarity: Record<string, number> = {};
     for (const c of cards) byRarity[c.tradingCard.rarity] = (byRarity[c.tradingCard.rarity] ?? 0) + 1;
-    const best = [...cards]
+    // Sélection du joueur si elle existe encore, sinon les plus rares.
+    const picked = user.showcase.map((id) => cards.find((c) => c.id === id)).filter((c): c is (typeof cards)[number] => !!c);
+    const best = picked.length ? picked : [...cards]
       .sort((a, b) => (RANK[b.tradingCard.rarity] ?? 0) - (RANK[a.tradingCard.rarity] ?? 0) || Number(!!b.specialEffect) - Number(!!a.specialEffect))
       .slice(0, 5);
     const total = await prisma.tradingCard.count({ where: { isPublished: true } });
@@ -47,6 +50,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ name: s
       total,
       byRarity,
       best,
+      custom: picked.length > 0,
     });
   } catch (error) {
     console.error("[PROFILE_GET]", error);

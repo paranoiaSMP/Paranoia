@@ -385,6 +385,27 @@
   from { opacity: 0.5; }
   to { opacity: 0.9; }
 }
+@keyframes season-fall {
+  from { transform: translate3d(0, -10%, 0) rotate(0deg); }
+  to { transform: translate3d(14px, 1100%, 0) rotate(300deg); }
+}
+@keyframes season-rise {
+  from { transform: translate3d(0, 10%, 0) scale(0.8); opacity: 0; }
+  15% { opacity: 0.85; }
+  to { transform: translate3d(18px, -1100%, 0) scale(1.15); opacity: 0; }
+}
+@keyframes season-fly {
+  from { transform: translate3d(-20%, 0, 0); }
+  25% { transform: translate3d(300%, -40%, 0) scaleY(0.7); }
+  50% { transform: translate3d(650%, 30%, 0); }
+  75% { transform: translate3d(1000%, -30%, 0) scaleY(0.7); }
+  to { transform: translate3d(1400%, 0, 0); }
+}
+@keyframes season-hop {
+  0%, 60%, 100% { transform: translateY(0) scaleY(1); }
+  25% { transform: translateY(-110%) scaleY(1.08); }
+  70% { transform: translateY(0) scaleY(0.9); }
+}
 @keyframes glitch-scan {
   from { transform: translateY(-50%); }
   to { transform: translateY(0); }
@@ -406,6 +427,10 @@
   .card-aura-breathe { animation: card-breathe 3.2s ease-in-out infinite alternate; }
   .card-fx-sheen { animation: card-sheen 3.2s ease-in-out infinite alternate; }
   .card-fx-cosmic { animation: cosmic-pulse 4s ease-in-out infinite alternate; }
+  .card-fx-fall { animation: season-fall var(--d, 7s) linear infinite; animation-delay: var(--delay, 0s); }
+  .card-fx-rise { animation: season-rise var(--d, 6s) ease-in infinite; animation-delay: var(--delay, 0s); }
+  .card-fx-fly { animation: season-fly calc(var(--d, 6s) * 1.8) linear infinite; animation-delay: var(--delay, 0s); }
+  .card-fx-hop { animation: season-hop 1.8s ease-out infinite; animation-delay: var(--delay, 0s); }
   .card-fx-scan { animation: glitch-scan 8s linear infinite; }
   .card-fx-glitch { animation: glitch-clip 3s steps(1) infinite; }
   .card-fx-glitch-r { animation: glitch-r 3s steps(1) infinite; }
@@ -728,131 +753,3 @@ html[data-event='halloween'] .page-sweep {
   .halloween-fog { animation: none; }
 }
 
-
-.fx-embers,
-.fx-frost,
-.card-season {
-  position: absolute;
-  inset: 0;
-  z-index: 92;
-  overflow: hidden;
-  border-radius: 0.75rem;
-  pointer-events: none;
-}
-.card-season { display: none; }
-html[data-event='halloween'] .card-season,
-html[data-event='noel'] .card-season { display: block; }
-
-.fx-embers,
-html[data-event='halloween'] .card-season {
-  background: linear-gradient(to top, rgba(234, 88, 12, 0.4), rgba(234, 88, 12, 0.08) 30%, transparent 50%);
-  mix-blend-mode: screen;
-}
-.fx-frost,
-html[data-event='noel'] .card-season {
-  background: linear-gradient(to bottom, rgba(224, 242, 254, 0.22), transparent 35%);
-  box-shadow: inset 0 0 18px 2px rgba(224, 242, 254, 0.45);
-}
-
-.fx-embers::before,
-.fx-embers::after,
-.fx-frost::before,
-.fx-frost::after,
-html[data-event='halloween'] .card-season::before,
-html[data-event='halloween'] .card-season::after,
-html[data-event='noel'] .card-season::before,
-html[data-event='noel'] .card-season::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: calc(100% + 240px);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-.fx-embers::before,
-.fx-embers::after,
-html[data-event='halloween'] .card-season::before,
-html[data-event='halloween'] .card-season::after {
-  top: 0;
-  animation-name: fx-rise;
-}
-.fx-embers::before,
-html[data-event='halloween'] .card-season::before {
-  background-image:
-    radial-gradient(circle at 44% 38px, #fdba74 0 1.3px, transparent 2.3px),
-    radial-gradient(circle at 9% 18px, #f97316 0 1.7px, transparent 2.7px),
-    radial-gradient(circle at 15% 93px, #fdba74 0 1.5px, transparent 2.5px),
-    radial-gradient(circle at 67% 54px, #f97316 0 1.0px, transparent 2.0px),
-    radial-gradient(circle at 58% 107px, #fdba74 0 1.1px, transparent 2.1px),
-    radial-gradient(circle at 14% 141px, #f97316 0 1.3px, transparent 2.3px),
-    radial-gradient(circle at 75% 31px, #fdba74 0 1.8px, transparent 2.8px),
-    radial-gradient(circle at 83% 160px, #f97316 0 1.5px, transparent 2.5px),
-    radial-gradient(circle at 10% 147px, #fdba74 0 1.5px, transparent 2.5px);
-  background-size: 100% 240px;
-  animation-duration: 7s;
-}
-.fx-embers::after,
-html[data-event='halloween'] .card-season::after {
-  background-image:
-    radial-gradient(circle at 9% 56px, #fed7aa 0 0.8px, transparent 1.8px),
-    radial-gradient(circle at 20% 74px, #fb923c 0 1.0px, transparent 2.0px),
-    radial-gradient(circle at 72% 30px, #fed7aa 0 1.1px, transparent 2.1px),
-    radial-gradient(circle at 74% 208px, #fb923c 0 1.1px, transparent 2.1px),
-    radial-gradient(circle at 16% 148px, #fed7aa 0 1.1px, transparent 2.1px),
-    radial-gradient(circle at 27% 95px, #fb923c 0 0.8px, transparent 1.8px);
-  background-size: 100% 240px;
-  opacity: 0.7;
-  animation-duration: 4.5s;
-}
-
-.fx-frost::before,
-.fx-frost::after,
-html[data-event='noel'] .card-season::before,
-html[data-event='noel'] .card-season::after {
-  top: -240px;
-  animation-name: fx-fall;
-}
-.fx-frost::before,
-html[data-event='noel'] .card-season::before {
-  background-image:
-    radial-gradient(circle at 94% 16px, #ffffff 0 1.3px, transparent 2.3px),
-    radial-gradient(circle at 82% 52px, #e0f2fe 0 1.3px, transparent 2.3px),
-    radial-gradient(circle at 71% 109px, #ffffff 0 1.5px, transparent 2.5px),
-    radial-gradient(circle at 62% 149px, #e0f2fe 0 1.6px, transparent 2.6px),
-    radial-gradient(circle at 49% 76px, #ffffff 0 1.1px, transparent 2.1px),
-    radial-gradient(circle at 26% 178px, #e0f2fe 0 1.5px, transparent 2.5px),
-    radial-gradient(circle at 13% 147px, #ffffff 0 1.2px, transparent 2.2px),
-    radial-gradient(circle at 66% 224px, #e0f2fe 0 1.2px, transparent 2.2px);
-  background-size: 100% 240px;
-  animation-duration: 11s;
-}
-.fx-frost::after,
-html[data-event='noel'] .card-season::after {
-  background-image:
-    radial-gradient(circle at 60% 73px, #ffffff 0 2.0px, transparent 3.0px),
-    radial-gradient(circle at 12% 30px, #ffffff 0 2.0px, transparent 3.0px),
-    radial-gradient(circle at 24% 193px, #ffffff 0 1.8px, transparent 2.8px),
-    radial-gradient(circle at 65% 107px, #ffffff 0 1.6px, transparent 2.6px),
-    radial-gradient(circle at 88% 19px, #ffffff 0 2.1px, transparent 3.1px);
-  background-size: 100% 240px;
-  opacity: 0.85;
-  animation-duration: 7s;
-}
-
-@keyframes fx-rise {
-  to { transform: translateY(-240px); }
-}
-@keyframes fx-fall {
-  to { transform: translateY(240px); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fx-embers::before,
-  .fx-embers::after,
-  .fx-frost::before,
-  .fx-frost::after,
-  .card-season::before,
-  .card-season::after { animation: none; }
-}

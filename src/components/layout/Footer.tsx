@@ -58,6 +58,7 @@ const NAV_GROUPS = [
     links: [
       { name: "Cartes TCG", href: "/cards" },
       { name: "Ma Collection", href: "/collection" },
+      { name: "Joueurs", href: "/joueurs" },
       { name: "Mini-Jeux", href: "/jeux" },
       { name: "Launcher SMP", href: "/launcher" },
     ],

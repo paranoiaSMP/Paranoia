@@ -96,8 +96,7 @@ fn render(quests: &[Quest]) -> (Embed, Vec<Component>) {
         })
         .collect();
     let embed = EmbedBuilder::new()
-        .title("Quêtes du jour")
-        .description(lines.join("\n\n"))
+        .description(format!("{}\n\n{}", format!("## {} | Quêtes du jour", crate::utils::emoji::STATS), lines.join("\n\n")))
         .color(0x7c3aed)
         .footer(EmbedFooterBuilder::new("Nouvelles quêtes chaque jour à minuit (heure de Paris)"))
         .build();

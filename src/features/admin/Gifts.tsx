@@ -4,7 +4,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { BOOSTER_PACKS } from "@/config/boosters";
 import { useResource, send } from "./useResource";
-import { PanelHeader, inputCls } from "./ui";
+import { PanelHeader, ListState, inputCls } from "./ui";
+import type { BoosterStates } from "@/lib/boosters-types";
 
 type Card = { id: string; title: string; rarity: string; edition: string };
 type User = { id: string; name: string | null; minecraftName: string | null };
@@ -119,6 +120,89 @@ function CardGift({ cards }: { cards: Card[] }) {
   );
 }
 
+function BoosterRow({ id, initial, onSaved }: { id: string; initial: { visible: boolean; stock: number | null }; onSaved: () => void }) {
+  const pack = BOOSTER_PACKS[id as keyof typeof BOOSTER_PACKS];
+  const [visible, setVisible] = useState(initial.visible);
+  const [stock, setStock] = useState(initial.stock === null ? "" : String(initial.stock));
+  const [busy, setBusy] = useState(false);
+
+  const save = async (nextStock: string = stock) => {
+    setBusy(true);
+    try {
+      await send("/api/admin/boosters", "PUT", { id, visible, stock: nextStock === "" ? null : Math.max(0, Math.floor(Number(nextStock))) });
+      toast.success(`${pack.name} mis à jour.`);
+      onSaved();
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <li className="flex flex-wrap items-center gap-4 py-4">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={pack.image} alt="" className="h-16 w-12 shrink-0 object-contain" />
+      <div className="min-w-32 flex-1">
+        <p className="font-semibold text-white">{pack.name}</p>
+        <p className="text-sm text-zinc-400">
+          {pack.seasonal ? "Fête, masqué par défaut" : "Permanent"} · {pack.price} PARA
+        </p>
+      </div>
+      <label className="flex min-h-11 items-center gap-2 text-sm text-zinc-300">
+        <input type="checkbox" checked={visible} onChange={(e) => setVisible(e.target.checked)} className="size-5 accent-violet-500" />
+        Affiché
+      </label>
+      <label className="flex items-center gap-2 text-sm text-zinc-300">
+        Stock
+        <input
+          type="number"
+          min={0}
+          inputMode="numeric"
+          placeholder="illimité"
+          value={stock}
+          onChange={(e) => setStock(e.target.value)}
+          className={`${inputCls} w-28 tabular-nums`}
+        />
+      </label>
+      <button type="button" onClick={() => save()} disabled={busy} className="btn-violet disabled:opacity-50">
+        Enregistrer
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          setStock("0");
+          save("0");
+        }}
+        disabled={busy}
+        className="btn-line disabled:opacity-50"
+      >
+        Rupture de stock
+      </button>
+    </li>
+  );
+}
+
+function Boosters() {
+  const { data, error, loading, reload } = useResource<BoosterStates>("/api/admin/boosters");
+  return (
+    <div className={box}>
+      <h3 className="text-lg font-semibold text-white">Boosters en boutique</h3>
+      <p className="text-sm text-zinc-400">
+        Un booster masqué disparaît de la boutique et de l&apos;accueil (les boosters déjà possédés restent ouvrables). Stock vide = illimité, 0 = rupture.
+      </p>
+      <ListState loading={loading && !data} error={error} empty={false} emptyText="" onRetry={reload} />
+      {data && (
+        <ul className="divide-y divide-zinc-900">
+          {Object.values(BOOSTER_PACKS).map((p) => (
+            <BoosterRow key={`${p.id}-${JSON.stringify(data[p.id])}`} id={p.id} initial={data[p.id]} onSaved={reload} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function Danger({ cards, users }: { cards: Card[]; users: User[] }) {
   const [action, setAction] = useState<"GIVE_ALL" | "WIPE_ALL" | "WIPE_PLAYER">("GIVE_ALL");
   const [cardId, setCardId] = useState("");
@@ -219,6 +303,9 @@ export default function Gifts() {
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Reward />
         <CardGift cards={cards.data ?? []} />
+        <div className="xl:col-span-2">
+          <Boosters />
+        </div>
         <div className="xl:col-span-2">
           <Danger cards={cards.data ?? []} users={users.data ?? []} />
         </div>

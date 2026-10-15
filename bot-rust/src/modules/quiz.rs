@@ -296,7 +296,15 @@ async fn ask(http: &Arc<HttpClient>) -> Result<(), &'static str> {
 
     set_writable(http, channel, true).await;
     let template = setting_value(ID, "message").unwrap_or_default();
-    let vars = [("question", q.text.clone()), ("reward", reward.to_string()), ("seconds", seconds.to_string())];
+    use crate::utils::emoji;
+    let vars = [
+        ("question", q.text.clone()),
+        ("reward", reward.to_string()),
+        ("seconds", seconds.to_string()),
+        ("icon_quiz", emoji::TITLE.to_string()),
+        ("icon_reward", emoji::ECONOMY.to_string()),
+        ("icon_time", emoji::TIME.to_string()),
+    ];
     let (content, embed) = embed::render(&template, &vars);
     let embeds: Vec<_> = embed.into_iter().collect();
     let mut req = http.create_message(channel).embeds(&embeds);
@@ -322,7 +330,11 @@ async fn ask(http: &Arc<HttpClient>) -> Result<(), &'static str> {
         if let Some(a) = expired {
             set_writable(&http, a.channel, false).await;
             let embed = EmbedBuilder::new()
-                .description(format!("Temps écoulé ! La réponse était **{}**.", a.answers.first().cloned().unwrap_or_default()))
+                .description(format!(
+                    "## {} | Temps écoulé !\n\nPersonne n'a trouvé. La réponse était **{}**.",
+                    crate::utils::emoji::OFF,
+                    a.answers.first().cloned().unwrap_or_default()
+                ))
                 .color(0x52525b)
                 .build();
             let _ = http.create_message(a.channel).embeds(&[embed]).await;
@@ -347,9 +359,11 @@ pub async fn on_message(msg: &Message, http: &Arc<HttpClient>, db: &PgPool) {
             set_writable(http, won.channel, false).await;
             let embed = EmbedBuilder::new()
                 .description(format!(
-                    "Bonne réponse de <@{}> : **{}**. **+{} ParaCoins** (solde : {balance}).",
+                    "## {} | Bonne réponse !\n\n<@{}> a trouvé : **{}**\n\n{} | **+{} ParaCoins** · solde : {balance}",
+                    crate::utils::emoji::OK,
                     msg.author.id,
                     won.answers.first().cloned().unwrap_or_default(),
+                    crate::utils::emoji::ECONOMY,
                     won.reward
                 ))
                 .color(0x22c55e)
@@ -390,13 +404,15 @@ pub fn spawn_scheduler(http: Arc<HttpClient>) {
             tick.tick().await;
             if first {
                 first = false;
+                // shortcut: l'horloge repart à chaque redémarrage du bot (pas de question immédiate), à persister si les redémarrages deviennent fréquents.
+                state().lock().unwrap().last_asked.get_or_insert_with(Instant::now);
                 if enabled(ID) && state().lock().unwrap().active.is_none() {
                     if let Some(channel) = quiz_channel() {
                         set_writable(&http, channel, false).await;
                     }
                 }
             }
-            let every = setting_number(ID, "intervalMinutes", 60);
+            let every = setting_number(ID, "intervalMinutes", 720);
             if !enabled(ID) || every <= 0 {
                 continue;
             }

@@ -21,8 +21,7 @@ import AnimatedNumber from "@/components/motion/AnimatedNumber";
 import { useRealtime } from "@/lib/realtime/client";
 import { useWalletStore } from "@/lib/realtime/wallet-store";
 import Reveal from "@/components/common/Reveal";
-
-const PACKS = Object.values(BOOSTER_PACKS);
+import { useBoosterStates } from "@/lib/useBoosterStates";
 
 const RARITY_MAP: Record<string, string> = {
   Commune: "COMMON",
@@ -90,7 +89,7 @@ async function openReal(pack: BoosterPackConfig): Promise<OpenedCard[]> {
   }));
 }
 
-const MAX_RATE = Math.max(...PACKS.flatMap((p) => Object.values(BOOSTER_DROP_RATES[p.id])));
+const MAX_RATE = Math.max(...Object.values(BOOSTER_DROP_RATES).flatMap((r) => Object.values(r)));
 
 export default function CardsPageRoute() {
   return (
@@ -104,9 +103,11 @@ function CardsPage() {
   const reduce = useReducedMotion();
   const params = useSearchParams();
   const fromUrl = params.get("edition");
-  const [activeId, setActiveId] = useState<BoosterPackId>(
+  const { states, packs: PACKS, refresh: refreshStates } = useBoosterStates();
+  const [pickedId, setActiveId] = useState<BoosterPackId>(
     fromUrl && fromUrl in BOOSTER_PACKS ? (fromUrl as BoosterPackId) : "standard"
   );
+  const activeId = PACKS.some((p) => p.id === pickedId) ? pickedId : PACKS[0].id;
   const [opening, setOpening] = useState<Opening | null>(null);
   const { status } = useSession();
   const coins = useWalletStore((s) => s.coins);
@@ -122,6 +123,8 @@ function CardsPage() {
   const active = BOOSTER_PACKS[activeId];
   const rates = BOOSTER_DROP_RATES[activeId];
   const owned = inventory?.boxes[activeId] ?? 0;
+  const stock = states?.[activeId].stock ?? null;
+  const soldOut = stock === 0;
 
   useRealtime("wallet", applyWallet, status === "authenticated");
 
@@ -163,6 +166,7 @@ function CardsPage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "Achat impossible.");
       toast.success(`Booster ${active.name} acheté.`);
+      refreshStates();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Achat impossible.");
     } finally {
@@ -183,7 +187,7 @@ function CardsPage() {
             className="text-[clamp(3.5rem,12vw,9rem)] font-extrabold leading-[0.9] tracking-[-0.045em]"
           />
           <p className="mt-8 max-w-xl text-lg leading-relaxed text-zinc-300">
-            Quatre boosters, six raretés. Choisis une édition, regarde les probabilités, puis ouvre-la pour voir ce que ça donne.
+            Des boosters, six raretés. Choisis une édition, regarde les probabilités, puis ouvre-la pour voir ce que ça donne.
           </p>
         </div>
       </section>
@@ -216,7 +220,7 @@ function CardsPage() {
                       </span>
                     </span>
                     <span className={`relative hidden text-sm sm:block ${selected ? "text-violet-400" : "text-zinc-400"}`}>
-                      {pack.price} PARA
+                      {states?.[pack.id].stock === 0 ? "Rupture" : `${pack.price} PARA`}
                     </span>
                   </button>
                 );
@@ -267,22 +271,25 @@ function CardsPage() {
                       <button
                         type="button"
                         onClick={buy}
-                        disabled={buying || !inventory || inventory.paraCoins < active.price}
+                        disabled={buying || soldOut || !inventory || inventory.paraCoins < active.price}
                         className="btn-violet disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {buying ? "Achat…" : `Acheter pour ${active.price} PARA`}
+                        {buying ? "Achat…" : soldOut ? "Rupture de stock" : `Acheter pour ${active.price} PARA`}
                       </button>
                     )}
                     {owned > 0 && (
-                      <button type="button" onClick={buy} disabled={buying || !inventory || inventory.paraCoins < active.price} className="btn-line disabled:cursor-not-allowed disabled:opacity-50">
-                        {buying ? "Achat…" : `En acheter un (${active.price} PARA)`}
+                      <button type="button" onClick={buy} disabled={buying || soldOut || !inventory || inventory.paraCoins < active.price} className="btn-line disabled:cursor-not-allowed disabled:opacity-50">
+                        {buying ? "Achat…" : soldOut ? "Rupture de stock" : `En acheter un (${active.price} PARA)`}
                       </button>
                     )}
                     <button type="button" onClick={() => open(active, true)} className="btn-line">
                       Simuler
                     </button>
                   </div>
-                  {inventory && owned === 0 && inventory.paraCoins < active.price && (
+                  {stock !== null && stock > 0 && (
+                    <p className="mt-3 text-sm text-zinc-300">Plus que {stock} en stock.</p>
+                  )}
+                  {inventory && owned === 0 && !soldOut && inventory.paraCoins < active.price && (
                     <p className="mt-3 text-sm text-zinc-400">Pas assez de ParaCoins pour ce booster.</p>
                   )}
                 </>

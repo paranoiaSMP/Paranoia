@@ -118,7 +118,7 @@ pub async fn run_note(interaction: Interaction, http: Arc<HttpClient>, db: PgPoo
                     format!("`{}` · <@{by}> · {}\n{content}", &id[..8.min(id.len())], at.format("%d/%m/%Y"))
                 })
                 .collect();
-            let embed = EmbedBuilder::new().title("Notes du staff").description(format!("<@{target}>\n\n{}", lines.join("\n\n"))).color(COLOR).build();
+            let embed = EmbedBuilder::new().description(format!("{}\n\n{}", format!("## {} | Notes du staff", crate::utils::emoji::STAFF), format!("<@{target}>\n\n{}", lines.join("\n\n")))).color(COLOR).build();
             reply_private(&http, &interaction, None, vec![embed]).await
         }
         "supprimer" => {
@@ -160,7 +160,7 @@ pub async fn run_stats(interaction: Interaction, http: Arc<HttpClient>, db: PgPo
             .fetch_one(&db)
             .await
             .unwrap_or(0);
-        let mut embed = EmbedBuilder::new().title(format!("Modération · {days} jours")).description(format!("<@{modo}>")).color(COLOR);
+        let mut embed = EmbedBuilder::new().description(format!("{}\n\n{}", format!("## {} | Modération · {days} jours", crate::utils::emoji::STAFF), format!("<@{modo}>"))).color(COLOR);
         for r in &rows {
             let kind: String = r.try_get("sanction_type").unwrap_or_default();
             let n: i64 = r.try_get("n").unwrap_or(0);
@@ -192,8 +192,7 @@ pub async fn run_stats(interaction: Interaction, http: Arc<HttpClient>, db: PgPo
         })
         .collect();
     let embed = EmbedBuilder::new()
-        .title(format!("Modération · {days} jours"))
-        .description(if lines.is_empty() { "Aucune sanction sur la période.".to_string() } else { lines.join("\n") })
+        .description(format!("{}\n\n{}", format!("## {} | Modération · {days} jours", crate::utils::emoji::STAFF), if lines.is_empty() { "Aucune sanction sur la période.".to_string() } else { lines.join("\n") }))
         .color(COLOR)
         .build();
     reply_private(&http, &interaction, None, vec![embed]).await
@@ -261,7 +260,7 @@ pub async fn run_absence(interaction: Interaction, http: Arc<HttpClient>, db: Pg
                 reason.map(|r| format!(" · {r}")).unwrap_or_default()
             );
             if let Some(channel) = setting("absences", "channelId").and_then(|c| c.trim().parse::<u64>().ok()) {
-                let embed = EmbedBuilder::new().title("Absence").description(&summary).color(COLOR).build();
+                let embed = EmbedBuilder::new().description(format!("{}\n\n{}", format!("## {} | Absence", crate::utils::emoji::STAFF), &summary)).color(COLOR).build();
                 let _ = http.create_message(Id::new(channel)).embeds(&[embed]).await;
             }
             if let Some(guild) = interaction.guild_id {
@@ -303,8 +302,7 @@ pub async fn run_absence(interaction: Interaction, http: Arc<HttpClient>, db: Pg
                 })
                 .collect();
             let embed = EmbedBuilder::new()
-                .title("Absences du staff")
-                .description(if lines.is_empty() { "Personne n'est absent.".to_string() } else { lines.join("\n\n") })
+                .description(format!("{}\n\n{}", format!("## {} | Absences du staff", crate::utils::emoji::STAFF), if lines.is_empty() { "Personne n'est absent.".to_string() } else { lines.join("\n\n") }))
                 .color(COLOR)
                 .build();
             reply_private(&http, &interaction, None, vec![embed]).await

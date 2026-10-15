@@ -8,19 +8,25 @@ use twilight_http::Client as HttpClient;
 use twilight_model::application::command::Command;
 use twilight_model::application::interaction::Interaction;
 use twilight_model::channel::message::MessageFlags;
+use twilight_model::guild::Permissions;
 use twilight_model::http::interaction::{InteractionResponse, InteractionResponseData, InteractionResponseType};
-use twilight_model::id::{marker::ApplicationMarker, Id};
+use twilight_model::id::{marker::{ApplicationMarker, RoleMarker}, Id};
 
 use crate::commands;
 
 pub mod activity;
 pub mod applications;
+pub mod automod;
 pub mod backup;
 pub mod conference;
 pub mod drops;
 pub mod embed;
 pub mod message_log;
 pub mod quiz;
+pub mod giveaway;
+pub mod tribunal;
+pub mod invites;
+pub mod welcome_image;
 pub mod security;
 pub mod staff;
 pub mod wallet;
@@ -110,19 +116,37 @@ pub fn registry() -> &'static [ModuleDef] {
                         commands::moderation::register_warn(),
                         commands::moderation::register_warnings(),
                         commands::moderation::register_clear(),
+                        commands::moderation::register_unban(),
+                        commands::moderation::register_unmute(),
+                        commands::moderation::register_cases(),
                     ]
                 },
                 components: &["appeal_open:", "appeal_staff_accept:", "appeal_staff_reject:", "modal_appeal:"],
-                settings: &[],
+                settings: {
+                    const S: &[Setting] = &[
+                    field("perm_ban", "Rôles autorisés : /ban", SettingKind::Roles, Some("Vide : permission Discord « Bannir des membres » requise. Les administrateurs passent toujours. Identifiants séparés par une virgule."), None),
+                    field("perm_unban", "Rôles autorisés : /unban", SettingKind::Roles, Some("Vide : permission Discord « Bannir des membres » requise. Les administrateurs passent toujours. Identifiants séparés par une virgule."), None),
+                    field("perm_mute", "Rôles autorisés : /mute", SettingKind::Roles, Some("Vide : permission Discord « Exclure temporairement des membres » requise. Les administrateurs passent toujours. Identifiants séparés par une virgule."), None),
+                    field("perm_unmute", "Rôles autorisés : /unmute", SettingKind::Roles, Some("Vide : permission Discord « Exclure temporairement des membres » requise. Les administrateurs passent toujours. Identifiants séparés par une virgule."), None),
+                    field("perm_kick", "Rôles autorisés : /kick", SettingKind::Roles, Some("Vide : permission Discord « Expulser des membres » requise. Les administrateurs passent toujours. Identifiants séparés par une virgule."), None),
+                    field("perm_warn", "Rôles autorisés : /warn", SettingKind::Roles, Some("Vide : permission Discord « Exclure temporairement des membres » requise. Les administrateurs passent toujours. Identifiants séparés par une virgule."), None),
+                    field("perm_warnings", "Rôles autorisés : /warnings", SettingKind::Roles, Some("Vide : permission Discord « Exclure temporairement des membres » requise. Les administrateurs passent toujours. Identifiants séparés par une virgule."), None),
+                    field("perm_cases", "Rôles autorisés : /cases", SettingKind::Roles, Some("Vide : permission Discord « Exclure temporairement des membres » requise. Les administrateurs passent toujours. Identifiants séparés par une virgule."), None),
+                    field("perm_clear", "Rôles autorisés : /clear", SettingKind::Roles, Some("Vide : permission Discord « Gérer les messages » requise. Les administrateurs passent toujours. Identifiants séparés par une virgule."), None),
+                    field("perm_promote", "Rôles autorisés : /promote", SettingKind::Roles, Some("Vide : permission Discord « Administrateur » requise. Les administrateurs passent toujours. Identifiants séparés par une virgule."), None),
+                    field("perm_demote", "Rôles autorisés : /demote", SettingKind::Roles, Some("Vide : permission Discord « Administrateur » requise. Les administrateurs passent toujours. Identifiants séparés par une virgule."), None),
+                    ];
+                    S
+                },
             },
             ModuleDef {
                 id: "automod",
                 name: "Modération automatique",
-                description: "Supprime les messages contenant des insultes de la liste du bot.",
+                description: "Protection anti-toxicité contextuelle, anti-bypass et diagnostic.",
                 category: "Modération",
                 default_enabled: false,
                 legacy_column: Some("moduleAutoMod"),
-                commands: none,
+                commands: || vec![crate::modules::automod::command::register()],
                 components: &[],
                 settings: &[],
             },
@@ -164,9 +188,57 @@ pub fn registry() -> &'static [ModuleDef] {
                             default: Some("kick"),
                             options: &[("kick", "Prévenir puis expulser"), ("alert", "Alerter le staff seulement")],
                         },
-                        field("raidJoins", "Arrivées qui déclenchent le verrouillage", SettingKind::Number, None, Some("8")),
-                        field("raidWindowSeconds", "Sur combien de secondes", SettingKind::Number, None, Some("60")),
+                        field("raidJoins", "Arrivées qui déclenchent le verrouillage", SettingKind::Number, None, Some("10")),
+                        field("raidWindowSeconds", "Sur combien de secondes", SettingKind::Number, None, Some("5")),
                         field("lockdownMinutes", "Durée du verrouillage (minutes)", SettingKind::Number, Some("Fin plus tôt : /verrouillage off"), Some("10")),
+                        Setting {
+                            key: "kickRaidWave",
+                            label: "Expulser la vague de raid",
+                            kind: SettingKind::Choice,
+                            help: Some("Expulse automatiquement tous les comptes ayant rejoint pendant le pic de raid."),
+                            default: Some("yes"),
+                            options: &[("yes", "Oui"), ("no", "Non")],
+                        },
+                        Setting {
+                            key: "restrictChannels",
+                            label: "Restreindre les salons",
+                            kind: SettingKind::Choice,
+                            help: Some("Bloque les permissions d'écriture et de parole pour @everyone dans tous les salons."),
+                            default: Some("yes"),
+                            options: &[("yes", "Oui"), ("no", "Non")],
+                        },
+                    ];
+                    S
+                },
+            },
+            ModuleDef {
+                id: "giveaway",
+                name: "Giveaways",
+                description: "/giveaway : tirage au sort avec bouton « Participer », fin automatique et annonce des gagnants.",
+                category: "Communauté",
+                default_enabled: true,
+                legacy_column: None,
+                commands: || vec![giveaway::register()],
+                components: &[giveaway::PREFIX],
+                settings: {
+                    const S: &[Setting] = &[field("pingRoleId", "Rôle à mentionner", SettingKind::Role, Some("Prévenu à chaque nouveau giveaway (ex. le rôle Giveaways). Vide : aucune mention."), None)];
+                    S
+                },
+            },
+            ModuleDef {
+                id: "tribunal",
+                name: "Tribunal",
+                description: "/tribunal : procès communautaire humoristique, vote Coupable / Innocent, sentence automatique et immunité de 24 h.",
+                category: "Communauté",
+                default_enabled: true,
+                legacy_column: None,
+                commands: || vec![tribunal::register()],
+                components: &[tribunal::VOTE, tribunal::EXTEND],
+                settings: {
+                    const S: &[Setting] = &[
+                        field("voteSeconds", "Durée du vote (secondes)", SettingKind::Number, Some("Chaque « Prolonger » ajoute une minute, deux fois maximum."), Some("30")),
+                        field("muteMinutes", "Durée de l'exclusion (minutes)", SettingKind::Number, Some("Peine « Exclusion temporaire »."), Some("1")),
+                        field("fine", "Montant de l'amende (ParaCoins)", SettingKind::Number, Some("Peine « Amende ». Le solde ne passe jamais sous 0."), Some("500")),
                     ];
                     S
                 },
@@ -188,8 +260,21 @@ pub fn registry() -> &'static [ModuleDef] {
                             "Message de bienvenue",
                             SettingKind::Embed,
                             Some("{user} : mention · {username} : pseudo · {avatar} : avatar · {server} : nom du serveur · {memberCount} : nombre de membres"),
-                            Some(r##"{"title":"Bienvenue {username} !","description":"Salut {user}, bienvenue sur le serveur Paranoia Studio.","color":"#7c3aed","thumbnail":"{avatar}","timestamp":true}"##),
+                            Some(r##"{"content":"{user}","description":"**Un nouveau membre !**\n\nBienvenue {user} sur **{server}**, tu es notre **{memberCount}e** membre.","color":"#2563eb"}"##),
                         ),
+                        Setting {
+                            key: "imageEnabled",
+                            label: "Image de bienvenue",
+                            kind: SettingKind::Choice,
+                            help: Some("Joint une carte « BIENVENUE » avec l'avatar du membre, sous le message."),
+                            default: Some("yes"),
+                            options: &[("yes", "Oui"), ("no", "Non")],
+                        },
+                        field("imageTitle", "Image : titre", SettingKind::Text, None, Some("Bienvenue")),
+                        field("imageSubtitle", "Image : sous-titre", SettingKind::Text, Some("Mêmes variables que le message : {username} {server} {memberCount}"), Some("Tu es notre {memberCount}e membre")),
+                        field("imageColorA", "Image : couleur de départ du dégradé", SettingKind::Color, None, Some("#1e3a8a")),
+                        field("imageColorB", "Image : couleur d'arrivée du dégradé", SettingKind::Color, None, Some("#3b82f6")),
+                        field("imageBackground", "Image : fond personnalisé (lien https)", SettingKind::Url, Some("Remplace le dégradé. Format paysage conseillé (1000×400)."), None),
                     ];
                     S
                 },
@@ -265,7 +350,7 @@ pub fn registry() -> &'static [ModuleDef] {
                 category: "Jeu",
                 default_enabled: false,
                 legacy_column: Some("moduleXp"),
-                commands: || vec![crate::commands::levels::register_rank()],
+                commands: || vec![crate::commands::levels::register_rank(), crate::commands::levels::register_manage()],
                 components: &[],
                 settings: {
                     const S: &[Setting] = &[
@@ -279,6 +364,17 @@ pub fn registry() -> &'static [ModuleDef] {
                             Some("{user} : mention · {username} : pseudo · {avatar} : avatar · {level} : nouveau niveau"),
                             Some(r##"{"content":"{user}","title":"Niveau {level} !","description":"Bravo {username}, tu passes niveau **{level}**.","color":"#7c3aed","thumbnail":"{avatar}"}"##),
                         ),
+                        Setting {
+                            key: "cardEnabled",
+                            label: "Carte d'image (/rang et montée de niveau)",
+                            kind: SettingKind::Choice,
+                            help: Some("Joint une carte avec l'avatar, le niveau et la barre d'XP."),
+                            default: Some("yes"),
+                            options: &[("yes", "Oui"), ("no", "Non")],
+                        },
+                        field("cardColorA", "Carte : couleur de départ du dégradé", SettingKind::Color, None, Some("#4c1d95")),
+                        field("cardColorB", "Carte : couleur d'arrivée du dégradé", SettingKind::Color, None, Some("#7c3aed")),
+                        field("cardBackground", "Carte : fond personnalisé (lien https)", SettingKind::Url, Some("Remplace le dégradé. Format paysage conseillé (1000×300)."), None),
                         field("roleRewards", "Rôles de récompense", SettingKind::Textarea, Some("Une ligne par palier : niveau=identifiant du rôle (ex. 10=123456789012345678)"), None),
                     ];
                     S
@@ -356,7 +452,7 @@ pub fn registry() -> &'static [ModuleDef] {
                             default: Some("yes"),
                             options: &[("yes", "Oui"), ("no", "Non")],
                         },
-                        field("intervalMinutes", "Une question toutes les (minutes)", SettingKind::Number, Some("0 : seulement avec /quiz."), Some("60")),
+                        field("intervalMinutes", "Une question toutes les (minutes)", SettingKind::Number, Some("0 : seulement avec /quiz. 720 = toutes les 12 h."), Some("720")),
                         field("answerSeconds", "Temps pour répondre (secondes)", SettingKind::Number, None, Some("60")),
                         field("reward", "ParaCoins gagnés", SettingKind::Number, None, Some("50")),
                         field("questions", "Questions", SettingKind::Textarea, Some("Une par ligne : question = réponse | autre réponse acceptée. Majuscules, accents et ponctuation sont ignorés, et la réponse compte aussi dans une phrase."), Some(quiz::DEFAULT_QUESTIONS)),
@@ -364,8 +460,8 @@ pub fn registry() -> &'static [ModuleDef] {
                             "message",
                             "Message de la question",
                             SettingKind::Embed,
-                            Some("{question} · {reward} : ParaCoins à gagner · {seconds} : temps pour répondre"),
-                            Some(r##"{"title":"Quiz","description":"**{question}**\n\nPremière bonne réponse : **{reward} ParaCoins**. Tu as {seconds} secondes.","color":"#7c3aed"}"##),
+                            Some("{question} · {reward} : ParaCoins à gagner · {seconds} : temps pour répondre · {icon_quiz} {icon_reward} {icon_time} : emojis du bot"),
+                            Some(r###"{"description":"## {icon_quiz} | Quiz\n\n**{question}**\n\n{icon_reward} | **Récompense :** {reward} ParaCoins pour la première bonne réponse\n\n{icon_time} | **Temps :** {seconds} secondes","color":"#7c3aed"}"###),
                         ),
                     ];
                     S
@@ -592,11 +688,65 @@ pub fn component_owner(custom_id: &str) -> Option<&'static str> {
         .map(|m| m.id)
 }
 
+/// Commandes de modération réglables par rôle (réglage `perm_<commande>` du module « moderation »).
+const GATED: &[(&str, Permissions)] = &[
+    ("ban", Permissions::BAN_MEMBERS),
+    ("unban", Permissions::BAN_MEMBERS),
+    ("mute", Permissions::MODERATE_MEMBERS),
+    ("unmute", Permissions::MODERATE_MEMBERS),
+    ("kick", Permissions::KICK_MEMBERS),
+    ("warn", Permissions::MODERATE_MEMBERS),
+    ("warnings", Permissions::MODERATE_MEMBERS),
+    ("cases", Permissions::MODERATE_MEMBERS),
+    ("clear", Permissions::MANAGE_MESSAGES),
+    ("promote", Permissions::ADMINISTRATOR),
+    ("demote", Permissions::ADMINISTRATOR),
+];
+
+/// Rôle autorisé par réglage; sans réglage, la permission Discord d'origine est exigée (les commandes n'ont plus de filtre côté Discord).
+/// shortcut: pas de hiérarchie entre rôles ni de refus sur membre de rang égal, à ajouter si le staff le demande.
+pub fn command_allowed(interaction: &Interaction, command: &str) -> bool {
+    let Some((_, required)) = GATED.iter().find(|(c, _)| *c == command) else { return true };
+    let Some(member) = &interaction.member else { return false };
+    let list = setting("moderation", &format!("perm_{command}"));
+    allowed_by(member.permissions.unwrap_or_else(Permissions::empty), &member.roles, list.as_deref(), *required)
+}
+
+fn allowed_by(perms: Permissions, roles: &[Id<RoleMarker>], list: Option<&str>, required: Permissions) -> bool {
+    if perms.contains(Permissions::ADMINISTRATOR) {
+        return true;
+    }
+    match list {
+        Some(list) => list.split(|c: char| c == ',' || c.is_whitespace()).filter_map(|r| r.parse::<u64>().ok()).any(|r| roles.iter().any(|m| m.get() == r)),
+        None => perms.contains(required),
+    }
+}
+
+#[cfg(test)]
+mod perm_tests {
+    use super::*;
+
+    #[test]
+    fn role_list_overrides_discord_perm() {
+        let roles = [Id::new(5)];
+        let (none, ban) = (Permissions::empty(), Permissions::BAN_MEMBERS);
+        assert!(allowed_by(none, &roles, Some("1, 5"), ban));
+        assert!(!allowed_by(ban, &roles, Some("1,2"), ban));
+        assert!(allowed_by(ban, &[], None, ban));
+        assert!(!allowed_by(none, &roles, None, ban));
+        assert!(allowed_by(Permissions::ADMINISTRATOR, &[], Some("1"), ban));
+    }
+}
+
 pub async fn reply_disabled(http: &HttpClient, interaction: &Interaction) {
+    reply_notice(http, interaction, "Ce module est désactivé pour le moment.").await;
+}
+
+pub async fn reply_notice(http: &HttpClient, interaction: &Interaction, text: &str) {
     let response = InteractionResponse {
         kind: InteractionResponseType::ChannelMessageWithSource,
         data: Some(InteractionResponseData {
-            content: Some("Ce module est désactivé pour le moment.".to_string()),
+            content: Some(text.to_string()),
             flags: Some(MessageFlags::EPHEMERAL),
             ..Default::default()
         }),

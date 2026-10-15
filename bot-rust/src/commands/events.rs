@@ -50,8 +50,7 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Res
     }
 
     let embed = EmbedBuilder::new()
-        .title(format!("🎉 Événement : {}", titre))
-        .description(description)
+        .description(format!("{}\n\n{}", format!("## {} | Événement : {}", crate::utils::emoji::TITLE, titre), description))
         .color(COLOR_PURPLE)
         .field(EmbedFieldBuilder::new("📅 Date & Heure", date).inline())
         .field(EmbedFieldBuilder::new("📍 Lieu", lieu).inline())

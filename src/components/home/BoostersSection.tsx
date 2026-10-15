@@ -3,20 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { BOOSTER_PACKS, BOOSTER_DROP_RATES } from "@/config/boosters";
+import { BOOSTER_DROP_RATES } from "@/config/boosters";
+import { useBoosterStates } from "@/lib/useBoosterStates";
 import Reveal from "@/components/common/Reveal";
-
-const packs = Object.values(BOOSTER_PACKS);
 
 export default function BoostersSection() {
   const reduce = useReducedMotion();
+  const { packs } = useBoosterStates();
   return (
     <section className="border-b border-zinc-900 bg-[#0b0b0d]">
       <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <Reveal>
             <h2 className="max-w-xl text-4xl font-bold tracking-[-0.03em] text-white md:text-6xl">
-              Quatre boosters, quatre niveaux de rareté.
+              Des boosters, des niveaux de rareté.
             </h2>
           </Reveal>
           <Link href="/cards" className="btn-line self-start md:self-auto">

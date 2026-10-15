@@ -54,8 +54,7 @@ pub async fn run_daily(interaction: Interaction, http: Arc<HttpClient>, db: PgPo
 
             if claimed {
                 let embed = EmbedBuilder::new()
-                    .title("Récompense Quotidienne")
-                    .description(format!("Félicitations ! Tu as récupéré tes **{} ParaCoins** quotidiens.", reward))
+                    .description(format!("{}\n\n{}", format!("## {} | Récompense Quotidienne", crate::utils::emoji::ECONOMY), format!("Félicitations ! Tu as récupéré tes **{} ParaCoins** quotidiens.", reward)))
                     .color(COLOR_SUCCESS)
                     .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
                     .build();
@@ -73,8 +72,7 @@ pub async fn run_daily(interaction: Interaction, http: Arc<HttpClient>, db: PgPo
                 let mins = remaining.num_minutes() % 60;
                 
                 let embed = EmbedBuilder::new()
-                    .title("Patience...")
-                    .description(format!("Tu as déjà récupéré ta récompense. Reviens dans **{}h {}m**.", hours, mins))
+                    .description(format!("{}\n\n{}", format!("## {} | Patience...", crate::utils::emoji::OFF), format!("Tu as déjà récupéré ta récompense. Reviens dans **{}h {}m**.", hours, mins)))
                     .color(COLOR_ERROR)
                     .build();
 
@@ -87,8 +85,7 @@ pub async fn run_daily(interaction: Interaction, http: Arc<HttpClient>, db: PgPo
         }
         None => {
             let embed = EmbedBuilder::new()
-                .title("Compte non lié")
-                .description("Tu dois lier ton compte Discord à Paranoia pour utiliser cette commande.")
+                .description(format!("{}\n\n{}", format!("## {} | Compte non lié", crate::utils::emoji::OFF), "Tu dois lier ton compte Discord à Paranoia pour utiliser cette commande."))
                 .color(COLOR_ERROR)
                 .build();
 

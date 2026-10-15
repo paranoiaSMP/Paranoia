@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import ShowcaseEditor from "@/features/profile/ShowcaseEditor";
 import { motion, useReducedMotion } from "framer-motion";
 import CardDisplay from "@/features/binder/components/CardDisplay";
 import SplitReveal from "@/components/motion/SplitReveal";
@@ -21,6 +23,7 @@ type Profile = {
   distinct: number;
   total: number;
   byRarity: Record<string, number>;
+  custom?: boolean;
   best: { id: string; specialEffect: string | null; tradingCard: TradingCard }[];
 };
 
@@ -39,6 +42,9 @@ export default function PlayerProfile() {
   const reduce = useReducedMotion();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "missing" | "error">("loading");
+  const { data: session } = useSession();
+  const [editing, setEditing] = useState(false);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -54,7 +60,7 @@ export default function PlayerProfile() {
     return () => {
       alive = false;
     };
-  }, [pseudo]);
+  }, [pseudo, reload]);
 
   if (state === "loading") {
     return (
@@ -74,8 +80,8 @@ export default function PlayerProfile() {
         <p className="text-zinc-300">
           {state === "missing" ? `Aucun compte du site n'est lié au pseudo « ${pseudo} ».` : "Réessaie dans un instant."}
         </p>
-        <Link href="/" className="btn-line self-start">
-          Retour à l&apos;accueil
+        <Link href="/joueurs" className="btn-line self-start">
+          Voir tous les joueurs
         </Link>
       </div>
     );
@@ -89,6 +95,9 @@ export default function PlayerProfile() {
 
   return (
     <div className="mx-auto max-w-7xl px-5 pb-24 pt-12 md:px-10 md:pt-16">
+      <Link href="/joueurs" className="mb-6 inline-flex min-h-11 items-center text-sm text-zinc-400 transition-colors hover:text-white">
+        ← Tous les joueurs
+      </Link>
       <div className="grid grid-cols-1 items-end gap-10 lg:grid-cols-12">
         <div className="lg:col-span-8">
           {(founder || ROLE[profile.role]) && (
@@ -171,7 +180,15 @@ export default function PlayerProfile() {
           </ul>
         </div>
         <div className="lg:col-span-8">
-          <h2 className="text-2xl font-bold tracking-[-0.03em] text-white">Ses meilleures cartes</h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-2xl font-bold tracking-[-0.03em] text-white">Ses meilleures cartes</h2>
+            {session?.user?.minecraftName?.toLowerCase() === profile.minecraftName.toLowerCase() && !editing && (
+              <button type="button" onClick={() => setEditing(true)} className="btn-line">
+                Personnaliser
+              </button>
+            )}
+          </div>
+          {editing && <ShowcaseEditor initial={profile.custom ? profile.best.map((c) => c.id) : []} onSaved={() => setReload((n) => n + 1)} onClose={() => setEditing(false)} />}
           {profile.best.length === 0 ? (
             <p className="mt-6 text-zinc-400">Pas encore de carte.</p>
           ) : (

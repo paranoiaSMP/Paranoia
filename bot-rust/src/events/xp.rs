@@ -66,22 +66,48 @@ pub async fn add_xp(
         Some(hash) => format!("https://cdn.discordapp.com/avatars/{}/{}.png?size=256", user.id, hash),
         None => "https://cdn.discordapp.com/embed/avatars/0.png".to_string(),
     };
+    let username = user.global_name.clone().unwrap_or_else(|| user.name.clone());
     let vars = [
         ("user", format!("<@{}>", user.id)),
-        ("username", user.global_name.clone().unwrap_or_else(|| user.name.clone())),
-        ("avatar", avatar),
+        ("username", username.clone()),
+        ("avatar", avatar.clone()),
         ("level", level.to_string()),
     ];
     let channel = setting(ID, "levelUpChannelId").and_then(|c| c.trim().parse::<u64>().ok()).map(Id::new).or(fallback_channel);
     if let (Some(channel), Some(template)) = (channel, setting_value(ID, "levelUpMessage")) {
-        let (content, embed) = embed::render(&template, &vars);
+        let (content, mut embed) = embed::render(&template, &vars);
+        let card = match embed.is_some() && setting(ID, "cardEnabled").as_deref() != Some("no") {
+            true => {
+                let (_, into, need) = level_of(xp as i64);
+                crate::modules::welcome_image::generate_rank(&avatar, setting(ID, "cardBackground").as_deref(), crate::modules::welcome_image::RankStyle {
+                    name: username,
+                    level: level as i64,
+                    rank: None,
+                    into,
+                    need,
+                    color_a: setting(ID, "cardColorA").unwrap_or_default(),
+                    color_b: setting(ID, "cardColorB").unwrap_or_default(),
+                })
+                .await
+            }
+            false => None,
+        };
+        if let (Some(e), Some(_)) = (embed.as_mut(), &card) {
+            e.image = Some(twilight_model::channel::message::embed::EmbedImage { height: None, proxy_url: None, url: "attachment://niveau.png".into(), width: None });
+        }
         let embeds: Vec<_> = embed.into_iter().collect();
+        let files: Vec<_> = card.into_iter().map(|b| twilight_model::http::attachment::Attachment::from_bytes("niveau.png".into(), b, 1)).collect();
         if content.is_some() || !embeds.is_empty() {
             let mut req = http.create_message(channel).embeds(&embeds);
             if let Some(text) = content.as_deref() {
                 req = req.content(text);
             }
-            let _ = req.await;
+            if !files.is_empty() {
+                req = req.attachments(&files);
+            }
+            if let Err(e) = req.await {
+                tracing::warn!("Montée de niveau : envoi impossible : {e}");
+            }
         }
     }
 

@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+pub mod contracts;
+
 use std::sync::Mutex;
 
 pub static ENV_MUTEX: Mutex<()> = Mutex::new(());

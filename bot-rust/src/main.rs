@@ -75,6 +75,8 @@ async fn main() -> Result<()> {
     }
     modules::spawn_watcher(pool.clone(), Arc::clone(&http), application.id);
     modules::quiz::spawn_scheduler(Arc::clone(&http));
+    modules::giveaway::spawn_scheduler(Arc::clone(&http), pool.clone());
+    modules::tribunal::spawn_scheduler(Arc::clone(&http), pool.clone());
     modules::activity::spawn(Arc::clone(&http), pool.clone());
     modules::staff::spawn_absence_sync(Arc::clone(&http), pool.clone());
     modules::conference::restore(Arc::clone(&http), pool.clone());

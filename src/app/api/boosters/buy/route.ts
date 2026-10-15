@@ -4,12 +4,11 @@ import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
 import { notifyWallet } from "@/lib/realtime/emit";
 
-const PRICES: Record<string, number> = {
-  standard: 150,
-  premium: 250,
-  legendary: 400,
-  mythic: 750
-};
+import { BOOSTER_PRICES, type BoosterPackId } from "@/config/boosters";
+import { boosterStates, takeStock } from "@/lib/boosters";
+
+const PRICES: Record<string, number> = BOOSTER_PRICES;
+class OutOfStock extends Error {}
 
 export async function POST(req: Request) {
   try {
@@ -28,13 +27,18 @@ export async function POST(req: Request) {
     }
 
     const price = PRICES[boxType];
+    const state = (await boosterStates())[boxType as BoosterPackId];
+    if (!state.visible) {
+      return NextResponse.json({ error: "Ce booster n'est pas disponible." }, { status: 400 });
+    }
 
     const remainingCoins = await prisma.$transaction(async (tx) => {
+      if (!(await takeStock(tx, boxType as BoosterPackId, state))) throw new OutOfStock();
       const debited = await tx.user.updateMany({
         where: { id: userId, paraCoins: { gte: price } },
         data: { paraCoins: { decrement: price } },
       });
-      if (debited.count === 0) return null;
+      if (debited.count === 0) throw new Error("FUNDS");
 
       await tx.userBox.upsert({
         where: { userId_boxType: { userId, boxType } },
@@ -45,13 +49,12 @@ export async function POST(req: Request) {
       return u?.paraCoins ?? 0;
     });
 
-    if (remainingCoins === null) {
-      return NextResponse.json({ error: "Fonds insuffisants" }, { status: 400 });
-    }
 
     notifyWallet(userId);
     return NextResponse.json({ success: true, remainingCoins });
   } catch (error) {
+    if (error instanceof OutOfStock) return NextResponse.json({ error: "Rupture de stock." }, { status: 409 });
+    if (error instanceof Error && error.message === "FUNDS") return NextResponse.json({ error: "Fonds insuffisants" }, { status: 400 });
     console.error("Erreur achat booster:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }

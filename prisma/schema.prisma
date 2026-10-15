@@ -55,6 +55,7 @@ model User {
   role               String    @default("MEMBER")
   paraCoins          Int       @default(0)
   xp                 Int       @default(0)
+  showcase           String[]  @default([])
   level              Int       @default(1)
   lastDaily          DateTime?
   createdAt          DateTime  @default(now())

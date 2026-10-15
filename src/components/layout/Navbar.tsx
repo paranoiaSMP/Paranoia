@@ -9,6 +9,7 @@ import { useSettings } from "@/components/providers/SettingsProvider";
 const NAV_LINKS = [
   { name: "Accueil", href: "/" },
   { name: "Cartes", href: "/cards" },
+  { name: "Joueurs", href: "/joueurs" },
   { name: "Jeux", href: "/jeux" },
   { name: "Launcher", href: "/launcher" },
 ];

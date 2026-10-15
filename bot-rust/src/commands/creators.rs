@@ -23,11 +23,10 @@ pub fn register() -> twilight_model::application::command::Command {
 
 pub async fn run(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
     let embed = EmbedBuilder::new()
-        .title("🎬 Créateurs de Contenu Paranoia")
-        .description(
+        .description(format!("{}\n\n{}", format!("## {} | Créateurs de Contenu Paranoia", crate::utils::emoji::TIKTOK), 
             "Retrouvez les chaînes et streams officiels de nos créateurs partenaires !\n\n\
             Sélectionnez un créateur dans le menu déroulant ci-dessous pour accéder à ses liens.",
-        )
+        ))
         .color(COLOR_PURPLE)
         .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
         .build();
@@ -104,11 +103,10 @@ pub async fn handle_select(
     };
 
     let embed = EmbedBuilder::new()
-        .title(format!("🎥 Créateur : {}", name))
-        .description(format!(
+        .description(format!("{}\n\n{}", format!("## {} | Créateur : {}", crate::utils::emoji::TIKTOK, name), format!(
             "Retrouvez les contenus de **{}** sur **{}** !\n\nCliquez sur le bouton ci-dessous pour rejoindre la chaîne.",
             name, platform
-        ))
+        )))
         .color(COLOR_PURPLE)
         .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
         .build();

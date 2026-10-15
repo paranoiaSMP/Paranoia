@@ -193,8 +193,7 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
                 })
                 .collect();
             let embed = EmbedBuilder::new()
-                .title("Sauvegardes")
-                .description(if lines.is_empty() { "Aucune sauvegarde. `/sauvegarde creer` pour en faire une.".to_string() } else { lines.join("\n") })
+                .description(format!("{}\n\n{}", format!("## {} | Sauvegardes", crate::utils::emoji::UTILS), if lines.is_empty() { "Aucune sauvegarde. `/sauvegarde creer` pour en faire une.".to_string() } else { lines.join("\n") }))
                 .color(0x7c3aed)
                 .build();
             reply_private(&http, &interaction, None, vec![embed]).await

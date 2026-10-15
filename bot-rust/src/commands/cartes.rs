@@ -170,8 +170,7 @@ async fn build_page(db: &PgPool, discord_id: &str, pseudo_mc: Option<&str>, disp
 
     if cards.is_empty() {
         let embed = EmbedBuilder::new()
-            .title("🃏 Cartes Introuvables")
-            .description(format!("Aucune carte trouvée pour **{}**.", display_name))
+            .description(format!("{}\n\n{}", format!("## {} | Cartes Introuvables", crate::utils::emoji::OFF), format!("Aucune carte trouvée pour **{}**.", display_name)))
             .color(0xef4444)
             .build();
         return Ok((embed, vec![]));
@@ -183,8 +182,7 @@ async fn build_page(db: &PgPool, discord_id: &str, pseudo_mc: Option<&str>, disp
     
     let edition = card.edition.as_deref().unwrap_or("Standard");
     let mut builder = EmbedBuilder::new()
-        .title(format!("🎒 Inventaire de {} ({}/{})", display_name, safe_page + 1, total))
-        .description(format!("**{}** ({})\nÉdition : `{}`\nProbabilité : `{}%`", card.title, card.rarity, edition, card.proba))
+        .description(format!("{}\n\n{}", format!("## {} | Inventaire de {} ({}/{})", crate::utils::emoji::STATS, display_name, safe_page + 1, total), format!("**{}** ({})\nÉdition : `{}`\nProbabilité : `{}%`", card.title, card.rarity, edition, card.proba)))
         .color(0x7a0aad);
 
     if let Some(img) = card.rendered_image_url.as_ref().or(card.image_url.as_ref()) {

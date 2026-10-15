@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { channelId, content, pingRole, embed, components } = body;
+    const { channelId, content, pingRole, embed, components, messageId } = body;
 
     if (!channelId) {
       return new NextResponse("Salon manquant", { status: 400 });
@@ -139,8 +139,13 @@ export async function POST(req: Request) {
       components: formattedComponents.length > 0 ? formattedComponents : undefined,
     };
 
-    const res = await fetch(`https://discord.com/api/v10/channels/${channelId.trim()}/messages`, {
-      method: "POST",
+    // messageId fourni : on édite le message existant au lieu d'en poster un nouveau.
+    const editId = typeof messageId === "string" ? messageId.trim() : "";
+    if (editId && !/^\d{17,20}$/.test(editId)) {
+      return new NextResponse("messageId invalide", { status: 400 });
+    }
+    const res = await fetch(`https://discord.com/api/v10/channels/${channelId.trim()}/messages${editId ? `/${editId}` : ""}`, {
+      method: editId ? "PATCH" : "POST",
       headers: {
         Authorization: `Bot ${cleanToken}`,
         "Content-Type": "application/json",

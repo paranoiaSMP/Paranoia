@@ -106,8 +106,7 @@ pub async fn handle_modal(interaction: Interaction, http: Arc<HttpClient>, db: P
 
     if let Some(channel) = setting("applications", "reviewChannelId").and_then(|c| c.trim().parse::<u64>().ok()) {
         let embed = EmbedBuilder::new()
-            .title(format!("Candidature de {name}"))
-            .description(format!("<@{author}>{}", if site_user.is_some() { " · compte du site lié" } else { "" }))
+            .description(format!("{}\n\n{}", format!("## {} | Candidature de {name}", crate::utils::emoji::STAFF), format!("<@{author}>{}", if site_user.is_some() { " · compte du site lié" } else { "" })))
             .color(0x7c3aed)
             .field(EmbedFieldBuilder::new("Âge", get("age")).inline())
             .field(EmbedFieldBuilder::new("Minecraft", Some(get("minecraft")).filter(|s| !s.is_empty()).unwrap_or_else(|| "-".into())).inline())

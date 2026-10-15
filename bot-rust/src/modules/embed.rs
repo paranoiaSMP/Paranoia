@@ -3,7 +3,7 @@ use twilight_model::channel::message::Embed;
 use twilight_model::util::Timestamp;
 use twilight_util::builder::embed::{EmbedAuthorBuilder, EmbedBuilder, EmbedFieldBuilder, EmbedFooterBuilder, ImageSource};
 
-fn fill(text: &str, vars: &[(&str, String)]) -> String {
+pub fn fill(text: &str, vars: &[(&str, String)]) -> String {
     vars.iter().fold(text.to_string(), |acc, (k, v)| acc.replace(&format!("{{{k}}}"), v))
 }
 

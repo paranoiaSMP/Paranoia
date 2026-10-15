@@ -46,11 +46,10 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
         Some(record) => {
             let coins: i32 = record.try_get("paraCoins").unwrap_or(0);
             let embed = EmbedBuilder::new()
-                .title("💰 Solde de ParaCoins")
-                .description(format!(
+                .description(format!("{}\n\n{}", format!("## {} | Solde de ParaCoins", crate::utils::emoji::ECONOMY), format!(
                     "**{}**, vous possédez actuellement **{}** ParaCoins !",
                     user_name, coins
-                ))
+                )))
                 .color(COLOR_GOLD)
                 .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
                 .build();
@@ -62,8 +61,7 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
         }
         None => {
             let embed = EmbedBuilder::new()
-                .title("Compte non lié")
-                .description("Votre compte Discord n'est pas encore associé à un compte sur le site Paranoia.")
+                .description(format!("{}\n\n{}", format!("## {} | Compte non lié", crate::utils::emoji::OFF), "Votre compte Discord n'est pas encore associé à un compte sur le site Paranoia."))
                 .color(COLOR_ERROR)
                 .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
                 .build();

@@ -18,6 +18,7 @@ use crate::utils::{COLOR_ERROR, COLOR_INFO};
 const MAX_MESSAGES: usize = 20_000;
 const MAX_AGE: Duration = Duration::from_secs(3 * 24 * 3600);
 const FIELD_MAX: usize = 1024;
+const GHOST_PING_MAX_AGE: Duration = Duration::from_secs(300);
 const UNKNOWN: &str = "*Inconnu : le message a été envoyé avant le dernier démarrage du bot.*";
 
 #[derive(Clone)]
@@ -27,6 +28,7 @@ struct Cached {
     content: String,
     attachments: Vec<String>,
     roles: Vec<Id<RoleMarker>>,
+    mentions: bool,
     at: Instant,
 }
 
@@ -103,6 +105,9 @@ pub fn on_create(msg: &Message) {
         content: clip(&msg.content, FIELD_MAX),
         attachments: msg.attachments.iter().map(|a| a.filename.clone()).collect(),
         roles: msg.member.as_ref().map(|m| m.roles.clone()).unwrap_or_default(),
+        mentions: msg.mention_everyone
+            || !msg.mention_roles.is_empty()
+            || msg.mentions.iter().any(|u| !u.bot && u.id != msg.author.id),
         at: Instant::now(),
     };
     let mut st = store().lock().unwrap();
@@ -140,13 +145,12 @@ pub async fn on_update(ev: &MessageUpdate, http: &Arc<HttpClient>, default_chann
     }
 
     let mut embed = EmbedBuilder::new()
-        .title("Message modifié")
-        .description(format!(
+        .description(format!("{}\n\n{}", format!("## {} | Message modifié", crate::utils::emoji::MESSAGE), format!(
             "<@{}> a modifié son message dans <#{}>{}",
             ev.author.id,
             ev.channel_id,
             jump(ev.guild_id, ev.channel_id, ev.id)
-        ))
+        )))
         .color(COLOR_INFO)
         .field(EmbedFieldBuilder::new("Avant", before.as_ref().map(|b| shown(&b.content)).unwrap_or_else(|| UNKNOWN.to_string())))
         .field(EmbedFieldBuilder::new("Après", shown(&ev.content)))
@@ -182,8 +186,21 @@ async fn deleted_by(http: &HttpClient, guild: Id<GuildMarker>, author: Id<UserMa
     found
 }
 
-pub async fn on_delete(ev: &MessageDelete, http: &Arc<HttpClient>, default_channel: u64) {
+pub async fn on_delete(ev: &MessageDelete, http: &Arc<HttpClient>, db: &sqlx::PgPool, default_channel: u64) {
     let cached = store().lock().unwrap().messages.remove(&ev.id);
+    let staff = crate::config::Config::DEFAULT_ROLE_STAFF_ID;
+    let ghost = enabled("automod")
+        && cached.as_ref().is_some_and(|c| {
+            c.mentions && c.at.elapsed() < GHOST_PING_MAX_AGE && !c.roles.iter().any(|r| r.get() == staff)
+        });
+    // `deleted_by` mute l'état d'audit : un seul appel, résultat partagé avec le journal ci-dessous.
+    let by = match (&cached, ev.guild_id) {
+        (Some(c), Some(g)) if ghost || enabled("audit") => deleted_by(http, g, c.author, ev.channel_id).await,
+        _ => None,
+    };
+    if let (true, None, Some(c), Some(g)) = (ghost, by, &cached, ev.guild_id) {
+        crate::events::automod::on_ghost_ping(db, http, g, c.author, ev.channel_id).await;
+    }
     if !enabled("audit") {
         return;
     }
@@ -196,10 +213,6 @@ pub async fn on_delete(ev: &MessageDelete, http: &Arc<HttpClient>, default_chann
     match &cached {
         Some(c) => {
             lines.insert(0, format!("**Auteur :** <@{}>", c.author));
-            let by = match ev.guild_id {
-                Some(g) => deleted_by(http, g, c.author, ev.channel_id).await,
-                None => None,
-            };
             lines.push(match by {
                 Some(m) => format!("**Supprimé par :** <@{m}>"),
                 None => "**Supprimé par :** l'auteur (aucun modérateur dans le journal d'audit)".to_string(),
@@ -209,8 +222,7 @@ pub async fn on_delete(ev: &MessageDelete, http: &Arc<HttpClient>, default_chann
     }
 
     let mut embed = EmbedBuilder::new()
-        .title("Message supprimé")
-        .description(lines.join("\n"))
+        .description(format!("{}\n\n{}", format!("## {} | Message supprimé", crate::utils::emoji::SANCTION), lines.join("\n\n")))
         .color(COLOR_ERROR)
         .field(EmbedFieldBuilder::new("Contenu", cached.as_ref().map(|c| shown(&c.content)).unwrap_or_else(|| UNKNOWN.to_string())));
     if let Some(c) = cached.as_ref().filter(|c| !c.attachments.is_empty()) {
@@ -254,7 +266,7 @@ pub async fn on_delete_bulk(ev: &MessageDeleteBulk, http: &Arc<HttpClient>, defa
     if unknown > 0 {
         text.push_str(&format!("\n{unknown} message(s) au contenu inconnu (envoyés avant le dernier démarrage du bot)."));
     }
-    let mut embed = EmbedBuilder::new().title("Suppression en masse").description(clip(&text, 4000)).color(COLOR_ERROR);
+    let mut embed = EmbedBuilder::new().description(format!("{}\n\n{}", format!("## {} | Suppression en masse", crate::utils::emoji::SANCTION), clip(&text, 4000))).color(COLOR_ERROR);
     if let Some(t) = now() {
         embed = embed.timestamp(t);
     }

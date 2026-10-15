@@ -110,7 +110,7 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
             let mc_display = mc_name.unwrap_or_else(|| "Non lié".to_string());
 
             let embed = EmbedBuilder::new()
-                .title("👤 Profil Paranoia")
+                .description(format!("## {} | Profil Paranoia", crate::utils::emoji::AUTHOR))
                 .color(COLOR_PURPLE)
                 .field(EmbedFieldBuilder::new("🎮 Minecraft", mc_display).inline())
                 .field(EmbedFieldBuilder::new("🆔 ID Paranoia", para_id).inline())
@@ -135,8 +135,7 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
         }
         None => {
             let embed = EmbedBuilder::new()
-                .title("Joueur introuvable")
-                .description("Ce membre n'est pas encore inscrit ou lié sur le site Paranoia.")
+                .description(format!("{}\n\n{}", format!("## {} | Joueur introuvable", crate::utils::emoji::OFF), "Ce membre n'est pas encore inscrit ou lié sur le site Paranoia."))
                 .color(COLOR_ERROR)
                 .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
                 .build();

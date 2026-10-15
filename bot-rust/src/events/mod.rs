@@ -1,7 +1,7 @@
 use sqlx::PgPool;
 use std::sync::Arc;
 use twilight_gateway::Event;
-use twilight_http::{request::channel::reaction::RequestReactionType, Client as HttpClient};
+use twilight_http::Client as HttpClient;
 use twilight_model::{
     application::interaction::InteractionData,
     channel::ChannelType,
@@ -67,18 +67,13 @@ pub async fn handle_event(
                 "content": msg.content,
             });
 
-            let sync_res = client
+            let _ = client
                 .post(&config.web_api_url)
                 .header("Authorization", format!("Bearer {}", config.discord_token))
                 .json(&payload)
                 .timeout(std::time::Duration::from_secs(3))
                 .send()
                 .await;
-
-            if sync_res.is_ok() {
-                let reaction = RequestReactionType::Unicode { name: "🌐" };
-                let _ = http.create_reaction(msg.channel_id, msg.id, &reaction).await;
-            }
         }
 
         Event::InteractionCreate(interaction) => {
@@ -91,6 +86,10 @@ pub async fn handle_event(
                             crate::modules::reply_disabled(&http, &inter).await;
                             return;
                         }
+                    }
+                    if !crate::modules::command_allowed(&inter, &cmd_name) {
+                        crate::modules::reply_notice(&http, &inter, "Tu n'as pas la permission d'utiliser cette commande.").await;
+                        return;
                     }
                     let res = match cmd_name.as_str() {
                         "cartes" => crate::commands::cartes::run(inter, http, db).await,
@@ -112,8 +111,14 @@ pub async fn handle_event(
                         "warn" => crate::commands::moderation::run_warn(inter, http, db).await,
                         "warnings" => crate::commands::moderation::run_warnings(inter, http, db).await,
                         "clear" => crate::commands::moderation::run_clear(inter, http).await,
+                        "unban" => crate::commands::moderation::run_lift(inter, http, db, "unban").await,
+                        "unmute" => crate::commands::moderation::run_lift(inter, http, db, "unmute").await,
+                        "cases" => crate::commands::moderation::run_cases(inter, http, db).await,
                         "setup_tickets" => crate::commands::tickets::run(inter, http).await,
                         "tiktok" => crate::commands::tiktok::run(inter, http, db).await,
+                        "tribunal" => crate::modules::tribunal::run(inter, http, db).await,
+                        "giveaway" => crate::modules::giveaway::run(inter, http, db).await,
+                        "xp" => crate::commands::levels::run_manage(inter, http, db).await,
                         "rang" => crate::commands::levels::run_rank(inter, http, db).await,
                         "quiz" => crate::modules::quiz::run(inter, http).await,
                         "classement" => crate::commands::levels::run_leaderboard(inter, http, db).await,
@@ -123,6 +128,7 @@ pub async fn handle_event(
                         "candidature" => crate::modules::applications::run(inter, http, db).await,
                         "sauvegarde" => crate::modules::backup::run(inter, http, db).await,
                         "verrouillage" => crate::modules::security::run(inter, http, config.ticket_log_channel_id).await,
+                        "test_message" => crate::modules::automod::command::run(inter, http).await,
                         _ => Ok(()),
                     };
                     if let Err(e) = res {
@@ -142,6 +148,10 @@ pub async fn handle_event(
 
                     let res = if cid.starts_with(crate::modules::drops::PREFIX) {
                         crate::modules::drops::handle_claim(inter, http, db, &cid).await
+                    } else if cid.starts_with(crate::modules::tribunal::VOTE) || cid.starts_with(crate::modules::tribunal::EXTEND) {
+                        crate::modules::tribunal::handle_button(inter, http, db, &cid).await
+                    } else if cid.starts_with(crate::modules::giveaway::PREFIX) {
+                        crate::modules::giveaway::handle_join(inter, http, db, &cid).await
                     } else if cid.starts_with("cartes:") {
                         crate::commands::cartes::handle_button(inter, http, db, &cid).await
                     } else if cid == "creators_select_menu" {
@@ -240,7 +250,7 @@ pub async fn handle_event(
             crate::modules::message_log::on_update(&ev, &http, config.ticket_log_channel_id).await;
         }
         Event::MessageDelete(ev) => {
-            crate::modules::message_log::on_delete(&ev, &http, config.ticket_log_channel_id).await;
+            crate::modules::message_log::on_delete(&ev, &http, &db, config.ticket_log_channel_id).await;
         }
         Event::MessageDeleteBulk(ev) => {
             crate::modules::message_log::on_delete_bulk(&ev, &http, config.ticket_log_channel_id).await;
@@ -258,6 +268,7 @@ pub async fn handle_event(
         Event::GuildCreate(gc) => {
             if let twilight_model::gateway::payload::incoming::GuildCreate::Available(guild) = gc.as_ref() {
                 crate::modules::staff::remember_guild(guild.id);
+                crate::modules::invites::prime(&http, guild.id).await;
                 for vs in &guild.voice_states {
                     let mut vs = vs.clone();
                     vs.guild_id.get_or_insert(guild.id);

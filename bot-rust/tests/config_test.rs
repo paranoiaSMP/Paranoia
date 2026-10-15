@@ -31,8 +31,10 @@ fn test_config_empty_discord_token_fails() {
     let _guard = common::ENV_MUTEX.lock().unwrap_or_else(|e| e.into_inner());
 
     let prev = env::var("DISCORD_TOKEN").ok();
+    let prev_bot = env::var("DISCORD_BOT_TOKEN").ok();
     unsafe {
         env::set_var("DISCORD_TOKEN", "");
+        env::set_var("DISCORD_BOT_TOKEN", "");
     }
 
     let result = Config::load();
@@ -45,6 +47,11 @@ fn test_config_empty_discord_token_fails() {
             env::set_var("DISCORD_TOKEN", v);
         } else {
             env::remove_var("DISCORD_TOKEN");
+        }
+        if let Some(v) = prev_bot {
+            env::set_var("DISCORD_BOT_TOKEN", v);
+        } else {
+            env::remove_var("DISCORD_BOT_TOKEN");
         }
     }
 }

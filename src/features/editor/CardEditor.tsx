@@ -710,6 +710,16 @@ export default function CardEditor() {
               ))}
             </select>
           </Field>
+          <Field label="Carte saisonnière" hint="Ajoute un décor derrière le personnage, visible en permanence.">
+            <select value={a.season ?? ""} onChange={(e) => setAttr("season", e.target.value)} className={inputCls}>
+              <option value="">Aucune</option>
+              <option value="halloween">Halloween (citrouilles, lune, toile)</option>
+              <option value="noel">Noël (sapins, boules, neige)</option>
+              <option value="paques">Pâques (pelouse, œufs, fleurs)</option>
+              <option value="valentin">Saint-Valentin (cœurs)</option>
+              <option value="nouvelan">Nouvel An (ballons, étoiles)</option>
+            </select>
+          </Field>
           <Toggle label="Pleine illustration (bordure épaisse)" checked={!!a.isFullArt} onChange={(v) => setAttr("isFullArt", v)} />
           <UrlField label="Cadre (image par-dessus)" value={a.frameUrl ?? ""} onChange={(v) => setAttr("frameUrl", v)} />
         </Section>

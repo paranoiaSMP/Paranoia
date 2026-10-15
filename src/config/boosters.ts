@@ -1,4 +1,13 @@
-export type BoosterPackId = "standard" | "premium" | "legendary" | "mythic";
+export type BoosterPackId =
+  | "standard"
+  | "premium"
+  | "legendary"
+  | "mythic"
+  | "halloween"
+  | "noel"
+  | "paques"
+  | "valentin"
+  | "nouvelan";
 
 export type RarityKey =
   | "COMMON"
@@ -37,6 +46,7 @@ export interface BoosterPackConfig {
   id: BoosterPackId;
   name: string;
   image: string;
+  seasonal?: boolean;
   price: number;
   cardsPerPack: number;
   glow: string;
@@ -50,6 +60,11 @@ export const BOOSTER_PRICES: Record<BoosterPackId, number> = {
   premium: 250,
   legendary: 400,
   mythic: 750,
+  halloween: 250,
+  noel: 250,
+  paques: 250,
+  valentin: 250,
+  nouvelan: 250,
 };
 
 export const BOOSTER_CARDS_PER_PACK: Record<BoosterPackId, number> = {
@@ -57,6 +72,20 @@ export const BOOSTER_CARDS_PER_PACK: Record<BoosterPackId, number> = {
   premium: 4,
   legendary: 4,
   mythic: 5,
+  halloween: 4,
+  noel: 4,
+  paques: 4,
+  valentin: 4,
+  nouvelan: 4,
+};
+
+const SEASONAL_RATES: Record<RarityKey, number> = {
+  COMMON: 20,
+  UNCOMMON: 25,
+  RARE: 35,
+  EPIC: 14.5,
+  LEGENDARY: 5,
+  MYTHIC: 0.5,
 };
 
 export const BOOSTER_DROP_RATES: Record<BoosterPackId, Record<RarityKey, number>> = {
@@ -92,7 +121,29 @@ export const BOOSTER_DROP_RATES: Record<BoosterPackId, Record<RarityKey, number>
     LEGENDARY: 20,
     MYTHIC: 5,
   },
+  // shortcut: les boosters de fête reprennent les taux Premium, à différencier si besoin
+  halloween: SEASONAL_RATES,
+  noel: SEASONAL_RATES,
+  paques: SEASONAL_RATES,
+  valentin: SEASONAL_RATES,
+  nouvelan: SEASONAL_RATES,
 };
+
+const premiumRates = (): BoosterRate[] => [
+  { rarity: "Commune", percent: "20%", rateNum: 20, colorClass: "text-slate-300", r: "Commune", p: "20%", c: "text-slate-300" },
+  { rarity: "Peu Commune", percent: "25%", rateNum: 25, colorClass: "text-emerald-400", r: "Peu Commune", p: "25%", c: "text-emerald-400" },
+  { rarity: "Rare", percent: "35%", rateNum: 35, colorClass: "text-blue-400", r: "Rare", p: "35%", c: "text-blue-400" },
+  { rarity: "Épique", percent: "14.5%", rateNum: 14.5, colorClass: "text-purple-400", r: "Épique", p: "14.5%", c: "text-purple-400" },
+  { rarity: "Légendaire", percent: "5%", rateNum: 5, colorClass: "text-amber-400", r: "Légendaire", p: "5%", c: "text-amber-400" },
+  { rarity: "Mythique", percent: "0.5%", rateNum: 0.5, colorClass: "text-rose-500", r: "Mythique", p: "0.5%", c: "text-rose-500" },
+];
+
+const seasonal = (id: BoosterPackId, name: string, image: string, glow: string, text: string, ringColor: string): BoosterPackConfig => ({
+  id, name, image, seasonal: true, glow, text, ringColor,
+  price: BOOSTER_PRICES[id],
+  cardsPerPack: BOOSTER_CARDS_PER_PACK[id],
+  rates: premiumRates(),
+});
 
 export const BOOSTER_PACKS: Record<BoosterPackId, BoosterPackConfig> = {
   standard: {
@@ -164,4 +215,9 @@ export const BOOSTER_PACKS: Record<BoosterPackId, BoosterPackConfig> = {
       { rarity: "Mythique", percent: "5%", rateNum: 5, colorClass: "text-rose-500", r: "Mythique", p: "5%", c: "text-rose-500" },
     ],
   },
+  halloween: seasonal("halloween", "Halloween", "/PreniumHalloweenB.png", "bg-orange-500", "text-orange-400", "rgba(249,115,22,0.4)"),
+  noel: seasonal("noel", "Noël", "/PreniumNoelB.png", "bg-red-600", "text-red-400", "rgba(220,38,38,0.4)"),
+  paques: seasonal("paques", "Pâques", "/PreniumPaquesB.png", "bg-emerald-500", "text-emerald-400", "rgba(16,185,129,0.4)"),
+  valentin: seasonal("valentin", "Saint-Valentin", "/PreniumValentinB.png", "bg-rose-500", "text-rose-400", "rgba(244,63,94,0.4)"),
+  nouvelan: seasonal("nouvelan", "Nouvel An", "/PreniumNouvelAnB.png", "bg-blue-600", "text-blue-400", "rgba(37,99,235,0.4)"),
 };

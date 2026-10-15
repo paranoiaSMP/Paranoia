@@ -3,9 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
+import { BOOSTER_CARDS_PER_PACK, BOOSTER_DROP_RATES, BOOSTER_PACKS, type BoosterPackId } from "@/config/boosters";
 import { memo } from "@/lib/cache";
 import { notifyWallet, walletSnapshot } from "@/lib/realtime/emit";
-import { eventFor } from "@/lib/events";
 
 const getCardPool = () =>
   memo("card-pool", () =>
@@ -59,23 +59,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No cards available in the database yet!" }, { status: 404 });
     }
 
-    const DROP_RATES: Record<string, Record<string, number>> = {
-      standard: { COMMON: 40, UNCOMMON: 30, RARE: 20, EPIC: 7.8, LEGENDARY: 2, MYTHIC: 0.2 },
-      premium: { COMMON: 20, UNCOMMON: 25, RARE: 35, EPIC: 14.5, LEGENDARY: 5, MYTHIC: 0.5 },
-      legendary: { COMMON: 10, UNCOMMON: 15, RARE: 40, EPIC: 23, LEGENDARY: 10, MYTHIC: 2 },
-      mythic: { COMMON: 0, UNCOMMON: 0, RARE: 0, EPIC: 75, LEGENDARY: 20, MYTHIC: 5 }
-    };
-
-    const CARDS_PER_PACK: Record<string, number> = {
-      standard: 3,
-      premium: 4,
-      legendary: 4,
-      mythic: 5
-    };
-
-    const currentType = boxType || "standard";
-    const rates = DROP_RATES[currentType] || DROP_RATES["standard"];
-    const numCards = CARDS_PER_PACK[currentType] || 3;
+    const currentType = Object.hasOwn(BOOSTER_PACKS, boxType) ? (boxType as BoosterPackId) : "standard";
+    const rates: Record<string, number> = BOOSTER_DROP_RATES[currentType];
+    const numCards = BOOSTER_CARDS_PER_PACK[currentType];
 
     const cardsByRarity: Record<string, typeof cards> = {
       COMMON: cards.filter(c => c.rarity === "COMMON"),
@@ -135,10 +121,8 @@ export async function POST(req: Request) {
       { name: "Holo", prob: 0.05 }, 
       { name: "Glitch", prob: 0.02 }, 
       { name: "Cosmic", prob: 0.005 }, 
+      { name: "Saison", prob: 0.03 },
     ];
-    const eventSetting = await prisma.systemSetting.findUnique({ where: { key: "event" } });
-    const season = eventFor(eventSetting?.value, new Date());
-    if (season) EFFECTS_PROBABILITY.push({ name: season === "halloween" ? "Hot" : "Cold", prob: 0.03 });
 
     const drawEffect = () => {
       let rand = Math.random();

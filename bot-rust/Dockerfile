@@ -14,6 +14,7 @@ RUN cargo build --release || true
 RUN rm -rf src
 
 COPY src ./src
+COPY assets ./assets
 COPY migrations ./migrations
 
 RUN touch src/main.rs && cargo build --release

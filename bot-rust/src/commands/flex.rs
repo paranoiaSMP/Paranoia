@@ -59,11 +59,10 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
 
     let response_data = if cards.is_empty() {
         let embed = EmbedBuilder::new()
-            .title("Aucune carte trouvée")
-            .description(format!(
+            .description(format!("{}\n\n{}", format!("## {} | Aucune carte trouvée", crate::utils::emoji::OFF), format!(
                 "**{}**, vous ne possédez encore aucune carte dans votre inventaire !",
                 user_name
-            ))
+            )))
             .color(COLOR_ERROR)
             .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
             .build();
@@ -86,11 +85,10 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
         let edition = best_card.edition.as_deref().unwrap_or("Standard");
 
         let mut embed_builder = EmbedBuilder::new()
-            .title(format!("✨ Meilleure carte de {}", user_name))
-            .description(format!(
+            .description(format!("{}\n\n{}", format!("## {} | Meilleure carte de {}", crate::utils::emoji::STATS, user_name), format!(
                 "**{}**\n\n**Rareté :** `{}`\n**Édition :** `{}`\n**Drop Rate :** `{}%`",
                 best_card.title, best_card.rarity, edition, best_card.proba
-            ))
+            )))
             .color(color)
             .footer(EmbedFooterBuilder::new(FOOTER_TEXT));
 

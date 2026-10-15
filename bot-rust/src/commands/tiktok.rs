@@ -90,11 +90,10 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
                 .await?;
 
                 let embed = EmbedBuilder::new()
-                    .title("TikTok Ajouté")
-                    .description(format!(
+                    .description(format!("{}\n\n{}", format!("## {} | TikTok Ajouté", crate::utils::emoji::OK), format!(
                         "✅ Le compte TikTok **@{}** sera désormais surveillé dans <#{}> !",
                         username, chan
-                    ))
+                    )))
                     .color(COLOR_SUCCESS)
                     .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
                     .build();
@@ -142,12 +141,12 @@ pub async fn run(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) ->
                 .await?;
 
             let mut embed_builder = EmbedBuilder::new()
-                .title("📋 Comptes TikTok surveillés")
+                
                 .color(COLOR_PURPLE)
                 .footer(EmbedFooterBuilder::new(FOOTER_TEXT));
 
             if rows.is_empty() {
-                embed_builder = embed_builder.description("*Aucun compte n'est actuellement surveillé.*");
+                embed_builder = embed_builder.description(format!("{}\n\n{}", format!("## {} | Comptes TikTok surveillés", crate::utils::emoji::TIKTOK), "*Aucun compte n'est actuellement surveillé.*"));
             } else {
                 let mut lines = Vec::new();
                 for r in rows {
@@ -230,8 +229,7 @@ pub async fn check_all_tiktok(http: &HttpClient, db: &PgPool) -> anyhow::Result<
                 if is_live_now && !was_live {
                     let mention = role_id.map(|rid| format!("<@&{}> ", rid)).unwrap_or_default();
                     let embed = EmbedBuilder::new()
-                        .title(format!("🔴 @{} est actuellement en LIVE sur TikTok !", username))
-                        .description(format!("Venez rejoindre le live dès maintenant !\n\n🔗 https://www.tiktok.com/@{}/live", username))
+                        .description(format!("{}\n\n{}", format!("## {} | @{} est actuellement en LIVE sur TikTok !", crate::utils::emoji::TIKTOK, username), format!("Venez rejoindre le live dès maintenant !\n\n🔗 https://www.tiktok.com/@{}/live", username)))
                         .color(0xfe2c55)
                         .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
                         .build();

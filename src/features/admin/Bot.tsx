@@ -102,6 +102,7 @@ export function Announce() {
   const [channelId, setChannelId] = useState("");
   const [content, setContent] = useState("");
   const [pingRole, setPingRole] = useState("");
+  const [messageId, setMessageId] = useState("");
   const [useEmbed, setUseEmbed] = useState(true);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -109,7 +110,7 @@ export function Announce() {
   const [image, setImage] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const valid = snowflake(channelId) && (!pingRole || snowflake(pingRole)) && (content.trim() || (useEmbed && (title.trim() || description.trim())));
+  const valid = snowflake(channelId) && (!pingRole || snowflake(pingRole)) && (!messageId || snowflake(messageId)) && (content.trim() || (useEmbed && (title.trim() || description.trim())));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,9 +120,10 @@ export function Announce() {
         channelId: channelId.trim(),
         content: content.trim() || undefined,
         pingRole: pingRole.trim() || undefined,
+        messageId: messageId.trim() || undefined,
         embed: useEmbed ? { title, description, color, image: image ? { url: image } : undefined, timestamp: true } : undefined,
       });
-      toast.success("Annonce envoyée.");
+      toast.success(messageId ? "Message modifié." : "Annonce envoyée.");
       setContent("");
       setTitle("");
       setDescription("");
@@ -141,6 +143,10 @@ export function Announce() {
       <label className={field}>
         Rôle à mentionner (facultatif)
         <input value={pingRole} onChange={(e) => setPingRole(e.target.value)} inputMode="numeric" className={`${inputCls} font-mono`} />
+      </label>
+      <label className={`${field} md:col-span-2`}>
+        Identifiant du message à modifier (facultatif)
+        <input value={messageId} onChange={(e) => setMessageId(e.target.value)} inputMode="numeric" placeholder="Vide : un nouveau message est envoyé" className={`${inputCls} font-mono`} />
       </label>
       <label className={`${field} md:col-span-2`}>
         Message
@@ -174,7 +180,7 @@ export function Announce() {
         Identifiants : Discord en mode développeur, clic droit sur le salon ou le rôle, puis « Copier l&apos;identifiant ».
       </p>
       <button type="submit" disabled={busy || !valid} className="btn-violet self-start disabled:opacity-50">
-        {busy ? "Envoi…" : "Envoyer l'annonce"}
+        {busy ? "Envoi…" : messageId ? "Modifier le message" : "Envoyer l'annonce"}
       </button>
     </form>
   );

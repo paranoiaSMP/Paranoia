@@ -57,8 +57,7 @@ pub async fn run_pack(interaction: Interaction, http: Arc<HttpClient>, db: PgPoo
                             .execute(&db).await?;
 
                         let mut embed_b = EmbedBuilder::new()
-                            .title("📦 Ouverture de Booster")
-                            .description(format!("Tu as dépensé 100 ParaCoins et obtenu :\n\n**{}**\n*(Rareté : {})*", title, rarity))
+                            .description(format!("{}\n\n{}", format!("## {} | Ouverture de Booster", crate::utils::emoji::ECONOMY), format!("Tu as dépensé 100 ParaCoins et obtenu :\n\n**{}**\n*(Rareté : {})*", title, rarity)))
                             .color(COLOR_PURPLE)
                             .footer(EmbedFooterBuilder::new(FOOTER_TEXT));
 
@@ -71,15 +70,15 @@ pub async fn run_pack(interaction: Interaction, http: Arc<HttpClient>, db: PgPoo
                         InteractionResponseData { embeds: Some(vec![embed_b.build()]), ..Default::default() }
                     }
                     None => {
-                        InteractionResponseData { embeds: Some(vec![EmbedBuilder::new().title("Erreur").description("Aucune carte disponible dans le jeu.").color(COLOR_ERROR).build()]), ..Default::default() }
+                        InteractionResponseData { embeds: Some(vec![EmbedBuilder::new().description(format!("{}\n\n{}", format!("## {} | Erreur", crate::utils::emoji::OFF), "Aucune carte disponible dans le jeu.")).color(COLOR_ERROR).build()]), ..Default::default() }
                     }
                 }
             } else {
-                InteractionResponseData { embeds: Some(vec![EmbedBuilder::new().title("Fonds insuffisants").description("Il te faut au moins 100 ParaCoins pour ouvrir un booster.").color(COLOR_ERROR).build()]), flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL), ..Default::default() }
+                InteractionResponseData { embeds: Some(vec![EmbedBuilder::new().description(format!("{}\n\n{}", format!("## {} | Fonds insuffisants", crate::utils::emoji::OFF), "Il te faut au moins 100 ParaCoins pour ouvrir un booster.")).color(COLOR_ERROR).build()]), flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL), ..Default::default() }
             }
         }
         None => {
-            InteractionResponseData { embeds: Some(vec![EmbedBuilder::new().title("Erreur").description("Compte non lié.").color(COLOR_ERROR).build()]), flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL), ..Default::default() }
+            InteractionResponseData { embeds: Some(vec![EmbedBuilder::new().description(format!("{}\n\n{}", format!("## {} | Erreur", crate::utils::emoji::OFF), "Compte non lié.")).color(COLOR_ERROR).build()]), flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL), ..Default::default() }
         }
     };
 

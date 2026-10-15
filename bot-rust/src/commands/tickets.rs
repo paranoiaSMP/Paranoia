@@ -7,6 +7,7 @@ use twilight_model::{
         modal::ModalInteractionData, Interaction,
     },
     channel::{
+        message::EmojiReactionType,
         message::component::{ActionRow, Button, ButtonStyle, Component, TextInput, TextInputStyle},
         permission_overwrite::{PermissionOverwrite, PermissionOverwriteType},
         ChannelType,
@@ -19,7 +20,7 @@ use twilight_model::{
     },
 };
 use twilight_util::builder::{
-    command::CommandBuilder,
+    command::{ChannelBuilder, CommandBuilder},
     embed::{EmbedBuilder, EmbedFieldBuilder, EmbedFooterBuilder, ImageSource},
 };
 
@@ -32,179 +33,137 @@ pub fn register() -> twilight_model::application::command::Command {
         twilight_model::application::command::CommandType::ChatInput,
     )
     .default_member_permissions(Permissions::ADMINISTRATOR)
+    .option(ChannelBuilder::new("salon", "Salon où poster le panneau (par défaut : ici)").channel_types([ChannelType::GuildText]))
     .build()
 }
 
-pub async fn run(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
-    let channel_id = match interaction.channel.as_ref().map(|c| c.id) {
-        Some(id) => id,
-        None => return Ok(()),
-    };
+/// (bouton, libellé, description, emoji) : source unique du panneau V2 et du repli en embed.
+const CATEGORIES: [(&str, &str, &str, &str); 4] = [
+    ("general", "Aide générale", "Une question sur le site, le launcher ou le Discord", crate::utils::emoji::SUPPORT),
+    ("report", "Signaler", "Un joueur qui ne respecte pas le règlement", crate::utils::emoji::TITLE),
+    ("videaste", "Devenir créateur", "Rejoindre les créateurs du studio", crate::utils::emoji::TIKTOK),
+    ("appeal", "Contester", "Faire appel d'une sanction", crate::utils::emoji::SANCTION),
+];
 
-    let defer_response = InteractionResponse {
-        kind: InteractionResponseType::DeferredChannelMessageWithSource,
-        data: Some(InteractionResponseData {
-            flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL),
-            ..Default::default()
+use crate::utils::emoji_parts;
+
+fn button_json(key: &str, label: &str, emoji: &str) -> serde_json::Value {
+    let mut b = serde_json::json!({ "type": 2, "style": 1, "label": label, "custom_id": format!("btn_open_{key}_ticket") });
+    if let Some((name, id)) = emoji_parts(emoji) {
+        b["emoji"] = serde_json::json!({ "name": name, "id": id.to_string() });
+    }
+    b
+}
+
+const LOGO: &str = "https://raw.githubusercontent.com/paranoiaSMP/Paranoia/main/public/Paranoia_logo.png";
+
+fn gap() -> serde_json::Value {
+    serde_json::json!({ "type": 14, "divider": false, "spacing": 2 })
+}
+
+fn panel_v2() -> serde_json::Value {
+    let text = |content: String| serde_json::json!({ "type": 10, "content": content });
+    let mut parts = vec![
+        serde_json::json!({ "type": 12, "items": [{ "media": { "url": "https://files.catbox.moe/g1etwk.png" } }] }),
+        gap(),
+        serde_json::json!({
+            "type": 9,
+            "components": [text(format!("## {} | Centre d'aide\nUn souci, une question, un signalement ? Ouvre un ticket : un salon privé est créé, visible uniquement par toi et l'équipe.", crate::utils::emoji::SUPPORT))],
+            "accessory": { "type": 11, "media": { "url": LOGO } },
         }),
+        serde_json::json!({ "type": 14, "divider": true, "spacing": 2 }),
+    ];
+    for (key, label, desc, emoji) in CATEGORIES {
+        parts.push(serde_json::json!({
+            "type": 9,
+            "components": [text(format!("### {emoji} {label}\n{desc}"))],
+            "accessory": button_json(key, "Ouvrir", ""),
+        }));
+        parts.push(gap());
+    }
+    parts.push(serde_json::json!({ "type": 14, "divider": true, "spacing": 1 }));
+    parts.push(text("-# Un ticket par demande · merci de rester respectueux envers l'équipe.".to_string()));
+    serde_json::json!({ "flags": 32768, "components": [{ "type": 17, "accent_color": 15132390, "components": parts }] })
+}
+
+pub async fn run(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
+    use twilight_model::application::interaction::application_command::CommandOptionValue;
+    let target = match &interaction.data {
+        Some(twilight_model::application::interaction::InteractionData::ApplicationCommand(d)) => {
+            d.options.iter().find_map(|o| match o.value { CommandOptionValue::Channel(c) if o.name == "salon" => Some(c), _ => None })
+        }
+        _ => None,
     };
+    let Some(channel_id) = target.or(interaction.channel.as_ref().map(|c| c.id)) else { return Ok(()) };
+
     let _ = http.interaction(interaction.application_id)
-        .create_response(interaction.id, &interaction.token, &defer_response)
+        .create_response(interaction.id, &interaction.token, &InteractionResponse {
+            kind: InteractionResponseType::DeferredChannelMessageWithSource,
+            data: Some(InteractionResponseData { flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL), ..Default::default() }),
+        })
         .await;
 
     let raw_token = http.token().unwrap_or_default().trim();
-    let auth_header = if raw_token.starts_with("Bot ") {
-        raw_token.to_string()
-    } else {
-        format!("Bot {}", raw_token)
-    };
+    let auth_header = if raw_token.starts_with("Bot ") { raw_token.to_string() } else { format!("Bot {raw_token}") };
 
-    let v2_payload = serde_json::json!({
-        "flags": 32768,
-        "content": null,
-        "embeds": [],
-        "components": [
-            {
-                "type": 17,
-                "accent_color": 15132390,
-                "components": [
-                    { "type": 12, "items": [{ "media": { "url": "https://files.catbox.moe/g1etwk.png" } }] },
-                    { "type": 14, "divider": true, "spacing": 2 },
-                    { "type": 10, "content": "**Ouvre un ticket avec le bouton qui correspond à ta demande.\nUn membre de l'équipe te répond dans ton salon privé.**" },
-                    { "type": 14, "divider": true, "spacing": 2 },
-                    { "type": 10, "content": "**Aide générale** · Une question sur le site, le launcher ou le Discord" },
-                    { "type": 10, "content": "**Signalement** · Un joueur qui ne respecte pas le règlement" },
-                    { "type": 10, "content": "**Vidéaste** · Rejoindre les créateurs du studio" },
-                    { "type": 10, "content": "**Contestation** · Faire appel d'une sanction" },
-                    {
-                        "type": 1,
-                        "components": [
-                            { "type": 2, "style": 1, "label": "Aide générale", "custom_id": "btn_open_general_ticket" },
-                            { "type": 2, "style": 1, "label": "Signaler", "custom_id": "btn_open_report_ticket" },
-                            { "type": 2, "style": 1, "label": "Devenir créateur", "custom_id": "btn_open_videaste_ticket" },
-                            { "type": 2, "style": 1, "label": "Contester une sanction", "custom_id": "btn_open_appeal_ticket" }
-                        ]
-                    }
-                ]
-            }
-        ]
-    });
-
-    let client = reqwest::Client::new();
-    let mut sent_v2 = false;
-
-    match client
-        .post(format!("https://discord.com/api/v10/channels/{}/messages", channel_id))
+    let sent_v2 = match reqwest::Client::new()
+        .post(format!("https://discord.com/api/v10/channels/{channel_id}/messages"))
         .header("Authorization", &auth_header)
-        .header("Content-Type", "application/json")
-        .json(&v2_payload)
+        .json(&panel_v2())
         .send()
         .await
     {
+        Ok(res) if res.status().is_success() => true,
         Ok(res) => {
-            if res.status().is_success() {
-                sent_v2 = true;
-            } else {
-                let status = res.status();
-                let err_text = res.text().await.unwrap_or_default();
-                tracing::warn!("V2 ticket panel rejected by Discord API ({}): {}, falling back to standard embed...", status, err_text);
-            }
+            let status = res.status();
+            tracing::warn!("V2 ticket panel rejected ({status}): {}, repli sur un embed standard", res.text().await.unwrap_or_default());
+            false
         }
         Err(e) => {
-            tracing::warn!("Network error sending V2 ticket panel: {}, falling back to standard embed...", e);
+            tracing::warn!("Network error sending V2 ticket panel: {e}, repli sur un embed standard");
+            false
         }
-    }
+    };
 
     if !sent_v2 {
-        let description = "\
-**Ouvre un ticket avec le bouton qui correspond à ta demande.**\n\
-Un membre de l'équipe te répond dans ton salon privé.\n\n\
-**Aide générale** · Une question sur le site, le launcher ou le Discord\n\
-**Signalement** · Un joueur qui ne respecte pas le règlement\n\
-**Vidéaste** · Rejoindre les créateurs du studio\n\
-**Contestation** · Faire appel d'une sanction";
-
-        let mut embed_builder = EmbedBuilder::new()
-            .title("Besoin d'aide ?")
-            .description(description)
+        let list: Vec<String> = CATEGORIES.iter().map(|(_, label, desc, emoji)| format!("{emoji} | **{label}**\n{desc}")).collect();
+        let mut embed = EmbedBuilder::new()
+            .description(format!("{}\n\n{}", format!("## {} | Besoin d'aide ?", crate::utils::emoji::SUPPORT), format!("Choisis la catégorie qui correspond à ta demande : un membre de l'équipe te répond dans ton salon privé.\n\n{}", list.join("\n\n"))))
             .color(0xe6e6e6)
-            .footer(EmbedFooterBuilder::new(format!("{} • Support", FOOTER_TEXT)));
-
+            .footer(EmbedFooterBuilder::new(format!("{FOOTER_TEXT} • Support")));
         if let Ok(src) = ImageSource::url("https://files.catbox.moe/g1etwk.png") {
-            embed_builder = embed_builder.image(src);
+            embed = embed.image(src);
         }
-        if let Ok(src) = ImageSource::url("https://raw.githubusercontent.com/paranoiaSMP/Paranoia/main/public/Paranoia_logo.png") {
-            embed_builder = embed_builder.thumbnail(src);
-        }
-
-        let fallback_embed = embed_builder.build();
-
-        let row1 = Component::ActionRow(ActionRow {
-            id: None,
-            components: vec![
-                Component::Button(Button {
+        let rows: Vec<Component> = CATEGORIES
+            .chunks(2)
+            .map(|chunk| {
+                Component::ActionRow(ActionRow {
                     id: None,
-                    custom_id: Some("btn_open_general_ticket".to_string()),
-                    disabled: false,
-                    emoji: None,
-                    label: Some("Aide générale".to_string()),
-                    style: ButtonStyle::Primary,
-                    url: None,
-                    sku_id: None,
-                }),
-                Component::Button(Button {
-                    id: None,
-                    custom_id: Some("btn_open_report_ticket".to_string()),
-                    disabled: false,
-                    emoji: None,
-                    label: Some("Signaler".to_string()),
-                    style: ButtonStyle::Primary,
-                    url: None,
-                    sku_id: None,
-                }),
-            ],
-        });
-
-        let row2 = Component::ActionRow(ActionRow {
-            id: None,
-            components: vec![
-                Component::Button(Button {
-                    id: None,
-                    custom_id: Some("btn_open_videaste_ticket".to_string()),
-                    disabled: false,
-                    emoji: None,
-                    label: Some("Devenir créateur".to_string()),
-                    style: ButtonStyle::Primary,
-                    url: None,
-                    sku_id: None,
-                }),
-                Component::Button(Button {
-                    id: None,
-                    custom_id: Some("btn_open_appeal_ticket".to_string()),
-                    disabled: false,
-                    emoji: None,
-                    label: Some("Contester une sanction".to_string()),
-                    style: ButtonStyle::Primary,
-                    url: None,
-                    sku_id: None,
-                }),
-            ],
-        });
-
-        let embeds = [fallback_embed];
-        let components = [row1, row2];
-
-        http.create_message(channel_id)
-            .embeds(&embeds)
-            .components(&components)
-            .await?;
+                    components: chunk
+                        .iter()
+                        .map(|(key, label, _, emoji)| {
+                            Component::Button(Button {
+                                id: None,
+                                custom_id: Some(format!("btn_open_{key}_ticket")),
+                                disabled: false,
+                                emoji: emoji_parts(emoji).map(|(name, id)| EmojiReactionType::Custom { animated: false, id: Id::new(id), name: Some(name.to_string()) }),
+                                label: Some(label.to_string()),
+                                style: ButtonStyle::Primary,
+                                url: None,
+                                sku_id: None,
+                            })
+                        })
+                        .collect(),
+                })
+            })
+            .collect();
+        http.create_message(channel_id).embeds(&[embed.build()]).components(&rows).await?;
     }
 
     let _ = http.interaction(interaction.application_id)
         .update_response(&interaction.token)
-        .content(Some("✅ Panel des tickets déployé avec succès !"))
+        .content(Some(&format!("Panneau des tickets déployé dans <#{channel_id}>.")))
         .await;
-
     Ok(())
 }
 
@@ -397,12 +356,10 @@ pub async fn handle_ticket_modal_submit(
         .await?;
 
     let mut embed_builder = EmbedBuilder::new()
-        .title(format!("🎫 Ticket ouvert : {}", category.to_uppercase()))
-        .description(format!(
-            "Bonjour <@{}> ! Un membre de l'équipe de modération va prendre en charge votre demande sous peu.\n\n\
-            Merci d'expliquer au maximum votre requête en attendant.",
+        .description(format!("{}\n\n{}", format!("## {} | Ticket ouvert : {}", crate::utils::emoji::SUPPORT, category.to_uppercase()), format!(
+            "Bonjour <@{}> !\n\nUn membre de l'équipe va prendre en charge ta demande sous peu.\n\nEn attendant, explique-la le plus précisément possible.",
             author_id
-        ))
+        )))
         .color(COLOR_PURPLE)
         .footer(EmbedFooterBuilder::new(FOOTER_TEXT));
 
@@ -541,13 +498,12 @@ pub async fn close_ticket_channel(
     };
 
     let log_embed = EmbedBuilder::new()
-        .title("📁 Ticket Clôturé")
-        .description(format!(
+        .description(format!("{}\n\n{}", format!("## {} | Ticket Clôturé", crate::utils::emoji::SUPPORT), format!(
             "**Salon :** `{}`\n**Fermé par :** {}\n\n**Derniers messages :**\n```\n{}\n```",
             channel_id,
             closer_tag,
             if transcript.len() > 1500 { &transcript[transcript.len() - 1500..] } else { &transcript }
-        ))
+        )))
         .color(COLOR_INFO)
         .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
         .build();
@@ -556,4 +512,16 @@ pub async fn close_ticket_channel(
 
     tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
     let _ = http.delete_channel(channel_id).await;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn button_emoji_is_parsed_and_every_category_has_one() {
+        assert_eq!(emoji_parts("<:am_title:123>"), Some(("am_title", 123)));
+        assert_eq!(emoji_parts("#️⃣"), None);
+        assert!(CATEGORIES.iter().all(|c| emoji_parts(c.3).is_some()));
+    }
 }
