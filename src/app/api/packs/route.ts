@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
-import { BOOSTER_CARDS_PER_PACK, BOOSTER_DROP_RATES, BOOSTER_PACKS, type BoosterPackId } from "@/config/boosters";
+import { FESTIVE_CHANCE, BOOSTER_CARDS_PER_PACK, BOOSTER_DROP_RATES, BOOSTER_PACKS, type BoosterPackId } from "@/config/boosters";
 import { memo } from "@/lib/cache";
 import { notifyWallet, walletSnapshot } from "@/lib/realtime/emit";
 
@@ -121,7 +121,6 @@ export async function POST(req: Request) {
       { name: "Holo", prob: 0.05 }, 
       { name: "Glitch", prob: 0.02 }, 
       { name: "Cosmic", prob: 0.005 }, 
-      { name: "Saison", prob: 0.03 },
     ];
 
     const drawEffect = () => {
@@ -133,7 +132,20 @@ export async function POST(req: Request) {
       return null;
     };
 
-    const drawn = drawnCards.map((card) => ({ card, specialEffect: drawEffect() }));
+    // Les effets de fête ne sortent que dans leur booster de fête, avec priorité sur les effets normaux.
+    const festive = BOOSTER_PACKS[currentType].effect;
+    const festiveChance = (card: { attributes: string }) => {
+      try {
+        const v = Number(JSON.parse(card.attributes || "{}").festiveChance);
+        return Number.isFinite(v) && v >= 0 && v <= 100 ? v : FESTIVE_CHANCE;
+      } catch {
+        return FESTIVE_CHANCE;
+      }
+    };
+    const drawn = drawnCards.map((card) => ({
+      card,
+      specialEffect: festive && Math.random() * 100 < festiveChance(card) ? festive : drawEffect(),
+    }));
 
     const created = await prisma.$transaction(async (tx) => {
       const dec = await tx.userBox.updateMany({

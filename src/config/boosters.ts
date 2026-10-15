@@ -47,6 +47,8 @@ export interface BoosterPackConfig {
   name: string;
   image: string;
   seasonal?: boolean;
+  /** Effet de fête tiré dans ce booster (jamais dans les boosters normaux). */
+  effect?: string;
   price: number;
   cardsPerPack: number;
   glow: string;
@@ -138,8 +140,10 @@ const premiumRates = (): BoosterRate[] => [
   { rarity: "Mythique", percent: "0.5%", rateNum: 0.5, colorClass: "text-rose-500", r: "Mythique", p: "0.5%", c: "text-rose-500" },
 ];
 
-const seasonal = (id: BoosterPackId, name: string, image: string, glow: string, text: string, ringColor: string): BoosterPackConfig => ({
-  id, name, image, seasonal: true, glow, text, ringColor,
+export const FESTIVE_CHANCE = 15; // % par défaut, modifiable carte par carte (attributes.festiveChance)
+
+const seasonal = (id: BoosterPackId, name: string, effect: string, image: string, glow: string, text: string, ringColor: string): BoosterPackConfig => ({
+  id, name, image, seasonal: true, effect, glow, text, ringColor,
   price: BOOSTER_PRICES[id],
   cardsPerPack: BOOSTER_CARDS_PER_PACK[id],
   rates: premiumRates(),
@@ -215,9 +219,9 @@ export const BOOSTER_PACKS: Record<BoosterPackId, BoosterPackConfig> = {
       { rarity: "Mythique", percent: "5%", rateNum: 5, colorClass: "text-rose-500", r: "Mythique", p: "5%", c: "text-rose-500" },
     ],
   },
-  halloween: seasonal("halloween", "Halloween", "/PreniumHalloweenB.png", "bg-orange-500", "text-orange-400", "rgba(249,115,22,0.4)"),
-  noel: seasonal("noel", "Noël", "/PreniumNoelB.png", "bg-red-600", "text-red-400", "rgba(220,38,38,0.4)"),
-  paques: seasonal("paques", "Pâques", "/PreniumPaquesB.png", "bg-emerald-500", "text-emerald-400", "rgba(16,185,129,0.4)"),
-  valentin: seasonal("valentin", "Saint-Valentin", "/PreniumValentinB.png", "bg-rose-500", "text-rose-400", "rgba(244,63,94,0.4)"),
-  nouvelan: seasonal("nouvelan", "Nouvel An", "/PreniumNouvelAnB.png", "bg-blue-600", "text-blue-400", "rgba(37,99,235,0.4)"),
+  halloween: seasonal("halloween", "Halloween", "Halloween", "/PreniumHalloweenB.png", "bg-orange-500", "text-orange-400", "rgba(249,115,22,0.4)"),
+  noel: seasonal("noel", "Noël", "Noël", "/PreniumNoelB.png", "bg-red-600", "text-red-400", "rgba(220,38,38,0.4)"),
+  paques: seasonal("paques", "Pâques", "Pâques", "/PreniumPaquesB.png", "bg-emerald-500", "text-emerald-400", "rgba(16,185,129,0.4)"),
+  valentin: seasonal("valentin", "Saint-Valentin", "Saint-Valentin", "/PreniumValentinB.png", "bg-rose-500", "text-rose-400", "rgba(244,63,94,0.4)"),
+  nouvelan: seasonal("nouvelan", "Nouvel An", "Nouvel An", "/PreniumNouvelAnB.png", "bg-blue-600", "text-blue-400", "rgba(37,99,235,0.4)"),
 };

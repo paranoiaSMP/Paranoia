@@ -753,3 +753,22 @@ html[data-event='halloween'] .page-sweep {
   .halloween-fog { animation: none; }
 }
 
+
+/* Tirage Mythique (PackOpener) : transform et opacity uniquement, coupé si mouvement réduit */
+@media (prefers-reduced-motion: no-preference) {
+  .mythic-tell { animation: mythic-tell 1.2s ease-in-out infinite; }
+  .mythic-flash { opacity: 0; animation: mythic-flash 0.8s 0.35s cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .mythic-ring { opacity: 0; animation: mythic-ring 0.9s cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .mythic-rays { opacity: 0; animation: mythic-rays-in 0.7s 0.4s cubic-bezier(0.23, 1, 0.32, 1) both, mythic-spin 22s linear infinite; }
+  .mythic-ember { opacity: 0; animation: mythic-ember var(--dur) var(--d) cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .mythic-title { opacity: 0; animation: mythic-title 2.8s 0.6s cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .mythic-shake { animation: mythic-shake 0.55s 0.38s cubic-bezier(0.23, 1, 0.32, 1); }
+}
+@keyframes mythic-tell { 0%, 100% { opacity: 0.25; transform: translate(-50%, -50%) scale(0.95); } 50% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.08); } }
+@keyframes mythic-flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes mythic-ring { from { opacity: 0.95; transform: translate(-50%, -50%) scale(0.2); } to { opacity: 0; transform: translate(-50%, -50%) scale(3.4); } }
+@keyframes mythic-rays-in { from { opacity: 0; } to { opacity: 0.5; } }
+@keyframes mythic-spin { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes mythic-ember { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), calc(var(--rise) * -1)); } }
+@keyframes mythic-title { 0% { opacity: 0; transform: translateX(-50%) scale(1.4); } 12% { opacity: 1; transform: translateX(-50%) scale(1); } 70% { opacity: 1; transform: translateX(-50%) scale(1); } 100% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(1); } }
+@keyframes mythic-shake { 0%, 100% { transform: translate(0, 0); } 15% { transform: translate(-7px, 4px); } 30% { transform: translate(6px, -5px); } 45% { transform: translate(-5px, -3px); } 60% { transform: translate(4px, 3px); } 80% { transform: translate(-2px, 1px); } }

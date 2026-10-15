@@ -120,16 +120,17 @@ function CardGift({ cards }: { cards: Card[] }) {
   );
 }
 
-function BoosterRow({ id, initial, onSaved }: { id: string; initial: { visible: boolean; stock: number | null }; onSaved: () => void }) {
+function BoosterRow({ id, initial, onSaved }: { id: string; initial: { visible: boolean; stock: number | null; price: number | null }; onSaved: () => void }) {
   const pack = BOOSTER_PACKS[id as keyof typeof BOOSTER_PACKS];
   const [visible, setVisible] = useState(initial.visible);
   const [stock, setStock] = useState(initial.stock === null ? "" : String(initial.stock));
+  const [price, setPrice] = useState(String(initial.price ?? pack.price));
   const [busy, setBusy] = useState(false);
 
   const save = async (nextStock: string = stock) => {
     setBusy(true);
     try {
-      await send("/api/admin/boosters", "PUT", { id, visible, stock: nextStock === "" ? null : Math.max(0, Math.floor(Number(nextStock))) });
+      await send("/api/admin/boosters", "PUT", { id, visible, price: Math.max(1, Math.floor(Number(price)) || pack.price), stock: nextStock === "" ? null : Math.max(0, Math.floor(Number(nextStock))) });
       toast.success(`${pack.name} mis à jour.`);
       onSaved();
     } catch (err) {
@@ -146,12 +147,16 @@ function BoosterRow({ id, initial, onSaved }: { id: string; initial: { visible: 
       <div className="min-w-32 flex-1">
         <p className="font-semibold text-white">{pack.name}</p>
         <p className="text-sm text-zinc-400">
-          {pack.seasonal ? "Fête, masqué par défaut" : "Permanent"} · {pack.price} PARA
+          {pack.seasonal ? "Fête, masqué par défaut" : "Permanent"} · prix de base {pack.price} PARA
         </p>
       </div>
       <label className="flex min-h-11 items-center gap-2 text-sm text-zinc-300">
         <input type="checkbox" checked={visible} onChange={(e) => setVisible(e.target.checked)} className="size-5 accent-violet-500" />
         Affiché
+      </label>
+      <label className="flex items-center gap-2 text-sm text-zinc-300">
+        Prix
+        <input type="number" min={1} inputMode="numeric" value={price} onChange={(e) => setPrice(e.target.value)} className={`${inputCls} w-24 tabular-nums`} />
       </label>
       <label className="flex items-center gap-2 text-sm text-zinc-300">
         Stock
@@ -185,9 +190,17 @@ function BoosterRow({ id, initial, onSaved }: { id: string; initial: { visible: 
 
 function Boosters() {
   const { data, error, loading, reload } = useResource<BoosterStates>("/api/admin/boosters");
+  const shown = data ? Object.values(data).filter((b) => b.visible).length : 0;
   return (
-    <div className={box}>
-      <h3 className="text-lg font-semibold text-white">Boosters en boutique</h3>
+    <details className={`${box} group`}>
+      <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-2 rounded-md focus-visible:outline-2 focus-visible:outline-violet-400">
+        <h3 className="text-lg font-semibold text-white">Boosters en boutique</h3>
+        <span className="text-sm text-zinc-400">
+          {data ? `${shown} affiché${shown > 1 ? "s" : ""} sur ${Object.keys(data).length} · ` : ""}
+          <span className="group-open:hidden">Développer</span>
+          <span className="hidden group-open:inline">Réduire</span>
+        </span>
+      </summary>
       <p className="text-sm text-zinc-400">
         Un booster masqué disparaît de la boutique et de l&apos;accueil (les boosters déjà possédés restent ouvrables). Stock vide = illimité, 0 = rupture.
       </p>
@@ -199,7 +212,7 @@ function Boosters() {
           ))}
         </ul>
       )}
-    </div>
+    </details>
   );
 }
 

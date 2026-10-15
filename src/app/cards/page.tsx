@@ -9,6 +9,7 @@ import {
   BOOSTER_DROP_RATES,
   BOOSTER_PACKS,
   CARD_RARITIES,
+  FESTIVE_CHANCE,
   type BoosterPackConfig,
   type BoosterPackId,
 } from "@/config/boosters";
@@ -22,6 +23,7 @@ import { useRealtime } from "@/lib/realtime/client";
 import { useWalletStore } from "@/lib/realtime/wallet-store";
 import Reveal from "@/components/common/Reveal";
 import { useBoosterStates } from "@/lib/useBoosterStates";
+import { priceOf } from "@/lib/boosters-types";
 
 const RARITY_MAP: Record<string, string> = {
   Commune: "COMMON",
@@ -125,6 +127,7 @@ function CardsPage() {
   const owned = inventory?.boxes[activeId] ?? 0;
   const stock = states?.[activeId].stock ?? null;
   const soldOut = stock === 0;
+  const price = priceOf(active, states?.[activeId]);
 
   useRealtime("wallet", applyWallet, status === "authenticated");
 
@@ -220,12 +223,18 @@ function CardsPage() {
                       </span>
                     </span>
                     <span className={`relative hidden text-sm sm:block ${selected ? "text-violet-400" : "text-zinc-400"}`}>
-                      {states?.[pack.id].stock === 0 ? "Rupture" : `${pack.price} PARA`}
+                      {states?.[pack.id].stock === 0 ? "Rupture" : `${priceOf(pack, states?.[pack.id])} PARA`}
                     </span>
                   </button>
                 );
               })}
             </div>
+
+            {active.effect && (
+              <p className="mt-6 text-sm text-zinc-300">
+                Effet {active.effect} : <strong className="text-white">{FESTIVE_CHANCE} %</strong> par carte (variable selon la carte).
+              </p>
+            )}
 
             <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-zinc-800 pt-6">
               <div>
@@ -234,7 +243,7 @@ function CardsPage() {
               </div>
               <div>
                 <dt className="text-sm text-zinc-400">Prix</dt>
-                <dd className="mt-1 text-2xl font-semibold"><AnimatedNumber value={active.price} suffix=" PARA" /></dd>
+                <dd className="mt-1 text-2xl font-semibold"><AnimatedNumber value={price} suffix=" PARA" /></dd>
               </div>
               <div>
                 <dt className="text-sm text-zinc-400">Mythique</dt>
@@ -271,15 +280,15 @@ function CardsPage() {
                       <button
                         type="button"
                         onClick={buy}
-                        disabled={buying || soldOut || !inventory || inventory.paraCoins < active.price}
+                        disabled={buying || soldOut || !inventory || inventory.paraCoins < price}
                         className="btn-violet disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {buying ? "Achat…" : soldOut ? "Rupture de stock" : `Acheter pour ${active.price} PARA`}
+                        {buying ? "Achat…" : soldOut ? "Rupture de stock" : `Acheter pour ${price} PARA`}
                       </button>
                     )}
                     {owned > 0 && (
-                      <button type="button" onClick={buy} disabled={buying || soldOut || !inventory || inventory.paraCoins < active.price} className="btn-line disabled:cursor-not-allowed disabled:opacity-50">
-                        {buying ? "Achat…" : soldOut ? "Rupture de stock" : `En acheter un (${active.price} PARA)`}
+                      <button type="button" onClick={buy} disabled={buying || soldOut || !inventory || inventory.paraCoins < price} className="btn-line disabled:cursor-not-allowed disabled:opacity-50">
+                        {buying ? "Achat…" : soldOut ? "Rupture de stock" : `En acheter un (${price} PARA)`}
                       </button>
                     )}
                     <button type="button" onClick={() => open(active, true)} className="btn-line">
@@ -289,7 +298,7 @@ function CardsPage() {
                   {stock !== null && stock > 0 && (
                     <p className="mt-3 text-sm text-zinc-300">Plus que {stock} en stock.</p>
                   )}
-                  {inventory && owned === 0 && !soldOut && inventory.paraCoins < active.price && (
+                  {inventory && owned === 0 && !soldOut && inventory.paraCoins < price && (
                     <p className="mt-3 text-sm text-zinc-400">Pas assez de ParaCoins pour ce booster.</p>
                   )}
                 </>

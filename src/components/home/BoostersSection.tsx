@@ -5,11 +5,12 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { BOOSTER_DROP_RATES } from "@/config/boosters";
 import { useBoosterStates } from "@/lib/useBoosterStates";
+import { priceOf } from "@/lib/boosters-types";
 import Reveal from "@/components/common/Reveal";
 
 export default function BoostersSection() {
   const reduce = useReducedMotion();
-  const { packs } = useBoosterStates();
+  const { packs, states } = useBoosterStates();
   return (
     <section className="border-b border-zinc-900 bg-[#0b0b0d]">
       <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
@@ -38,7 +39,7 @@ export default function BoostersSection() {
                   </motion.div>
                   <h3 className="mt-4 text-lg font-semibold text-white">{pack.name}</h3>
                   <p className="mt-1 text-sm text-zinc-400">
-                    {pack.cardsPerPack} cartes · {pack.price} PARA · Mythique {BOOSTER_DROP_RATES[pack.id].MYTHIC}%
+                    {pack.cardsPerPack} cartes · {priceOf(pack, states?.[pack.id])} PARA · Mythique {BOOSTER_DROP_RATES[pack.id].MYTHIC}%
                   </p>
                 </Link>
               </Reveal>

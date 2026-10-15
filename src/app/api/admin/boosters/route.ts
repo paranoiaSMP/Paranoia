@@ -10,6 +10,7 @@ const body = z.object({
   id: z.string().refine((v) => Object.hasOwn(BOOSTER_PACKS, v)),
   visible: z.boolean(),
   stock: z.number().int().min(0).max(1_000_000).nullable(),
+  price: z.number().int().min(1).max(1_000_000).nullable(),
 });
 
 async function guard() {
@@ -26,7 +27,7 @@ export async function PUT(req: Request) {
   if (!(await guard())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const parsed = body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Valeurs invalides." }, { status: 400 });
-  const { id, visible, stock } = parsed.data;
-  await saveBooster(id as BoosterPackId, { visible, stock });
+  const { id, visible, stock, price } = parsed.data;
+  await saveBooster(id as BoosterPackId, { visible, stock, price });
   return NextResponse.json({ success: true, message: "Booster mis à jour." });
 }

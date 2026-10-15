@@ -11,6 +11,7 @@ import {
 import { BoosterPackConfig } from "@/config/boosters";
 import { TradingCard } from "@/types/cards";
 import CardDisplay, { rarityKey } from "@/features/binder/components/CardDisplay";
+import MythicFx from "./MythicFx";
 
 export type OpenedCard = { card: TradingCard; effect: string | null };
 
@@ -46,6 +47,7 @@ const SPRING_THROW = { type: "spring", bounce: 0.15, duration: 0.5 } as const;
 export function PackOpener({ pack, load, onClose, onReplay, replayLabel, simulated }: PackOpenerProps) {
   const reduce = useReducedMotion();
   const dialogRef = useRef<HTMLDivElement>(null);
+  const cardAreaRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<Phase>("intro");
   const [error, setError] = useState<string | null>(null);
   const [cards, setCards] = useState<OpenedCard[]>([]);
@@ -93,9 +95,12 @@ export function PackOpener({ pack, load, onClose, onReplay, replayLabel, simulat
 
   const actOnTop = useCallback(() => {
     if (phase !== "deal") return;
-    if (!flipped) setFlipped(true);
+    if (!flipped) {
+      setFlipped(true);
+      if (!reduce && cards[index] && rarityKey(cards[index].card.rarity) === "MYTHIC") navigator.vibrate?.([30, 50, 90]);
+    }
     else next(1);
-  }, [phase, flipped, next]);
+  }, [phase, flipped, next, reduce, cards, index]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -132,6 +137,7 @@ export function PackOpener({ pack, load, onClose, onReplay, replayLabel, simulat
   const currentRarity = current ? rarityKey(current.card.rarity) : "COMMON";
   const dramatic = currentRarity === "LEGENDARY" || currentRarity === "MYTHIC";
   const flash = RARITY_FLASH[currentRarity];
+  const mythic = phase === "deal" && currentRarity === "MYTHIC" && !reduce;
 
   return (
     <motion.div
@@ -161,6 +167,7 @@ export function PackOpener({ pack, load, onClose, onReplay, replayLabel, simulat
         </button>
       </div>
 
+      {mythic && <MythicFx key={`b-${index}`} layer="back" anchor={cardAreaRef} revealed={flipped} />}
       <div className="relative flex flex-1 flex-col items-center justify-center px-5 pb-10">
         <AnimatePresence mode="wait">
           {(phase === "intro" || phase === "loading") && (
@@ -205,7 +212,7 @@ export function PackOpener({ pack, load, onClose, onReplay, replayLabel, simulat
           {phase === "deal" && current && (
             <motion.div
               key="deal"
-              className="flex w-full flex-col items-center gap-8"
+              className={`flex w-full flex-col items-center gap-8 ${mythic && flipped ? "mythic-shake" : ""}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -215,7 +222,7 @@ export function PackOpener({ pack, load, onClose, onReplay, replayLabel, simulat
                 Carte {index + 1} sur {cards.length}
               </p>
 
-              <div className="relative aspect-[2.5/3.5] w-[min(72vw,300px)]">
+              <div ref={cardAreaRef} className="relative aspect-[2.5/3.5] w-[min(72vw,300px)]">
                 {cards.slice(index + 1, index + 4).map((c, k) => (
                   <div
                     key={`${c.card.id}-${index + 1 + k}`}
@@ -374,6 +381,7 @@ export function PackOpener({ pack, load, onClose, onReplay, replayLabel, simulat
           )}
         </AnimatePresence>
       </div>
+      {mythic && <MythicFx key={`f-${index}`} layer="front" anchor={cardAreaRef} revealed={flipped} />}
     </motion.div>
   );
 }

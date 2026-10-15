@@ -720,6 +720,17 @@ export default function CardEditor() {
               <option value="nouvelan">Nouvel An (ballons, étoiles)</option>
             </select>
           </Field>
+          <Field label="Chance d'effet de fête (%)" hint="Dans un booster de fête uniquement. Vide = 15 %.">
+            <input
+              type="number"
+              min={0}
+              max={100}
+              inputMode="decimal"
+              value={a.festiveChance ?? ""}
+              onChange={(e) => setAttr("festiveChance", e.target.value === "" ? "" : Math.min(100, Math.max(0, Number(e.target.value))))}
+              className={inputCls}
+            />
+          </Field>
           <Toggle label="Pleine illustration (bordure épaisse)" checked={!!a.isFullArt} onChange={(v) => setAttr("isFullArt", v)} />
           <UrlField label="Cadre (image par-dessus)" value={a.frameUrl ?? ""} onChange={(v) => setAttr("frameUrl", v)} />
         </Section>

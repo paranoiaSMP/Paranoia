@@ -18,6 +18,7 @@ export async function boosterStates(): Promise<BoosterStates> {
     out[pack.id] = {
       visible: v.visible ?? !pack.seasonal,
       stock: typeof v.stock === "number" ? v.stock : null,
+      price: typeof v.price === "number" ? v.price : null,
     };
   }
   return out;

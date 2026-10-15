@@ -26,8 +26,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Type de booster invalide." }, { status: 400 });
     }
 
-    const price = PRICES[boxType];
     const state = (await boosterStates())[boxType as BoosterPackId];
+    const price = state.price ?? PRICES[boxType];
     if (!state.visible) {
       return NextResponse.json({ error: "Ce booster n'est pas disponible." }, { status: 400 });
     }
