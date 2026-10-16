@@ -12,6 +12,12 @@ pub mod modules {
     }
 }
 
+pub mod utils {
+    pub mod emoji {
+        pub const SETTINGS: &str = "⚙️";
+    }
+}
+
 #[path = "../src/modules/security.rs"]
 mod security;
 

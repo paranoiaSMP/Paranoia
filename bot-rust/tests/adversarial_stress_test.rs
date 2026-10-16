@@ -91,6 +91,7 @@ fn test_stress_env_missing_required_variables() {
     for variant in empty_variants {
         unsafe {
             env::set_var("DISCORD_TOKEN", variant);
+            env::set_var("DISCORD_BOT_TOKEN", variant);
             env::set_var("DATABASE_URL", "postgres://localhost/db");
         }
         let res = Config::load();
