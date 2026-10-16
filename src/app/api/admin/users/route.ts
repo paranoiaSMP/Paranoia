@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { isFounderUuid } from "@/lib/roles";
+import { fetchProfileByName, linkUserToProfile, uuidForms } from "@/lib/mojang";
 
 export const dynamic = "force-dynamic";
 
@@ -84,6 +85,46 @@ export async function PUT(req: Request) {
     return NextResponse.json(user);
   } catch (error) {
     console.error("Failed to update user role", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+// Lie un autre compte Minecraft (minecraftName) ou délie le compte actuel (minecraftName absent).
+export async function PATCH(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || !["ADMIN", "DEV"].includes(session.user.role as string)) {
+    return new NextResponse("Seul un ADMIN ou DEV peut modifier le compte Minecraft", { status: 401 });
+  }
+  try {
+    const { userId, minecraftName } = await req.json();
+    if (!userId) return new NextResponse("userId requis", { status: 400 });
+
+    const target = await prisma.user.findUnique({ where: { id: userId }, select: { role: true, minecraftUuid: true } });
+    if (!target) return new NextResponse("Utilisateur introuvable", { status: 404 });
+    if ((target.role === "DEV" || target.role === "ADMIN") && session.user.role !== "DEV") {
+      return new NextResponse("Seul un DEV peut modifier un Admin ou un DEV", { status: 403 });
+    }
+
+    if (minecraftName) {
+      if (!/^[A-Za-z0-9_]{3,16}$/.test(String(minecraftName))) {
+        return new NextResponse("Pseudo invalide : 3 à 16 caractères, lettres, chiffres ou _.", { status: 400 });
+      }
+      const profile = await fetchProfileByName(String(minecraftName));
+      if (!profile) return new NextResponse("Pseudo Minecraft introuvable chez Mojang.", { status: 404 });
+      if ((await linkUserToProfile(userId, profile)) === "taken") {
+        return new NextResponse("Ce compte Minecraft est déjà lié à un autre compte.", { status: 409 });
+      }
+      return NextResponse.json({ minecraftName: profile.name });
+    }
+
+    if (target.minecraftUuid) {
+      const banned = await prisma.ban.findFirst({ where: { isActive: true, player: { uuid: { in: uuidForms(target.minecraftUuid) } } }, select: { id: true } });
+      if (banned) return new NextResponse("Ce compte Minecraft est banni : impossible de le délier.", { status: 403 });
+    }
+    await prisma.user.update({ where: { id: userId }, data: { minecraftName: null, minecraftUuid: null, isMcVerified: false } });
+    return NextResponse.json({ minecraftName: null });
+  } catch (error) {
+    console.error("Failed to update minecraft link", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

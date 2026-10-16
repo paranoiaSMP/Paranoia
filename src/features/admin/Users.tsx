@@ -24,6 +24,36 @@ const ROLES = ["MEMBER", "MODERATOR", "ADMIN", "DEV"];
 const ROLE_LABEL: Record<string, string> = { MEMBER: "Membre", MODERATOR: "Modérateur", ADMIN: "Admin", DEV: "Dev" };
 const PACKS = Object.values(BOOSTER_PACKS);
 
+function McLink({ user, onSaved }: { user: User; onSaved: (u: User) => void }) {
+  const [name, setName] = useState(user.minecraftName ?? "");
+  const [busy, setBusy] = useState(false);
+
+  const run = async (minecraftName: string | null) => {
+    setBusy(true);
+    try {
+      const r = await send("/api/admin/users", "PATCH", { userId: user.id, minecraftName });
+      onSaved({ ...user, minecraftName: r.minecraftName });
+      setName(r.minecraftName ?? "");
+      toast.success(r.minecraftName ? `Lié à ${r.minecraftName}.` : "Compte Minecraft délié.");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap items-end gap-3 border-t border-zinc-900 bg-[#09090b] p-4">
+      <label className="flex flex-col gap-1 text-sm text-zinc-300">
+        Pseudo Minecraft
+        <input value={name} onChange={(e) => setName(e.target.value)} maxLength={16} className={`${inputCls} w-56`} />
+      </label>
+      <button type="button" disabled={busy || !name.trim() || name.trim() === user.minecraftName} onClick={() => run(name.trim())} className="btn-violet disabled:opacity-60">Lier ce pseudo</button>
+      {user.minecraftName && <button type="button" disabled={busy} onClick={() => run(null)} className="btn-line disabled:opacity-60">Délier {user.minecraftName}</button>}
+    </div>
+  );
+}
+
 function Economy({ user, onSaved }: { user: User; onSaved: (u: User) => void }) {
   const [coins, setCoins] = useState(user.paraCoins);
   const [boxes, setBoxes] = useState<Record<string, number>>(
@@ -118,6 +148,7 @@ export default function Users() {
   const [query, setQuery] = useState("");
   const [role, setRole] = useState<string>("ALL");
   const [open, setOpen] = useState<string | null>(null);
+  const [mc, setMc] = useState<string | null>(null);
 
   const list = (data ?? []).filter((u) => {
     const q = query.trim().toLowerCase();
@@ -208,8 +239,14 @@ export default function Users() {
                   >
                     {open === u.id ? "Fermer" : "Économie"}
                   </button>
+                  {isAdmin(myRole) && (
+                    <button type="button" onClick={() => setMc(mc === u.id ? null : u.id)} aria-expanded={mc === u.id} className="btn-line min-h-11 px-4">
+                      {mc === u.id ? "Fermer" : "Pseudo MC"}
+                    </button>
+                  )}
                 </div>
                 {open === u.id && <Economy user={u} onSaved={replace} />}
+                {mc === u.id && <McLink user={u} onSaved={replace} />}
               </li>
             );
           })}
