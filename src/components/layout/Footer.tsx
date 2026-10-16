@@ -82,9 +82,10 @@ const NAV_GROUPS = [
   {
     title: "Légal",
     links: [
-      { name: "Conditions d'utilisation", href: "/a-propos" },
-      { name: "Politique de confidentialité", href: "/a-propos" },
-      { name: "Règlement communautaire", href: "/a-propos" },
+      { name: "Conditions d'utilisation", href: "/cgu" },
+      { name: "Politique de confidentialité", href: "/privacy" },
+      { name: "Règlement communautaire", href: "/cgu#reglement" },
+      { name: "Mentions légales", href: "/mentions-legales" },
     ],
   },
 ];

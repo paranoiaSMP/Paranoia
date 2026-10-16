@@ -188,7 +188,7 @@ function BoosterRow({ id, initial, onSaved }: { id: string; initial: { visible: 
   );
 }
 
-function Boosters() {
+export function Boosters() {
   const { data, error, loading, reload } = useResource<BoosterStates>("/api/admin/boosters");
   const shown = data ? Object.values(data).filter((b) => b.visible).length : 0;
   return (
@@ -304,7 +304,7 @@ export default function Gifts() {
 
   return (
     <section>
-      <PanelHeader title="Dons" text="ParaCoins, boosters et cartes. Chaque action est immédiate et notifie le joueur." />
+      <PanelHeader title="Dons" text="ParaCoins, boosters et cartes (les prix et le stock des boosters sont dans TCG). Chaque action est immédiate et notifie le joueur." />
       {(cards.error || users.error) && (
         <p role="alert" className="mt-4 text-sm text-red-400">
           Liste {cards.error ? "des cartes" : "des comptes"} indisponible.{" "}
@@ -316,9 +316,6 @@ export default function Gifts() {
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Reward />
         <CardGift cards={cards.data ?? []} />
-        <div className="xl:col-span-2">
-          <Boosters />
-        </div>
         <div className="xl:col-span-2">
           <Danger cards={cards.data ?? []} users={users.data ?? []} />
         </div>

@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import ShowcaseEditor from "@/features/profile/ShowcaseEditor";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import CardZoom from "@/components/tcg/CardZoom";
 import CardDisplay from "@/features/binder/components/CardDisplay";
 import SplitReveal from "@/components/motion/SplitReveal";
 import type { TradingCard } from "@/types/cards";
@@ -29,12 +30,12 @@ type Profile = {
 
 const ROLE: Record<string, string> = { DEV: "Dev", ADMIN: "Admin", MODERATOR: "Modérateur" };
 const RARITIES = [
-  { key: "MYTHIC", label: "Mythique" },
-  { key: "LEGENDARY", label: "Légendaire" },
-  { key: "EPIC", label: "Épique" },
-  { key: "RARE", label: "Rare" },
-  { key: "UNCOMMON", label: "Peu commune" },
-  { key: "COMMON", label: "Commune" },
+  { key: "MYTHIC", label: "Mythique", tint: "#ef4444" },
+  { key: "LEGENDARY", label: "Légendaire", tint: "#f59e0b" },
+  { key: "EPIC", label: "Épique", tint: "#a855f7" },
+  { key: "RARE", label: "Rare", tint: "#3b82f6" },
+  { key: "UNCOMMON", label: "Peu commune", tint: "#22c55e" },
+  { key: "COMMON", label: "Commune", tint: "#71717a" },
 ];
 
 export default function PlayerProfile() {
@@ -45,6 +46,7 @@ export default function PlayerProfile() {
   const { data: session } = useSession();
   const [editing, setEditing] = useState(false);
   const [reload, setReload] = useState(0);
+  const [zoom, setZoom] = useState<Profile["best"][number] | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -91,6 +93,12 @@ export default function PlayerProfile() {
   const founder = isFounderUuid(profile.uuid);
   const lvl = levelOf(profile.xp ?? 0);
   const max = Math.max(1, ...Object.values(profile.byRarity));
+  const isMe = session?.user?.minecraftName?.toLowerCase() === profile.minecraftName.toLowerCase();
+  const grow = (n: number) => ({
+    initial: reduce ? false : { transform: "scaleX(0)" },
+    animate: { transform: `scaleX(${n})` },
+    transition: { duration: 0.8, ease: EASE_OUT, delay: 0.3 },
+  });
   const since = new Date(profile.createdAt).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 
   return (
@@ -108,6 +116,11 @@ export default function PlayerProfile() {
             className="mt-3 break-all text-[clamp(3rem,10vw,8rem)] font-extrabold leading-[0.9] tracking-[-0.045em] text-white"
           />
           <p className="mt-6 text-zinc-300">Membre depuis {since}</p>
+          {!isMe && (
+            <Link href={`/jeux/echanges?joueur=${encodeURIComponent(profile.minecraftName)}`} className="btn-violet mt-6 inline-flex">
+              Proposer un échange
+            </Link>
+          )}
 
           <div className="mt-8 max-w-md">
             <p className="flex items-baseline justify-between gap-4">
@@ -124,7 +137,7 @@ export default function PlayerProfile() {
               aria-valuemax={lvl.need}
               aria-valuenow={lvl.into}
             >
-              <div className="h-full origin-left rounded-full bg-violet-400" style={{ transform: `scaleX(${lvl.into / lvl.need})` }} />
+              <motion.div className="h-full origin-left rounded-full bg-violet-400" {...grow(lvl.into / lvl.need)} />
             </div>
             <p className="mt-2 text-xs text-zinc-400">XP gagnée en discutant sur le Discord.</p>
           </div>
@@ -152,12 +165,15 @@ export default function PlayerProfile() {
           animate={{ opacity: 1, transform: "translateY(0px)" }}
           transition={{ duration: reduce ? 0.2 : 0.7, ease: EASE_OUT, delay: reduce ? 0 : 0.2 }}
         >
+          <div className="relative">
+          <div aria-hidden className="absolute inset-x-0 bottom-0 top-1/4 -z-10 rounded-full bg-violet-500/25 blur-3xl" />
           <img
             src={`https://vzge.me/full/512/${encodeURIComponent(skinId)}.png`}
             alt={`Skin de ${profile.minecraftName}`}
             className="h-[42svh] max-h-96 w-auto"
             style={{ imageRendering: "pixelated" }}
           />
+          </div>
         </motion.div>
       </div>
 
@@ -171,7 +187,7 @@ export default function PlayerProfile() {
                 <li key={r.key} className="grid grid-cols-[7rem_minmax(0,1fr)_2.5rem] items-center gap-3 text-sm">
                   <span className="text-zinc-300">{r.label}</span>
                   <span aria-hidden className="h-1.5 overflow-hidden rounded-full bg-zinc-900">
-                    <span className="block h-full origin-left rounded-full bg-violet-400" style={{ transform: `scaleX(${n / max})` }} />
+                    <motion.span className="block h-full origin-left rounded-full" style={{ background: r.tint }} {...grow(n / max)} />
                   </span>
                   <span className="text-right tabular-nums text-white">{n}</span>
                 </li>
@@ -182,7 +198,7 @@ export default function PlayerProfile() {
         <div className="lg:col-span-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-2xl font-bold tracking-[-0.03em] text-white">Ses meilleures cartes</h2>
-            {session?.user?.minecraftName?.toLowerCase() === profile.minecraftName.toLowerCase() && !editing && (
+            {isMe && !editing && (
               <button type="button" onClick={() => setEditing(true)} className="btn-line">
                 Personnaliser
               </button>
@@ -195,13 +211,16 @@ export default function PlayerProfile() {
             <ul className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-3">
               {profile.best.map((c) => (
                 <li key={c.id}>
-                  <CardDisplay card={c.tradingCard} size="md" specialEffect={c.specialEffect} />
+                  <button type="button" onClick={() => setZoom(c)} aria-label={`Agrandir ${c.tradingCard.title}`} className="block w-full text-left">
+                    <CardDisplay card={c.tradingCard} size="md" specialEffect={c.specialEffect} />
+                  </button>
                 </li>
               ))}
             </ul>
           )}
         </div>
       </section>
+      <AnimatePresence>{zoom && <CardZoom card={zoom.tradingCard} effect={zoom.specialEffect} onClose={() => setZoom(null)} />}</AnimatePresence>
     </div>
   );
 }

@@ -3,14 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import CardZoom from "@/components/tcg/CardZoom";
 import CardDisplay, { rarityKey } from "@/features/binder/components/CardDisplay";
 import AnimatedNumber from "@/components/motion/AnimatedNumber";
 import type { TradingCard } from "@/types/cards";
 import { EASE_OUT } from "@/lib/motion";
+import { TCG_DEFAULTS, sellPrice } from "@/lib/cardValue";
 
 type Owned = { id: string; obtainedAt: string; specialEffect: string | null; tradingCard: TradingCard };
-type Data = { owned: Owned[]; total: number };
+type Data = { owned: Owned[]; total: number; showcase: string[] };
 
 const RARITIES = [
   { key: "MYTHIC", label: "Mythique" },
@@ -30,6 +32,7 @@ export default function CollectionPage() {
   const [rarity, setRarity] = useState("ALL");
   const [edition, setEdition] = useState("ALL");
   const [sort, setSort] = useState<"recent" | "rarity">("recent");
+  const [zoom, setZoom] = useState<{ card: TradingCard; effect: string | null; count: number; last: string; ids: string[] } | null>(null);
 
   const load = async () => {
     setError(false);
@@ -49,17 +52,35 @@ export default function CollectionPage() {
   }, [status]);
 
   const groups = useMemo(() => {
-    const map = new Map<string, { card: TradingCard; effect: string | null; count: number; last: string }>();
+    const map = new Map<string, { card: TradingCard; effect: string | null; count: number; last: string; ids: string[] }>();
     for (const o of data?.owned ?? []) {
       const k = `${o.tradingCard.id}:${o.specialEffect ?? ""}`;
       const g = map.get(k);
       if (g) {
         g.count++;
+        g.ids.push(o.id);
         if (o.obtainedAt > g.last) g.last = o.obtainedAt;
-      } else map.set(k, { card: o.tradingCard, effect: o.specialEffect, count: 1, last: o.obtainedAt });
+      } else map.set(k, { card: o.tradingCard, effect: o.specialEffect, count: 1, last: o.obtainedAt, ids: [o.id] });
     }
     return [...map.values()];
   }, [data]);
+
+  const [rate, setRate] = useState(TCG_DEFAULTS.sellRate);
+  useEffect(() => {
+    fetch("/api/tcg/config").then((r) => (r.ok ? r.json() : null)).then((c) => c && setRate(c.sellRate)).catch(() => {});
+  }, []);
+  const copies = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const o of data?.owned ?? []) m.set(o.tradingCard.id, (m.get(o.tradingCard.id) ?? 0) + 1);
+    return m;
+  }, [data]);
+
+  const sellZoom = async (id: string): Promise<string | null> => {
+    const res = await fetch("/api/cards/sell", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [id] }) });
+    if (!res.ok) return ((await res.json().catch(() => null)) as { error?: string } | null)?.error ?? "La vente a échoué.";
+    await load();
+    return null;
+  };
 
   const editions = useMemo(() => [...new Set(groups.map((g) => g.card.edition))].sort(), [groups]);
   const distinct = useMemo(() => new Set(groups.map((g) => g.card.id)).size, [groups]);
@@ -191,7 +212,9 @@ export default function CollectionPage() {
                       transition={{ duration: reduce ? 0.15 : 0.45, ease: EASE_OUT, delay: reduce ? 0 : Math.min(i, 10) * 0.03 }}
                       className="relative"
                     >
-                      <CardDisplay card={g.card} size="md" specialEffect={g.effect} />
+                      <button type="button" onClick={() => setZoom(g)} aria-label={`Agrandir ${g.card.title}`} className="block w-full text-left">
+                        <CardDisplay card={g.card} size="md" specialEffect={g.effect} />
+                      </button>
                       <p className="mt-3 flex justify-between gap-2 text-sm text-zinc-300">
                         <span className="truncate">
                           {g.card.title}
@@ -207,6 +230,13 @@ export default function CollectionPage() {
           )}
         </>
       )}
+      <AnimatePresence>
+        {zoom && (() => {
+          const id = zoom.ids.find((i) => !data?.showcase.includes(i));
+          const sell = id && (copies.get(zoom.card.id) ?? 0) > 1 ? { price: sellPrice(zoom.card.rarity, zoom.effect, rate), onSell: () => sellZoom(id) } : undefined;
+          return <CardZoom card={zoom.card} effect={zoom.effect} count={zoom.count} obtainedAt={zoom.last} onClose={() => setZoom(null)} sell={sell} />;
+        })()}
+      </AnimatePresence>
     </div>
   );
 }

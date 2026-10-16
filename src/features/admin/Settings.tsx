@@ -47,10 +47,13 @@ function Maintenance() {
 }
 
 const EVENTS = [
-  { value: "auto", label: "Automatique", text: "Halloween du 15 octobre au 2 novembre, Noël du 1er décembre au 6 janvier." },
+  { value: "auto", label: "Automatique", text: "Halloween du 15 octobre au 2 novembre, Noël du 1er décembre au 6 janvier, Nouvel An du 31 décembre au 2 janvier, Saint-Valentin du 7 au 14 février, Pâques sa semaine." },
   { value: "off", label: "Aucun", text: "Le site garde son thème violet toute l'année." },
   { value: "halloween", label: "Halloween", text: "Accent orange, brume et chauves-souris." },
-  { value: "noel", label: "Noël", text: "Accent rouge et neige qui tombe." },
+  { value: "noel", label: "Noël", text: "Accent vert et neige qui tombe." },
+  { value: "nouvel-an", label: "Nouvel An", text: "Accent or et confettis." },
+  { value: "valentin", label: "Saint-Valentin", text: "Accent rose et cœurs qui tombent." },
+  { value: "paques", label: "Pâques", text: "Accent turquoise et œufs colorés." },
 ];
 
 function SeasonalEvent() {

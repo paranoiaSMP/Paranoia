@@ -127,6 +127,22 @@ export default function GamesHub() {
           </li>
         ))}
       </ul>
+
+      <h2 className="mt-20 text-sm font-semibold text-zinc-300">Entre joueurs</h2>
+      <div className="mt-6 border-y border-zinc-900">
+        <Link href="/jeux/echanges" className="group flex min-h-28 flex-col justify-center gap-2 py-6 sm:flex-row sm:items-center sm:gap-10">
+          <span className="w-56 shrink-0 text-4xl font-extrabold tracking-[-0.04em] text-white transition-transform duration-200 ease-out [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-2">Échanges</span>
+          <span className="flex-1 text-zinc-300">Échange tes cartes TCG avec les autres joueurs.</span>
+          <span className="text-sm text-zinc-400">Cartes contre cartes</span>
+          <span aria-hidden className="hidden text-2xl text-violet-400 transition-transform duration-200 ease-out sm:block [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-1">→</span>
+        </Link>
+        <Link href="/jeux/fusion" className="group flex min-h-28 flex-col justify-center gap-2 py-6 sm:flex-row sm:items-center sm:gap-10">
+          <span className="w-56 shrink-0 text-4xl font-extrabold tracking-[-0.04em] text-white transition-transform duration-200 ease-out [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-2">Fusion</span>
+          <span className="flex-1 text-zinc-300">Monte l'effet de tes cartes et fabrique des cartes exclusives.</span>
+          <span className="text-sm text-zinc-400">Effets et recettes</span>
+          <span aria-hidden className="hidden text-2xl text-violet-400 transition-transform duration-200 ease-out sm:block [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-1">→</span>
+        </Link>
+      </div>
     </div>
   );
 }

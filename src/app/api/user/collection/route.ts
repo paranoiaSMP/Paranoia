@@ -10,7 +10,7 @@ export async function GET() {
   if (!session?.user?.id) return NextResponse.json({ error: "Non connecté" }, { status: 401 });
 
   try {
-    const [owned, total] = await Promise.all([
+    const [owned, total, me] = await Promise.all([
       prisma.userCard.findMany({
         where: { userId: session.user.id },
         orderBy: { obtainedAt: "desc" },
@@ -22,8 +22,9 @@ export async function GET() {
         },
       }),
       prisma.tradingCard.count({ where: { isPublished: true } }),
+      prisma.user.findUnique({ where: { id: session.user.id }, select: { showcase: true } }),
     ]);
-    return NextResponse.json({ owned, total });
+    return NextResponse.json({ owned, total, showcase: me?.showcase ?? [] });
   } catch (error) {
     console.error("[COLLECTION_GET]", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

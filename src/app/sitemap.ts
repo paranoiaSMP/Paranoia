@@ -14,6 +14,9 @@ const PAGES: { path: string; priority: number; freq: "daily" | "weekly" | "month
   { path: "/launcher", priority: 0.8, freq: "monthly" },
   { path: "/a-propos", priority: 0.6, freq: "monthly" },
   { path: "/support", priority: 0.5, freq: "monthly" },
+  { path: "/privacy", priority: 0.3, freq: "monthly" },
+  { path: "/cgu", priority: 0.3, freq: "monthly" },
+  { path: "/mentions-legales", priority: 0.3, freq: "monthly" },
 ];
 
 export const dynamic = "force-dynamic";

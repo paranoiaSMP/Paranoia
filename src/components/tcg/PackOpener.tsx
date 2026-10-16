@@ -12,6 +12,7 @@ import { BoosterPackConfig } from "@/config/boosters";
 import { TradingCard } from "@/types/cards";
 import CardDisplay, { rarityKey } from "@/features/binder/components/CardDisplay";
 import MythicFx from "./MythicFx";
+import CardZoom from "./CardZoom";
 
 export type OpenedCard = { card: TradingCard; effect: string | null };
 
@@ -54,6 +55,7 @@ export function PackOpener({ pack, load, onClose, onReplay, replayLabel, simulat
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [exitDir, setExitDir] = useState(1);
+  const [zoom, setZoom] = useState<OpenedCard | null>(null);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -340,7 +342,9 @@ export function PackOpener({ pack, load, onClose, onReplay, replayLabel, simulat
                     animate={{ opacity: 1, transform: "translateY(0px)" }}
                     transition={{ ...SPRING, delay: reduce ? 0 : i * 0.05 }}
                   >
-                    <CardDisplay card={c.card} size="md" specialEffect={c.effect} />
+                    <button type="button" onClick={() => setZoom(c)} aria-label={`Agrandir ${c.card.title}`} className="block w-full text-left">
+                      <CardDisplay card={c.card} size="md" specialEffect={c.effect} />
+                    </button>
                     <p className="mt-3 text-center text-sm text-zinc-300">
                       {RARITY_LABEL[rarityKey(c.card.rarity)]}
                       {c.effect && ` · ${c.effect}`}
@@ -381,6 +385,7 @@ export function PackOpener({ pack, load, onClose, onReplay, replayLabel, simulat
           )}
         </AnimatePresence>
       </div>
+      <AnimatePresence>{zoom && <CardZoom card={zoom.card} effect={zoom.effect} onClose={() => setZoom(null)} />}</AnimatePresence>
       {mythic && <MythicFx key={`f-${index}`} layer="front" anchor={cardAreaRef} revealed={flipped} />}
     </motion.div>
   );

@@ -99,6 +99,7 @@ export const getRarityBackground = (rarity: string): React.CSSProperties => RARI
 type TiltContextValue = {
   px: MotionValue<number>;
   py: MotionValue<number>;
+  hover: MotionValue<number>;
   enabled: boolean;
 };
 
@@ -215,7 +216,7 @@ export const InteractiveCard = ({
       : cfg.bg;
 
   return (
-    <TiltContext.Provider value={{ px, py, enabled }}>
+    <TiltContext.Provider value={{ px, py, hover, enabled }}>
       <div
         ref={hitRef}
         className={`relative ${className}`}
@@ -564,30 +565,50 @@ function ParticleFx({ fx }: { fx: Fx }) {
   );
 }
 
+// Le holo n'apparaît que sous le pointeur : les couleurs glissent avec l'inclinaison de la carte.
+// Au-delà de 0–100 %, le dégradé se répète et laisse une couture visible sur les bords.
+const clamp = (v: number) => Math.min(100, Math.max(0, v));
+
+function HoloFoil() {
+  const ctx = useContext(TiltContext);
+  const fallback = useMotionValue(0);
+  const px = ctx?.px ?? fallback;
+  const py = ctx?.py ?? fallback;
+  const pos = useMotionTemplate`${useTransform(px, (v) => clamp(50 + v * 140))}% ${useTransform(py, (v) => clamp(50 + v * 140))}%`;
+  const band = useMotionTemplate`0 0, ${useTransform(px, (v) => clamp(50 + v * 160))}% 50%`;
+  const idle = ctx?.enabled ? 0 : 0.1;
+  const foilOpacity = useTransform(ctx?.hover ?? fallback, [0, 1], [idle, 0.5]);
+  const stripeOpacity = useTransform(ctx?.hover ?? fallback, [0, 1], [idle, 0.45]);
+  return (
+    <>
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[90] rounded-xl mix-blend-color-dodge"
+        style={{
+          opacity: foilOpacity,
+          backgroundSize: "300% 300%",
+          backgroundPosition: pos,
+          backgroundImage:
+            "linear-gradient(125deg, #ff2d95 0%, #ff9a3c 14%, #f6ff5a 28%, #3cffb0 42%, #3cb8ff 56%, #8a5cff 70%, #ff2d95 84%, #ff9a3c 100%)",
+        }}
+      />
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[91] rounded-xl mix-blend-soft-light"
+        style={{
+          opacity: stripeOpacity,
+          backgroundSize: "auto, 250% 100%",
+          backgroundPosition: band,
+          backgroundImage:
+            "repeating-linear-gradient(115deg, rgba(255,255,255,0) 0 5px, rgba(255,255,255,0.3) 5px 6px), linear-gradient(105deg, transparent 42%, rgba(255,255,255,0.6) 50%, transparent 58%)",
+        }}
+      />
+    </>
+  );
+}
+
 function SpecialEffect({ effect }: { effect: string | null }) {
-  if (effect === "Holo") {
-    return (
-      <>
-        <div aria-hidden className="pointer-events-none absolute inset-0 z-[90] overflow-hidden rounded-xl opacity-50 mix-blend-color-dodge">
-          <div
-            className="card-fx-sheen absolute inset-y-0 -left-1/2 w-[200%]"
-            style={{
-              backgroundImage:
-                "linear-gradient(105deg, transparent 38%, #ff0080 42%, #ff8c00 46%, #40e0d0 50%, #7b68ee 54%, transparent 58%)",
-            }}
-          />
-        </div>
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 z-[91] rounded-xl mix-blend-overlay"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)",
-          }}
-        />
-      </>
-    );
-  }
+  if (effect === "Holo") return <HoloFoil />;
   if (effect === "Glitch") {
     return (
       <>
@@ -607,7 +628,7 @@ function SpecialEffect({ effect }: { effect: string | null }) {
       </>
     );
   }
-  const particles = effect === "Saison" ? PARTICLE_FX[seasonFx()] : effect ? PARTICLE_FX[effect] : undefined;
+  const particles = effect === "Saison" ? PARTICLE_FX[seasonFx()] : effect ? PARTICLE_FX[effect.replace(/ \d{4}$/, "")] : undefined;
   if (particles) return <ParticleFx fx={particles} />;
   if (effect === "Cosmic") {
     return (

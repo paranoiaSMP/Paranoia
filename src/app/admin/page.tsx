@@ -12,6 +12,7 @@ import Reports from "@/features/admin/Reports";
 import News from "@/features/admin/News";
 import Gifts from "@/features/admin/Gifts";
 import Shop from "@/features/admin/Shop";
+import Tcg from "@/features/admin/Tcg";
 import Settings from "@/features/admin/Settings";
 import { isAdmin, isStaff } from "@/lib/roles";
 import { EASE_OUT } from "@/lib/motion";
@@ -24,6 +25,7 @@ const TABS = [
   { key: "reports", label: "Signalements", min: "admin" },
   { key: "gifts", label: "Dons", min: "admin" },
   { key: "shop", label: "Boutique", min: "admin" },
+  { key: "tcg", label: "TCG", min: "admin" },
   { key: "news", label: "Actualités", min: "admin" },
   { key: "settings", label: "Paramètres", min: "dev" },
 ] as const satisfies readonly { key: string; label: string; min: Level }[];
@@ -116,6 +118,7 @@ function Admin() {
           {tab === "news" && <News />}
           {tab === "gifts" && <Gifts />}
           {tab === "shop" && <Shop />}
+          {tab === "tcg" && <Tcg />}
           {tab === "settings" && <Settings />}
         </motion.div>
       </AnimatePresence>

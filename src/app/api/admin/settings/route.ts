@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Valeur attendue : on ou off." }, { status: 400 });
     }
     if (key === "event" && !(EVENT_MODES as readonly string[]).includes(String(value))) {
-      return NextResponse.json({ error: "Valeur attendue : auto, off, halloween ou noel." }, { status: 400 });
+      return NextResponse.json({ error: "Valeur attendue : auto, off ou un événement connu." }, { status: 400 });
     }
     if (key === "discord_url" && !/^https:\/\/(discord\.gg|discord\.com\/invite)\/[A-Za-z0-9-]+\/?$/.test(String(value))) {
       return NextResponse.json({ error: "Lien invalide : https://discord.gg/… attendu." }, { status: 400 });

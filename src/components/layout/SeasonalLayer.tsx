@@ -12,6 +12,12 @@ const FLAKES = Array.from({ length: 36 }, (_, i) => ({
   drift: (i % 2 ? 1 : -1) * (10 + (i % 5) * 6),
 }));
 
+const FEST = {
+  valentin: ["#fb7185"],
+  paques: ["#5eead4", "#fde68a", "#f9a8d4", "#a5b4fc", "#bef264"],
+  "nouvel-an": ["#facc15", "#ffffff", "#fb7185", "#38bdf8"],
+} as const;
+
 const BATS = [
   { top: 18, duration: 14, delay: 2, scale: 1, flap: 0.32, bob: 1.9 },
   { top: 32, duration: 19, delay: 9, scale: 0.7, flap: 0.26, bob: 2.3 },
@@ -62,6 +68,21 @@ export default function SeasonalLayer() {
             }}
           />
         ))}
+      </div>
+    );
+  }
+
+  if (event !== "halloween") {
+    const hues = FEST[event];
+    return (
+      <div aria-hidden className="seasonal-layer">
+        {FLAKES.slice(0, 28).map((f, i) => {
+          const color = hues[i % hues.length];
+          const base = { left: `${f.left}%`, animationDuration: `${f.duration + 4}s`, animationDelay: `${f.delay}s`, ["--drift" as string]: `${f.drift}px` };
+          if (event === "valentin") return <span key={i} className="fest-p fest-heart" style={{ ...base, fontSize: 10 + f.size * 3 }}>♥</span>;
+          if (event === "paques") return <span key={i} className="fest-p fest-egg" style={{ ...base, width: 8 + f.size * 2, height: 11 + f.size * 2.6, background: color }} />;
+          return <span key={i} className="fest-p fest-confetti" style={{ ...base, width: 4 + f.size, height: 8 + f.size * 2, background: color, rotate: `${i * 47}deg` }} />;
+        })}
       </div>
     );
   }

@@ -144,7 +144,7 @@ export async function POST(req: Request) {
     };
     const drawn = drawnCards.map((card) => ({
       card,
-      specialEffect: festive && Math.random() * 100 < festiveChance(card) ? festive : drawEffect(),
+      specialEffect: festive && Math.random() * 100 < festiveChance(card) ? `${festive} ${new Date().getFullYear()}` : drawEffect(),
     }));
 
     const created = await prisma.$transaction(async (tx) => {
