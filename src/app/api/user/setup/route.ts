@@ -1,7 +1,8 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { fetchProfileByName, linkUserToProfile } from "@/lib/mojang";
+import { prisma } from "@/lib/db";
+import { fetchProfileByName, linkUserToProfile, uuidForms } from "@/lib/mojang";
 
 export async function POST(req: Request) {
   try {
@@ -33,6 +34,29 @@ export async function POST(req: Request) {
       return new NextResponse("Ce compte Minecraft est déjà lié à un autre compte du site.", { status: 409 });
     }
     console.error("[SETUP_POST]", error);
+    return new NextResponse("Erreur interne, réessaie dans un instant.", { status: 500 });
+  }
+}
+
+export async function DELETE() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return new NextResponse("Non autorisé", { status: 401 });
+  }
+  try {
+    const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { minecraftUuid: true } });
+    if (!user?.minecraftUuid) {
+      return new NextResponse("Aucun compte Minecraft n'est lié.", { status: 400 });
+    }
+    // Délier ne doit pas servir à échapper à un ban en cours.
+    const banned = await prisma.ban.findFirst({ where: { isActive: true, player: { uuid: { in: uuidForms(user.minecraftUuid) } } }, select: { id: true } });
+    if (banned) {
+      return new NextResponse("Ce compte Minecraft est banni : impossible de le délier.", { status: 403 });
+    }
+    await prisma.user.update({ where: { id: session.user.id }, data: { minecraftName: null, minecraftUuid: null, isMcVerified: false } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("[SETUP_DELETE]", error);
     return new NextResponse("Erreur interne, réessaie dans un instant.", { status: 500 });
   }
 }

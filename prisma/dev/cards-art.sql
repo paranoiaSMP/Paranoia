@@ -1,0 +1,38 @@
+-- DEV UNIQUEMENT. Généré par prisma/dev/gen-card-art.py : noms + illustrations des cartes dev-card-N.
+
+UPDATE "TradingCard" SET title = 'Mineur des Cavernes', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-1.png', "playerId" = NULL WHERE id = 'dev-card-1';
+UPDATE "TradingCard" SET title = 'Bûcheron du Nether', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-2.png', "playerId" = NULL WHERE id = 'dev-card-2';
+UPDATE "TradingCard" SET title = 'Fermier de l''End', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-3.png', "playerId" = NULL WHERE id = 'dev-card-3';
+UPDATE "TradingCard" SET title = 'Pêcheur des Neiges', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-4.png', "playerId" = NULL WHERE id = 'dev-card-4';
+UPDATE "TradingCard" SET title = 'Forgeron du Désert', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-5.png', "playerId" = NULL WHERE id = 'dev-card-5';
+UPDATE "TradingCard" SET title = 'Berger de la Jungle', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-6.png', "playerId" = NULL WHERE id = 'dev-card-6';
+UPDATE "TradingCard" SET title = 'Cuisinier des Abysses', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-7.png', "playerId" = NULL WHERE id = 'dev-card-7';
+UPDATE "TradingCard" SET title = 'Porteur du Ciel', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-8.png', "playerId" = NULL WHERE id = 'dev-card-8';
+UPDATE "TradingCard" SET title = 'Apprenti du Volcan', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-9.png', "playerId" = NULL WHERE id = 'dev-card-9';
+UPDATE "TradingCard" SET title = 'Bâtisseur des Ruines', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-10.png', "playerId" = NULL WHERE id = 'dev-card-10';
+UPDATE "TradingCard" SET title = 'Éclaireur de la Forêt', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-11.png', "playerId" = NULL WHERE id = 'dev-card-11';
+UPDATE "TradingCard" SET title = 'Archer des Glaces', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-12.png', "playerId" = NULL WHERE id = 'dev-card-12';
+UPDATE "TradingCard" SET title = 'Voyageur des Cavernes', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-13.png', "playerId" = NULL WHERE id = 'dev-card-13';
+UPDATE "TradingCard" SET title = 'Garde du Nether', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-14.png', "playerId" = NULL WHERE id = 'dev-card-14';
+UPDATE "TradingCard" SET title = 'Marchand de l''End', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-15.png', "playerId" = NULL WHERE id = 'dev-card-15';
+UPDATE "TradingCard" SET title = 'Chasseur de primes des Neiges', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-16.png', "playerId" = NULL WHERE id = 'dev-card-16';
+UPDATE "TradingCard" SET title = 'Sentinelle du Désert', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-17.png', "playerId" = NULL WHERE id = 'dev-card-17';
+UPDATE "TradingCard" SET title = 'Pisteur de la Jungle', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-18.png', "playerId" = NULL WHERE id = 'dev-card-18';
+UPDATE "TradingCard" SET title = 'Chevalier des Abysses', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-19.png', "playerId" = NULL WHERE id = 'dev-card-19';
+UPDATE "TradingCard" SET title = 'Alchimiste du Ciel', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-20.png', "playerId" = NULL WHERE id = 'dev-card-20';
+UPDATE "TradingCard" SET title = 'Rôdeur du Volcan', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-21.png', "playerId" = NULL WHERE id = 'dev-card-21';
+UPDATE "TradingCard" SET title = 'Duelliste des Ruines', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-22.png', "playerId" = NULL WHERE id = 'dev-card-22';
+UPDATE "TradingCard" SET title = 'Ingénieur de la Forêt', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-23.png', "playerId" = NULL WHERE id = 'dev-card-23';
+UPDATE "TradingCard" SET title = 'Templier des Glaces', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-24.png', "playerId" = NULL WHERE id = 'dev-card-24';
+UPDATE "TradingCard" SET title = 'Briseur des Cavernes', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-25.png', "playerId" = NULL WHERE id = 'dev-card-25';
+UPDATE "TradingCard" SET title = 'Berserker du Nether', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-26.png', "playerId" = NULL WHERE id = 'dev-card-26';
+UPDATE "TradingCard" SET title = 'Mage noir de l''End', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-27.png', "playerId" = NULL WHERE id = 'dev-card-27';
+UPDATE "TradingCard" SET title = 'Paladin des Neiges', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-28.png', "playerId" = NULL WHERE id = 'dev-card-28';
+UPDATE "TradingCard" SET title = 'Assassin du Désert', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-29.png', "playerId" = NULL WHERE id = 'dev-card-29';
+UPDATE "TradingCard" SET title = 'Archimage de la Jungle', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-30.png', "playerId" = NULL WHERE id = 'dev-card-30';
+UPDATE "TradingCard" SET title = 'Seigneur des Abysses', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-31.png', "playerId" = NULL WHERE id = 'dev-card-31';
+UPDATE "TradingCard" SET title = 'Titan du Ciel', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-32.png', "playerId" = NULL WHERE id = 'dev-card-32';
+UPDATE "TradingCard" SET title = 'Oracle du Volcan', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-33.png', "playerId" = NULL WHERE id = 'dev-card-33';
+UPDATE "TradingCard" SET title = 'Champion des Ruines', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-34.png', "playerId" = NULL WHERE id = 'dev-card-34';
+UPDATE "TradingCard" SET title = 'Dieu déchu de la Forêt', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-35.png', "playerId" = NULL WHERE id = 'dev-card-35';
+UPDATE "TradingCard" SET title = 'Gardien éternel des Glaces', "customBackground" = NULL, "imageUrl" = '/uploads/dev-cards/hero-36.png', "playerId" = NULL WHERE id = 'dev-card-36';

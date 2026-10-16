@@ -6,7 +6,9 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { siteConfig } from "@/config/site";
 
 export default function UserMenu({ className = "" }: { className?: string }) {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
+  const [unlink, setUnlink] = useState<"idle" | "confirm" | "busy">("idle");
+  const [unlinkError, setUnlinkError] = useState("");
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -16,7 +18,7 @@ export default function UserMenu({ className = "" }: { className?: string }) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") { setOpen(false); setUnlink("idle"); }
     };
     document.addEventListener("mousedown", onPointer);
     document.addEventListener("keydown", onKey);
@@ -41,6 +43,19 @@ export default function UserMenu({ className = "" }: { className?: string }) {
       </button>
     );
   }
+
+  const doUnlink = async () => {
+    setUnlink("busy");
+    setUnlinkError("");
+    const res = await fetch("/api/user/setup", { method: "DELETE" }).catch(() => null);
+    if (res?.ok) {
+      await update();
+      window.location.href = "/setup";
+      return;
+    }
+    setUnlinkError((await res?.text()) || "Impossible de délier pour le moment.");
+    setUnlink("idle");
+  };
 
   const avatarUrl = session.user?.image || siteConfig.discordAvatarFallback;
 
@@ -116,6 +131,26 @@ export default function UserMenu({ className = "" }: { className?: string }) {
                 </Link>
               )}
             </>
+          )}
+          {session.user?.minecraftName && (
+            <div className="px-3 py-1">
+              {unlink === "idle" ? (
+                <button type="button" role="menuitem" onClick={() => setUnlink("confirm")} className="flex min-h-11 w-full items-center text-left text-sm text-zinc-200 transition-colors hover:text-white">
+                  Délier {session.user.minecraftName}
+                </button>
+              ) : (
+                <div className="py-2">
+                  <p className="text-xs text-zinc-300">Tu devras lier un compte Minecraft pour réutiliser le site. Ta collection reste sur ton compte Discord.</p>
+                  <div className="mt-2 flex gap-2">
+                    <button type="button" disabled={unlink === "busy"} onClick={doUnlink} className="min-h-11 flex-1 rounded-sm bg-red-600 px-3 text-sm font-semibold text-white disabled:opacity-60">
+                      {unlink === "busy" ? "Un instant…" : "Délier"}
+                    </button>
+                    <button type="button" disabled={unlink === "busy"} onClick={() => setUnlink("idle")} className="min-h-11 rounded-sm border border-zinc-700 px-3 text-sm text-zinc-200">Annuler</button>
+                  </div>
+                </div>
+              )}
+              {unlinkError && <p role="alert" className="pb-2 text-xs text-red-400">{unlinkError}</p>}
+            </div>
           )}
           <button
             type="button"
