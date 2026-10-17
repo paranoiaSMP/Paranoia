@@ -3,16 +3,18 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { ready } from "@/lib/tradeRoom";
 import { rateLimit } from "@/lib/rateLimit";
-import { TRADE_MAX_CARDS, TRADE_MAX_PENDING } from "@/lib/trades";
+import { dmUser } from "@/lib/discord-dm";
+import { notifyTrade } from "@/lib/realtime/emit";
+import { siteConfig } from "@/config/site";
+import { TRADE_MAX_PENDING } from "@/lib/trades";
 
 export const dynamic = "force-dynamic";
 
 const Body = z.object({
   to: z.string().trim().min(1).max(16),
-  offered: z.array(z.string().min(1)).min(1).max(TRADE_MAX_CARDS),
-  requested: z.array(z.string().min(1)).min(1).max(TRADE_MAX_CARDS),
-});
+  });
 
 const cardSelect = { id: true, specialEffect: true, tradingCard: { include: { player: { select: { id: true, minecraftName: true, uuid: true } } } } } as const;
 
@@ -46,6 +48,8 @@ export async function GET() {
         from: name.get(t.fromId),
         to: name.get(t.toId),
         mine: t.fromId === me,
+        fromOk: !!ready.get(t.id)?.from,
+        toOk: !!ready.get(t.id)?.to,
         offered: pick(t.offered),
         requested: pick(t.requested),
       })),
@@ -64,8 +68,6 @@ export async function POST(req: Request) {
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Requête invalide" }, { status: 400 });
-  const offered = [...new Set(parsed.data.offered)];
-  const requested = [...new Set(parsed.data.requested)];
 
   try {
     const target = await prisma.user.findFirst({
@@ -75,15 +77,21 @@ export async function POST(req: Request) {
     if (!target) return NextResponse.json({ error: "Joueur introuvable." }, { status: 404 });
     if (target.id === me) return NextResponse.json({ error: "Tu ne peux pas échanger avec toi-même." }, { status: 400 });
 
-    const [mine, theirs, pending] = await Promise.all([
-      prisma.userCard.count({ where: { id: { in: offered }, userId: me, marketListing: null } }),
-      prisma.userCard.count({ where: { id: { in: requested }, userId: target.id, marketListing: null } }),
-      prisma.cardTrade.count({ where: { fromId: me, status: "PENDING" } }),
-    ]);
-    if (mine !== offered.length || theirs !== requested.length) return NextResponse.json({ error: "Une des cartes n'est plus disponible." }, { status: 400 });
-    if (pending >= TRADE_MAX_PENDING) return NextResponse.json({ error: `Déjà ${TRADE_MAX_PENDING} propositions en attente.` }, { status: 400 });
+    // Le destinataire choisit ce qu'il donne en retour au moment d'accepter.
+    // Une seule table ouverte entre deux joueurs : on la rouvre au lieu d'en créer une autre.
+    const existing = await prisma.cardTrade.findFirst({
+      where: { status: "PENDING", OR: [{ fromId: me, toId: target.id }, { fromId: target.id, toId: me }] },
+      select: { id: true },
+    });
+    if (existing) return NextResponse.json({ success: true, id: existing.id });
+    const pending = await prisma.cardTrade.count({ where: { fromId: me, status: "PENDING" } });
+    if (pending >= TRADE_MAX_PENDING) return NextResponse.json({ error: `Déjà ${TRADE_MAX_PENDING} échanges ouverts.` }, { status: 400 });
 
-    const trade = await prisma.cardTrade.create({ data: { fromId: me, toId: target.id, offered, requested } });
+    const trade = await prisma.cardTrade.create({ data: { fromId: me, toId: target.id, offered: [], requested: [] } });
+    notifyTrade(me, target.id);
+    const sender = await prisma.user.findUnique({ where: { id: me }, select: { minecraftName: true } });
+    // Pas de await : le MP ne doit pas ralentir ni faire échouer l'ouverture de la table.
+    void dmUser(target.id, `🔄 **${sender?.minecraftName ?? "Un joueur"}** veut échanger avec toi. Rejoins la table : ${siteConfig.siteUrl}/jeux/echanges?salle=${trade.id}`);
     return NextResponse.json({ success: true, id: trade.id });
   } catch (error) {
     console.error("[TRADES_POST]", error);

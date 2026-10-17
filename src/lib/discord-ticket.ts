@@ -1,6 +1,6 @@
 const DISCORD_API = "https://discord.com/api/v10";
 
-function getHeaders() {
+export function getHeaders() {
   const rawToken = process.env.DISCORD_TOKEN || process.env.DISCORD_BOT_TOKEN || process.env.BOT_TOKEN;
   const token = rawToken?.trim().replace(/^["']|["']$/g, "").trim();
   const cleanToken = token ? (token.toLowerCase().startsWith("bot ") ? token.slice(4).trim() : token) : "";

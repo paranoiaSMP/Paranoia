@@ -1,10 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, useRef } from "react";
+import React, { createContext, useContext, useMemo, useRef, useState } from "react";
 import {
   motion,
   useMotionTemplate,
   useMotionValue,
+  useMotionValueEvent,
   useReducedMotion,
   useSpring,
   useTransform,
@@ -577,8 +578,15 @@ function HoloFoil() {
   const pos = useMotionTemplate`${useTransform(px, (v) => clamp(50 + v * 140))}% ${useTransform(py, (v) => clamp(50 + v * 140))}%`;
   const band = useMotionTemplate`0 0, ${useTransform(px, (v) => clamp(50 + v * 160))}% 50%`;
   const idle = ctx?.enabled ? 0 : 0.1;
+  // Les calques à mix-blend-mode coûtent cher : on ne les monte que sous le pointeur.
+  const hoverMv = ctx?.hover ?? fallback;
+  const [active, setActive] = useState(!ctx?.enabled);
+  useMotionValueEvent(hoverMv, "change", (v) => {
+    if (ctx?.enabled) setActive(v > 0.02);
+  });
   const foilOpacity = useTransform(ctx?.hover ?? fallback, [0, 1], [idle, 0.5]);
   const stripeOpacity = useTransform(ctx?.hover ?? fallback, [0, 1], [idle, 0.45]);
+  if (!active) return null;
   return (
     <>
       <motion.div

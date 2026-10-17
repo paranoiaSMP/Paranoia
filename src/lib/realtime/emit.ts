@@ -42,3 +42,7 @@ export function notifyShop() {
 export function notifyNews() {
   bus.publish(PUBLIC_TOPIC, { event: "news", data: { at: Date.now() } });
 }
+
+export function notifyTrade(...userIds: string[]) {
+  for (const id of userIds) bus.publish(userTopic(id), { event: "trade", data: { at: Date.now() } });
+}

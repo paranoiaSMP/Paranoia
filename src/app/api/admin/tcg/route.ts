@@ -12,8 +12,6 @@ async function guard() {
 }
 
 const Config = z.object({
-  sellRate: z.number().min(0.01).max(1),
-  sellDailyCap: z.number().int().min(0).max(1_000_000),
   evolveCount: z.number().int().min(2).max(20),
 });
 const Recipes = z

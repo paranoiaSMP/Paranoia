@@ -3,7 +3,7 @@ const BASE: Record<string, number> = { COMMON: 15, UNCOMMON: 35, RARE: 70, EPIC:
 const FESTIVE = ["Noël", "Halloween", "Pâques", "Saint-Valentin", "Nouvel An"];
 const EFFECT: Record<string, number> = { Holo: 1.5, Glitch: 2.5, Cosmic: 4, Saison: 1.5 };
 
-export const TCG_DEFAULTS = { sellRate: 0.25, sellDailyCap: 1000, evolveCount: 4 };
+export const TCG_DEFAULTS = { evolveCount: 4 };
 export type TcgConfig = typeof TCG_DEFAULTS;
 
 function baseOf(rarity: string) {
@@ -22,8 +22,7 @@ export function cardValue(rarity: string, effect: string | null | undefined) {
   return Math.round(baseOf(rarity) * mult);
 }
 
-export const sellPrice = (rarity: string, effect: string | null | undefined, rate = TCG_DEFAULTS.sellRate) =>
-  Math.max(1, Math.round(cardValue(rarity, effect) * rate));
+export const sellPrice = cardValue;
 
 const LADDER = [null, "Holo", "Glitch", "Cosmic"];
 export function nextEffect(effect: string | null | undefined): string | null {

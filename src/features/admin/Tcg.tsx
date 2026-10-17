@@ -16,13 +16,13 @@ const box = "flex flex-col gap-4 rounded-md border border-zinc-900 p-5";
 const field = "flex flex-col gap-1.5 text-sm text-zinc-300";
 
 function Settings({ initial, onSaved }: { initial: TcgConfig; onSaved: () => void }) {
-  const [v, setV] = useState({ ...initial, sellRate: Math.round(initial.sellRate * 100) });
+  const [v, setV] = useState({ ...initial });
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement>) => setV({ ...v, [k]: Number(e.target.value) });
   const save = async () => {
     setBusy(true);
     try {
-      await send("/api/admin/tcg", "PUT", { config: { ...v, sellRate: v.sellRate / 100 } });
+      await send("/api/admin/tcg", "PUT", { config: v });
       toast.success("Réglages enregistrés.");
       onSaved();
     } catch (e) {
@@ -42,13 +42,11 @@ function Settings({ initial, onSaved }: { initial: TcgConfig; onSaved: () => voi
     <section className={box}>
       <h3 className="text-lg font-semibold text-white">Règles</h3>
       <div className="flex flex-wrap gap-6">
-        {num("Rachat des doublons (%)", "sellRate", "Part de la valeur versée au joueur.")}
-        {num("Plafond de rachat par jour", "sellDailyCap", "En ParaCoins, par joueur. 0 = rachat bloqué.", 0)}
         {num("Montée d'effet", "evolveCount", "Exemplaires identiques pour l'effet suivant.", 2)}
       </div>
       <div className="flex gap-3">
         <button type="button" onClick={save} disabled={busy} className="btn-violet disabled:opacity-50">Enregistrer</button>
-        <button type="button" onClick={() => setV({ ...TCG_DEFAULTS, sellRate: TCG_DEFAULTS.sellRate * 100 })} className="btn-line">Valeurs par défaut</button>
+        <button type="button" onClick={() => setV({ ...TCG_DEFAULTS })} className="btn-line">Valeurs par défaut</button>
       </div>
     </section>
   );

@@ -125,14 +125,14 @@ export default function Footer() {
               <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Réseaux sociaux
               </span>
-              <div className="flex items-center gap-4 text-zinc-400">
+              <div className="-ml-3 flex flex-wrap items-center text-zinc-400">
                 {SOCIALS.map((s) => (
                   <a
                     key={s.name}
                     href={s.name === "Discord" ? (discordUrl || s.href) : s.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="transition-colors hover:text-white"
+                    className="grid size-11 place-items-center transition-colors hover:text-white"
                     aria-label={s.name}
                   >
                     {s.icon}
@@ -148,12 +148,12 @@ export default function Footer() {
                 <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300">
                   {group.title}
                 </h3>
-                <ul className="flex flex-col gap-2 text-sm text-zinc-400">
+                <ul className="flex flex-col gap-0 text-sm text-zinc-400 md:gap-2">
                   {group.links.map((link) => (
                     <li key={link.name}>
                       <Link
                         href={link.href}
-                        className="inline-block py-1 transition-colors hover:text-white"
+                        className="inline-flex min-h-11 items-center transition-colors hover:text-white md:min-h-0 md:py-1"
                       >
                         {link.name}
                       </Link>
@@ -178,13 +178,22 @@ export default function Footer() {
         </div>
       </div>
 
-      <div 
-        aria-hidden="true" 
-        className="pointer-events-none relative -mb-4 flex w-full select-none justify-center overflow-hidden leading-none md:-mb-10 lg:-mb-16"
-      >
-        <span className="whitespace-nowrap font-outfit text-[clamp(4.5rem,19vw,22rem)] font-black tracking-[-0.05em] text-white/90 transition-colors">
-          Paranoia
-        </span>
+      <div aria-hidden="true" className="pointer-events-none relative -mb-4 select-none md:-mb-10 lg:-mb-16">
+        {/* Dépose l'image dans public/footer-model.png ; elle reste masquée tant que le fichier n'existe pas. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/footer-model.png"
+          alt=""
+          loading="lazy"
+          onError={(e) => { e.currentTarget.hidden = true; }}
+          className="absolute right-[10%] z-10 h-[clamp(7rem,18vw,18rem)] w-auto"
+          style={{ bottom: "calc(clamp(4.5rem,19vw,22rem) * 0.72)" }}
+        />
+        <div className="flex w-full justify-center overflow-hidden leading-none">
+          <span className="whitespace-nowrap font-outfit text-[clamp(4.5rem,19vw,22rem)] font-black tracking-[-0.05em] text-white/90 transition-colors">
+            Paranoia
+          </span>
+        </div>
       </div>
     </footer>
   );

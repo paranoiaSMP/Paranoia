@@ -9,7 +9,7 @@ import CardDisplay, { rarityKey } from "@/features/binder/components/CardDisplay
 import AnimatedNumber from "@/components/motion/AnimatedNumber";
 import type { TradingCard } from "@/types/cards";
 import { EASE_OUT } from "@/lib/motion";
-import { TCG_DEFAULTS, sellPrice } from "@/lib/cardValue";
+import { sellPrice } from "@/lib/cardValue";
 
 type Owned = { id: string; obtainedAt: string; specialEffect: string | null; tradingCard: TradingCard };
 type Data = { owned: Owned[]; total: number; showcase: string[] };
@@ -65,15 +65,33 @@ export default function CollectionPage() {
     return [...map.values()];
   }, [data]);
 
-  const [rate, setRate] = useState(TCG_DEFAULTS.sellRate);
-  useEffect(() => {
-    fetch("/api/tcg/config").then((r) => (r.ok ? r.json() : null)).then((c) => c && setRate(c.sellRate)).catch(() => {});
-  }, []);
   const copies = useMemo(() => {
     const m = new Map<string, number>();
     for (const o of data?.owned ?? []) m.set(o.tradingCard.id, (m.get(o.tradingCard.id) ?? 0) + 1);
     return m;
   }, [data]);
+
+  const dupes = useMemo(() => {
+    const by = new Map<string, number[]>();
+    for (const o of data?.owned ?? []) by.set(o.tradingCard.id, [...(by.get(o.tradingCard.id) ?? []), sellPrice(o.tradingCard.rarity, o.specialEffect)]);
+    let n = 0, gold = 0;
+    for (const v of by.values()) {
+      v.sort((a, b) => b - a);
+      n += v.length - 1;
+      gold += v.slice(1).reduce((a, b) => a + b, 0);
+    }
+    return { n, gold };
+  }, [data]);
+  const [sellAll, setSellAll] = useState<"idle" | "confirm" | "busy">("idle");
+  const [sellMsg, setSellMsg] = useState<string | null>(null);
+  const doSellAll = async () => {
+    setSellAll("busy");
+    const res = await fetch("/api/cards/sell", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ all: true }) });
+    const j = (await res.json().catch(() => null)) as { error?: string; sold?: number; gained?: number } | null;
+    setSellMsg(res.ok ? `${j?.sold} doublons vendus, +${j?.gained} Paracoin.` : (j?.error ?? "La vente a échoué."));
+    setSellAll("idle");
+    if (res.ok) await load();
+  };
 
   const sellZoom = async (id: string): Promise<string | null> => {
     const res = await fetch("/api/cards/sell", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [id] }) });
@@ -200,6 +218,23 @@ export default function CollectionPage() {
                 </div>
               </div>
 
+              {(dupes.n > 0 || sellMsg) && (
+                <div className="mt-6 flex flex-wrap items-center gap-3">
+                  {dupes.n > 0 && (
+                    <button
+                      type="button"
+                      disabled={sellAll === "busy"}
+                      onClick={() => (sellAll === "confirm" ? doSellAll() : setSellAll("confirm"))}
+                      onBlur={() => sellAll === "confirm" && setSellAll("idle")}
+                      className="btn-violet disabled:opacity-50"
+                    >
+                      {sellAll === "busy" ? "Vente en cours…" : sellAll === "confirm" ? `Confirmer : vendre ${dupes.n} doublons, +${dupes.gold}` : `Vendre tous mes doublons (${dupes.n})`}
+                    </button>
+                  )}
+                  {sellMsg && <p role="status" className="text-sm text-zinc-300">{sellMsg}</p>}
+                </div>
+              )}
+
               {shown.length === 0 ? (
                 <p className="mt-10 text-zinc-400">Aucune carte avec ces filtres.</p>
               ) : (
@@ -233,7 +268,7 @@ export default function CollectionPage() {
       <AnimatePresence>
         {zoom && (() => {
           const id = zoom.ids.find((i) => !data?.showcase.includes(i));
-          const sell = id && (copies.get(zoom.card.id) ?? 0) > 1 ? { price: sellPrice(zoom.card.rarity, zoom.effect, rate), onSell: () => sellZoom(id) } : undefined;
+          const sell = id && (copies.get(zoom.card.id) ?? 0) > 1 ? { price: sellPrice(zoom.card.rarity, zoom.effect), onSell: () => sellZoom(id) } : undefined;
           return <CardZoom card={zoom.card} effect={zoom.effect} count={zoom.count} obtainedAt={zoom.last} onClose={() => setZoom(null)} sell={sell} />;
         })()}
       </AnimatePresence>

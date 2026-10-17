@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import CardDisplay from "@/features/binder/components/CardDisplay";
 import type { TradingCard } from "@/types/cards";
+import { cardValue } from "@/lib/cardValue";
 
 type Owned = { id: string; specialEffect: string | null; tradingCard: TradingCard };
 const MAX = 5;
@@ -18,7 +19,7 @@ export default function ShowcaseEditor({ initial, onSaved, onClose }: { initial:
     let alive = true;
     fetch("/api/user/collection")
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d: { owned: Owned[] }) => alive && setOwned(d.owned))
+      .then((d: { owned: Owned[] }) => alive && setOwned([...d.owned].sort((a, b) => cardValue(b.tradingCard.rarity, b.specialEffect) - cardValue(a.tradingCard.rarity, a.specialEffect))))
       .catch(() => alive && setError("Impossible de charger ta collection."));
     return () => {
       alive = false;
@@ -39,13 +40,13 @@ export default function ShowcaseEditor({ initial, onSaved, onClose }: { initial:
   };
 
   return (
-    <div className="mt-6 rounded-sm border border-zinc-800 bg-zinc-950 p-5">
+    <div className="mt-6 rounded-2xl border border-zinc-800 bg-[#09090b] p-4 md:p-5">
       <p className="text-sm text-zinc-300">
         Choisis jusqu&apos;à {MAX} cartes, dans l&apos;ordre où elles seront affichées. <span className="tabular-nums text-white">{picked.length}/{MAX}</span>
       </p>
       {!owned && !error && <p className="mt-4 text-zinc-400">Chargement…</p>}
       {owned?.length === 0 && <p className="mt-4 text-zinc-400">Tu n&apos;as pas encore de carte.</p>}
-      <ul className="mt-5 grid max-h-[28rem] grid-cols-2 gap-4 overflow-y-auto sm:grid-cols-3 lg:grid-cols-4">
+      <ul data-lenis-prevent className="mt-5 grid max-h-[32rem] grid-cols-2 gap-3 overflow-y-auto p-1 sm:grid-cols-3 lg:grid-cols-4">
         {owned?.map((c) => {
           const rank = picked.indexOf(c.id);
           return (
@@ -56,7 +57,7 @@ export default function ShowcaseEditor({ initial, onSaved, onClose }: { initial:
                 aria-pressed={rank >= 0}
                 className={`relative block w-full rounded-xl outline-offset-2 transition-opacity ${rank >= 0 ? "outline outline-2 outline-violet-400" : "opacity-70 hover:opacity-100"}`}
               >
-                <CardDisplay card={c.tradingCard} size="sm" specialEffect={c.specialEffect} disableTilt />
+                <CardDisplay card={c.tradingCard} size="md" specialEffect={c.specialEffect} disableTilt />
                 {rank >= 0 && (
                   <span className="absolute left-2 top-2 z-[100] flex h-7 w-7 items-center justify-center rounded-full bg-violet-400 text-sm font-bold text-black">{rank + 1}</span>
                 )}
