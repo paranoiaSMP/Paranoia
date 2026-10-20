@@ -46,3 +46,27 @@ export async function syncCosmeticsJson() {
     console.error("[SYNC_ERROR] Failed to sync cosmetics json", error);
   }
 }
+
+export async function grantCosmeticToPlayer(identifier: string, itemId: string) {
+  const jsonPath = process.env.COSMETICS_JSON_PATH;
+  if (!jsonPath) return;
+
+  try {
+    let data: any = { items: [], players: {}, admins: [] };
+    if (fs.existsSync(jsonPath)) {
+      data = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
+    }
+    if (!data.players) data.players = {};
+    if (!Array.isArray(data.players[identifier])) {
+      data.players[identifier] = [];
+    }
+    if (!data.players[identifier].includes(itemId)) {
+      data.players[identifier].push(itemId);
+      fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2), "utf8");
+      console.log(`[SYNC] Granted cosmetic ${itemId} to player ${identifier}`);
+    }
+  } catch (err) {
+    console.error("[GRANT_COSMETIC_ERROR]", err);
+  }
+}
+
