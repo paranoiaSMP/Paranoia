@@ -731,6 +731,44 @@ export default function CardEditor() {
               className={inputCls}
             />
           </Field>
+          <Field label="Valeur de base (Paracoins)" hint="Laisse vide pour la valeur automatique basée sur la rareté.">
+            <input
+              type="number"
+              min={0}
+              placeholder="Valeur par défaut selon rareté"
+              value={a.value ?? ""}
+              onChange={(e) => {
+                const val = e.target.value === "" ? undefined : Math.max(0, parseInt(e.target.value) || 0);
+                setAttr("value", val);
+              }}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Boosters et chance (%)" hint="Laisse tout vide : la carte sort partout, selon sa rareté. Sinon elle ne sort que dans les boosters remplis, avec cette chance (%) par carte tirée.">
+            <div className="grid grid-cols-2 gap-2">
+              {Object.values(BOOSTER_PACKS).map((p) => (
+                <label key={p.id} className="flex items-center justify-between gap-2 text-xs text-zinc-300">
+                  {p.name}
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step="any"
+                    inputMode="decimal"
+                    value={a.boosters?.[p.id] ?? ""}
+                    onChange={(e) => {
+                      const next = { ...(a.boosters ?? {}) };
+                      const n = Math.min(100, Math.max(0, Number(e.target.value)));
+                      if (e.target.value === "" || n === 0) delete next[p.id];
+                      else next[p.id] = n;
+                      setAttr("boosters", Object.keys(next).length ? next : undefined);
+                    }}
+                    className={`${inputCls} w-20`}
+                  />
+                </label>
+              ))}
+            </div>
+          </Field>
           <Toggle label="Pleine illustration (bordure épaisse)" checked={!!a.isFullArt} onChange={(v) => setAttr("isFullArt", v)} />
           <UrlField label="Cadre (image par-dessus)" value={a.frameUrl ?? ""} onChange={(v) => setAttr("frameUrl", v)} />
         </Section>

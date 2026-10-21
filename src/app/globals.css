@@ -213,14 +213,6 @@
   50% { background-position: -200% 0%; }
   100% { background-position: 200% 0%; }
 }
-@keyframes glitch-clip {
-  0%, 95% { clip-path: inset(0); }
-  96% { clip-path: inset(20% 0 60% 0); }
-  97% { clip-path: inset(50% 0 10% 0); }
-  98% { clip-path: inset(70% 0 5% 0); }
-  99% { clip-path: inset(10% 0 70% 0); }
-  100% { clip-path: inset(0); }
-}
 @keyframes sparkle {
   0%, 100% { opacity: 0; transform: scale(0.5); }
   50% { opacity: 1; transform: scale(1.4); }
@@ -381,9 +373,21 @@
   from { transform: translateX(-25%); }
   to { transform: translateX(25%); }
 }
-@keyframes cosmic-pulse {
-  from { opacity: 0.5; }
-  to { opacity: 0.9; }
+@keyframes cosmic-far {
+  to { transform: translate3d(-3cqw, 2cqw, 0); }
+}
+@keyframes cosmic-near {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.55; }
+  50% { transform: translate3d(-5cqw, 3cqw, 0); opacity: 1; }
+}
+@keyframes cosmic-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes cosmic-shoot {
+  0%, 62% { transform: translateX(-35cqw); opacity: 0; }
+  64% { opacity: 1; }
+  72% { transform: translateX(125cqw); opacity: 1; }
+  73%, 100% { transform: translateX(125cqw); opacity: 0; }
 }
 @keyframes season-fall {
   from { transform: translate3d(0, -10%, 0) rotate(0deg); }
@@ -406,35 +410,34 @@
   25% { transform: translateY(-110%) scaleY(1.08); }
   70% { transform: translateY(0) scaleY(0.9); }
 }
-@keyframes glitch-scan {
-  from { transform: translateY(-50%); }
-  to { transform: translateY(0); }
+@keyframes gl-band {
+  0%, 86%, 100% { opacity: 0; }
+  88%, 91% { opacity: 1; }
+  90%, 93% { opacity: 0; }
+  94% { opacity: 1; }
+  96% { opacity: 0; }
 }
-@keyframes glitch-r {
-  0%, 93%, 100% { transform: translateX(0); }
-  94% { transform: translateX(-4px); }
-  96% { transform: translateX(3px); }
-  98% { transform: translateX(-2px); }
-}
-@keyframes glitch-b {
-  0%, 93%, 100% { transform: translateX(0); }
-  94% { transform: translateX(4px); }
-  96% { transform: translateX(-3px); }
-  98% { transform: translateX(2px); }
+@keyframes gl-art {
+  0%, 86%, 96%, 100% { transform: none; filter: none; }
+  88% { transform: translate(-3px, 0); filter: drop-shadow(-4px 0 0 rgba(255, 0, 60, 0.9)) drop-shadow(4px 0 0 rgba(0, 240, 255, 0.9)); }
+  90% { transform: translate(4px, 1px); filter: drop-shadow(5px 0 0 rgba(255, 0, 60, 0.9)) drop-shadow(-5px 0 0 rgba(0, 240, 255, 0.9)); }
+  92% { transform: translate(-2px, -1px); filter: drop-shadow(-3px 0 0 rgba(255, 0, 60, 0.9)) drop-shadow(3px 0 0 rgba(0, 240, 255, 0.9)); }
+  94% { transform: none; filter: drop-shadow(-2px 0 0 rgba(255, 0, 60, 0.8)) drop-shadow(2px 0 0 rgba(0, 240, 255, 0.8)); }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .card-aura-breathe { animation: card-breathe 3.2s ease-in-out infinite alternate; }
   .card-fx-sheen { animation: card-sheen 3.2s ease-in-out infinite alternate; }
-  .card-fx-cosmic { animation: cosmic-pulse 4s ease-in-out infinite alternate; }
+  .card-fx-far { animation: cosmic-far var(--d, 50s) ease-in-out infinite alternate; }
+  .card-fx-near { animation: cosmic-near 7s ease-in-out infinite; }
+  .card-fx-spin { animation: cosmic-spin var(--d, 50s) linear infinite; }
+  .card-fx-shoot { animation: cosmic-shoot var(--d, 8s) linear infinite; }
   .card-fx-fall { animation: season-fall var(--d, 7s) linear infinite; animation-delay: var(--delay, 0s); }
   .card-fx-rise { animation: season-rise var(--d, 6s) ease-in infinite; animation-delay: var(--delay, 0s); }
   .card-fx-fly { animation: season-fly calc(var(--d, 6s) * 1.8) linear infinite; animation-delay: var(--delay, 0s); }
   .card-fx-hop { animation: season-hop 1.8s ease-out infinite; animation-delay: var(--delay, 0s); }
-  .card-fx-scan { animation: glitch-scan 8s linear infinite; }
-  .card-fx-glitch { animation: glitch-clip 3s steps(1) infinite; }
-  .card-fx-glitch-r { animation: glitch-r 3s steps(1) infinite; }
-  .card-fx-glitch-b { animation: glitch-b 3s steps(1) infinite; }
+  .card-fx-gl-band { animation: gl-band 2.6s steps(1) infinite; }
+  .card-fx-gl-art { animation: gl-art 2.6s steps(1) infinite; }
   .card-fx-star {
     animation: sparkle var(--d, 2s) ease-in-out infinite;
     animation-delay: var(--delay, 0s);

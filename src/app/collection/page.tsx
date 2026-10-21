@@ -73,7 +73,13 @@ export default function CollectionPage() {
 
   const dupes = useMemo(() => {
     const by = new Map<string, number[]>();
-    for (const o of data?.owned ?? []) by.set(o.tradingCard.id, [...(by.get(o.tradingCard.id) ?? []), sellPrice(o.tradingCard.rarity, o.specialEffect)]);
+    for (const o of data?.owned ?? []) {
+      let customBase: number | undefined;
+      try {
+        customBase = JSON.parse(o.tradingCard.attributes || "{}").value;
+      } catch {}
+      by.set(o.tradingCard.id, [...(by.get(o.tradingCard.id) ?? []), sellPrice(o.tradingCard.rarity, o.specialEffect, customBase)]);
+    }
     let n = 0, gold = 0;
     for (const v of by.values()) {
       v.sort((a, b) => b - a);

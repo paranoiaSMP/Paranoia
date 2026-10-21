@@ -25,11 +25,19 @@ export async function POST(req: Request) {
         tx.user.findUnique({ where: { id: userId }, select: { showcase: true } }),
         tx.userCard.findMany({
           where: { userId },
-          select: { id: true, tradingCardId: true, specialEffect: true, marketListing: { select: { id: true } }, tradingCard: { select: { rarity: true } } },
+          select: { id: true, tradingCardId: true, specialEffect: true, marketListing: { select: { id: true } }, tradingCard: { select: { rarity: true, attributes: true } } },
         }),
       ]);
       const inShowcase = (id: string) => !!user?.showcase.includes(id);
       const sellable = (c: (typeof mine)[number]) => !inShowcase(c.id) && !c.marketListing;
+
+      const worth = (c: (typeof mine)[number]) => {
+        let customBase: number | undefined;
+        try {
+          customBase = JSON.parse(c.tradingCard.attributes || "{}").value;
+        } catch {}
+        return sellPrice(c.tradingCard.rarity, c.specialEffect, customBase);
+      };
 
       let selected: typeof mine;
       if ("all" in body) {
@@ -37,7 +45,6 @@ export async function POST(req: Request) {
         const byCard = new Map<string, typeof mine>();
         for (const c of mine) byCard.set(c.tradingCardId, [...(byCard.get(c.tradingCardId) ?? []), c]);
         selected = [];
-        const worth = (c: (typeof mine)[number]) => sellPrice(c.tradingCard.rarity, c.specialEffect);
         for (const copies of byCard.values()) {
           copies.sort((a, b) => worth(b) - worth(a));
           const keep = copies.find((c) => !sellable(c)) ?? copies[0];
@@ -58,7 +65,7 @@ export async function POST(req: Request) {
         if ([...owned.values()].some((n) => n < 1)) throw new Refused("Tu dois garder un exemplaire de chaque carte.");
       }
 
-      const total = selected.reduce((sum, c) => sum + sellPrice(c.tradingCard.rarity, c.specialEffect), 0);
+      const total = selected.reduce((sum, c) => sum + worth(c), 0);
       const { count } = await tx.userCard.deleteMany({ where: { id: { in: selected.map((c) => c.id) }, userId } });
       if (count !== selected.length) throw new Refused("Tes cartes ont changé, réessaie.");
       const u = await tx.user.update({ where: { id: userId }, data: { paraCoins: { increment: total } }, select: { paraCoins: true } });

@@ -615,59 +615,107 @@ function HoloFoil() {
   );
 }
 
-function SpecialEffect({ effect }: { effect: string | null }) {
-  if (effect === "Holo") return <HoloFoil />;
-  if (effect === "Glitch") {
-    return (
-      <>
-        <div aria-hidden className="card-fx-glitch pointer-events-none absolute inset-0 z-[90] overflow-hidden rounded-xl">
-          <div className="card-fx-glitch-r absolute inset-0 bg-red-500/20 mix-blend-screen" />
-          <div className="card-fx-glitch-b absolute inset-0 bg-cyan-500/20 mix-blend-screen" />
-        </div>
-        <div aria-hidden className="pointer-events-none absolute inset-0 z-[91] overflow-hidden rounded-xl mix-blend-overlay">
+// Glitch : l'artwork lui-même se déchire (classe card-fx-gl-art sur le calque perso) ;
+// ces bandes ne font qu'inverser / saturer ce qui passe dessous, en rafale.
+const GLITCH_BANDS = [
+  { top: "14%", h: "7%", f: "invert(1)", d: "0s" },
+  { top: "41%", h: "4%", f: "saturate(5) hue-rotate(90deg)", d: "0.06s" },
+  { top: "63%", h: "10%", f: "invert(1) hue-rotate(180deg)", d: "0.12s" },
+  { top: "84%", h: "3%", f: "contrast(2.4) brightness(1.4)", d: "0.03s" },
+];
+
+function GlitchFx() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 z-[90] overflow-hidden rounded-xl">
+      {GLITCH_BANDS.map((b) => (
+        <div
+          key={b.top}
+          className="card-fx-gl-band absolute inset-x-0 opacity-0"
+          style={{ top: b.top, height: b.h, animationDelay: b.d, backdropFilter: b.f, WebkitBackdropFilter: b.f }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Positions en cqw (la carte est un @container) : un champ d'étoiles = un seul élément à box-shadow.
+function rng(seed: number) {
+  let s = seed;
+  return () => (s = (s * 16807) % 2147483647) / 2147483647;
+}
+const dot = (x: number, y: number, s: number, c: string) => `${x.toFixed(1)}cqw ${y.toFixed(1)}cqw 0 ${s}cqw ${c}`;
+
+function starField(n: number, seed: number, size: number, rgb: string, alpha: number) {
+  const r = rng(seed);
+  return Array.from({ length: n }, () => dot(-10 + r() * 120, -10 + r() * 160, size, `rgba(${rgb},${(alpha * (0.5 + r() * 0.5)).toFixed(2)})`)).join(",");
+}
+
+// Voie lactée : étoiles resserrées autour d'une diagonale, teinte chaude (seul accent chaud de l'effet).
+function milkyWay(n: number, seed: number) {
+  const r = rng(seed);
+  return Array.from({ length: n }, () => {
+    const x = -10 + r() * 120;
+    const off = (r() + r() + r() - 1.5) * 16;
+    return dot(x, 18 + x * 0.85 + off, 0.12, `rgba(255,238,210,${(0.25 + r() * 0.5).toFixed(2)})`);
+  }).join(",");
+}
+
+// Galaxie spirale : deux bras logarithmiques d'étoiles, noyau dense chaud, bras froids.
+function spiral(n: number, R: number, seed: number) {
+  const r = rng(seed);
+  const arms = Array.from({ length: n }, (_, i) => {
+    const t = Math.pow(r(), 0.75);
+    const a = (i % 2) * Math.PI + t * 6.2 + (r() - 0.5) * 0.45;
+    const d = t * R + (r() - 0.5) * R * 0.1;
+    const warm = t < 0.35;
+    return dot(d * Math.cos(a), d * Math.sin(a), warm ? 0.2 : 0.14, warm ? `rgba(255,236,205,${(0.6 + r() * 0.4).toFixed(2)})` : `rgba(175,200,255,${(0.35 + r() * 0.45).toFixed(2)})`);
+  });
+  const core = Array.from({ length: 16 }, () => dot((r() - 0.5) * R * 0.16, (r() - 0.5) * R * 0.16, 0.3, "rgba(255,245,225,0.95)"));
+  return [...arms, ...core].join(",");
+}
+
+const COSMIC = {
+  far: starField(80, 7, 0.14, "205,220,255", 0.8),
+  near: starField(16, 31, 0.32, "235,242,255", 1),
+  way: milkyWay(170, 11),
+  big: spiral(150, 24, 5),
+  small: spiral(70, 11, 17),
+};
+
+function CosmicFx() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 z-[90] overflow-hidden rounded-xl">
+      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 45%, transparent 45%, rgba(2,5,18,0.5))" }} />
+      <div className="card-fx-far absolute left-0 top-0 size-0" style={{ boxShadow: COSMIC.far }} />
+      <div className="card-fx-far absolute left-0 top-0 size-0" style={{ boxShadow: COSMIC.way, ["--d" as string]: "70s" }} />
+      <div className="absolute" style={{ left: "74%", top: "20%", transform: "rotate(-24deg) scaleY(0.42)" }}>
+        <div className="card-fx-spin size-0" style={{ boxShadow: COSMIC.big, ["--d" as string]: "90s" }} />
+      </div>
+      <div className="absolute" style={{ left: "16%", top: "78%", transform: "rotate(18deg) scaleY(0.5)" }}>
+        <div className="card-fx-spin size-0" style={{ boxShadow: COSMIC.small, ["--d" as string]: "60s" }} />
+      </div>
+      <div className="card-fx-near absolute left-0 top-0 size-0" style={{ boxShadow: COSMIC.near }} />
+      {[
+        { top: "9%", d: "8s", delay: "1s" },
+        { top: "47%", d: "13s", delay: "6s" },
+      ].map((h) => (
+        <div key={h.top} className="absolute left-0 w-full" style={{ top: h.top, transform: "rotate(24deg)" }}>
           <div
-            className="card-fx-scan absolute inset-x-0 top-0 h-[200%]"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255,255,255,0.04) 1px, rgba(255,255,255,0.04) 2px)",
-            }}
+            className="card-fx-shoot h-[0.5cqw] w-[30cqw] bg-gradient-to-r from-transparent to-white opacity-0"
+            style={{ ["--d" as string]: h.d, animationDelay: h.delay, clipPath: "polygon(0 50%, 100% 0, 100% 100%)" }}
           />
         </div>
-      </>
-    );
-  }
+      ))}
+    </div>
+  );
+}
+
+function SpecialEffect({ effect }: { effect: string | null }) {
+  if (effect === "Holo") return <HoloFoil />;
+  if (effect === "Glitch") return <GlitchFx />;
   const particles = effect === "Saison" ? PARTICLE_FX[seasonFx()] : effect ? PARTICLE_FX[effect.replace(/ \d{4}$/, "")] : undefined;
   if (particles) return <ParticleFx fx={particles} />;
-  if (effect === "Cosmic") {
-    return (
-      <>
-        <div
-          aria-hidden
-          className="card-fx-cosmic pointer-events-none absolute inset-0 z-[90] overflow-hidden rounded-xl mix-blend-screen"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 50% 50%, rgba(138, 43, 226, 0.5), transparent 60%), radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.3), transparent 40%)",
-          }}
-        />
-        <div aria-hidden className="pointer-events-none absolute inset-0 z-[91] overflow-hidden rounded-xl mix-blend-color-dodge">
-          {STARS.map((s, i) => (
-            <div
-              key={i}
-              className="card-fx-star absolute rounded-full bg-white shadow-[0_0_8px_2px_rgba(255,255,255,0.8)]"
-              style={{
-                width: s.size,
-                height: s.size,
-                left: `${s.left}%`,
-                top: `${s.top}%`,
-                ["--d" as string]: `${s.duration}s`,
-                ["--delay" as string]: `${s.delay}s`,
-              }}
-            />
-          ))}
-        </div>
-      </>
-    );
-  }
+  if (effect === "Cosmic") return <CosmicFx />;
   return null;
 }
 
@@ -750,7 +798,7 @@ export default function CardDisplay({
         disableTilt={disableTilt}
       >
         {attrs.season && <SeasonDecor season={attrs.season} />}
-        <div className="absolute inset-0 z-10 flex h-full w-full items-end justify-center overflow-hidden rounded-xl">
+        <div className={`absolute inset-0 z-10 flex h-full w-full items-end justify-center overflow-hidden rounded-xl ${copyEffect === "Glitch" || attrs.cardEffect === "Glitch" ? "card-fx-gl-art" : ""}`}>
           {!attrs.hideCharacter && (
             <div
               className="pointer-events-none relative flex h-[85%] w-[120%] items-end justify-center"

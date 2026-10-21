@@ -55,10 +55,15 @@ export default function CardZoom({ card, effect, count, obtainedAt, onClose, sel
 
   const key = rarityKey(card.rarity);
   const tint = TINT[key] ?? TINT.COMMON;
+  const attrs = typeof card.attributes === "string" ? (() => { try { return JSON.parse(card.attributes); } catch { return {}; } })() : (card.attributes || {});
+  const customVal = typeof attrs.value === "number" ? attrs.value : undefined;
+  const boostersMap = attrs.boosters && typeof attrs.boosters === "object" ? Object.keys(attrs.boosters) : [];
+
   const rows: [string, string][] = [
     ["Édition", card.edition],
     ["Niveau", card.level],
-    ["Valeur", `${cardValue(card.rarity, effect)} Paracoin`],
+    ["Valeur", `${cardValue(card.rarity, effect, customVal)} Paracoin`],
+    ...(boostersMap.length > 0 ? ([["Boosters", boostersMap.join(", ")]] as [string, string][]) : []),
     ...(effect ? ([["Effet", effect]] as [string, string][]) : []),
     ...(card.player?.minecraftName ? ([["Joueur", card.player.minecraftName]] as [string, string][]) : []),
     ...(count && count > 1 ? ([["Exemplaires", `×${count}`]] as [string, string][]) : []),

@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { isAdmin } from "@/lib/roles";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
+import { GIFT_EFFECTS, FESTIVE } from "@/lib/cardValue";
 import { notifyWallet } from "@/lib/realtime/emit";
 
 const manageSchema = z.object({
@@ -13,6 +14,7 @@ const manageSchema = z.object({
   minecraftName: z.string().optional(),
   boxType: z.string().optional(),
   amount: z.number().int().optional(),
+  specialEffect: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -30,7 +32,7 @@ export async function POST(req: Request) {
       return new NextResponse("Invalid request payload", { status: 400 });
     }
 
-    const { action, cardId, userId, minecraftName, boxType, amount } = parsed.data;
+    const { action, cardId, userId, minecraftName, boxType, amount, specialEffect } = parsed.data;
 
     if (!action) {
       return new NextResponse("Missing action parameter", { status: 400 });
@@ -55,10 +57,14 @@ export async function POST(req: Request) {
       if (!minecraftName) return new NextResponse("Missing minecraftName", { status: 400 });
       const user = await prisma.user.findFirst({ where: { minecraftName } });
       if (!user) return new NextResponse("Ce joueur n'est pas inscrit sur le site web", { status: 404 });
+      if (specialEffect && !GIFT_EFFECTS.includes(specialEffect)) return new NextResponse("Effet inconnu", { status: 400 });
+      // Les effets de fête portent l'année, comme à l'ouverture d'un booster.
+      const effect = specialEffect ? (FESTIVE.includes(specialEffect) ? `${specialEffect} ${new Date().getFullYear()}` : specialEffect) : null;
       await prisma.userCard.create({
         data: {
           userId: user.id,
-          tradingCardId: cardId
+          tradingCardId: cardId,
+          specialEffect: effect
         }
       });
       notifyWallet(user.id);

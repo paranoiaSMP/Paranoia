@@ -9,24 +9,24 @@ pub const COLOR_PURPLE: u32 = 0xa855f7;
 pub const COLOR_GOLD: u32 = 0xfbbf24;
 pub const FOOTER_TEXT: &str = "Paranoia Studio";
 
-/// Emojis d'application du bot (liés à Paranoia_Test ; à ré-importer si le bot change). `CHANNEL` reste Unicode : aucun pack n'a de dièse.
+/// Emojis du serveur Discord hébergés sur Paranoia Studio DEV (visibles partout avec les perms externes).
 pub mod emoji {
-    pub const TITLE: &str = "<:am_title:1560270238233399388>";
-    pub const AUTHOR: &str = "<:am_author:1560270240150061138>";
-    pub const MESSAGE: &str = "<:am_message:1560270241458684025>";
-    pub const SANCTION: &str = "<:am_sanction:1560270242691944498>";
-    pub const TIME: &str = "<:am_time:1560270243870416946>";
-    pub const OK: &str = "<:em_ok:1560270844427501629>";
-    pub const OFF: &str = "<:em_off:1560270846734368901>";
-    pub const STATS: &str = "<:em_stats:1560270848668205197>";
-    pub const SETTINGS: &str = "<:em_settings:1560270849951531098>";
-    pub const ECONOMY: &str = "<:em_economy:1560270851381661777>";
-    pub const TIKTOK: &str = "<:em_tiktok:1560270852522512467>";
-    pub const SUPPORT: &str = "<:em_support:1560270854741565510>";
-    pub const STAFF: &str = "<:em_staff:1560270855894863902>";
-    pub const UTILS: &str = "<:em_utils:1560270857014739034>";
-    pub const PROMOTE: &str = "<:em_promote:1560276501910257746>";
-    pub const DEMOTE: &str = "<:em_demote:1560276503432790036>";
+    pub const TITLE: &str = "<:am_title:1562454385311879240>";
+    pub const AUTHOR: &str = "<:am_author:1562454392857428081>";
+    pub const MESSAGE: &str = "<:am_message:1562454400935526450>";
+    pub const SANCTION: &str = "<:am_sanction:1562454409563214004>";
+    pub const TIME: &str = "<:am_time:1562454415708000397>";
+    pub const OK: &str = "<:em_ok:1562454422871744585>";
+    pub const OFF: &str = "<:em_off:1562454430887055463>";
+    pub const STATS: &str = "<:em_stats:1562454437400944730>";
+    pub const SETTINGS: &str = "<:em_settings:1562454444065562725>";
+    pub const ECONOMY: &str = "<:em_economy:1562454451346743337>";
+    pub const TIKTOK: &str = "<:em_tiktok:1562454458653483098>";
+    pub const SUPPORT: &str = "<:em_support:1562454465481539645>";
+    pub const STAFF: &str = "<:em_staff:1562454471915872278>";
+    pub const UTILS: &str = "<:em_utils:1562454478584676382>";
+    pub const PROMOTE: &str = "<:em_promote:1562454485622857768>";
+    pub const DEMOTE: &str = "<:em_demote:1562454492534800384>";
     pub const CHANNEL: &str = "#️⃣";
 }
 

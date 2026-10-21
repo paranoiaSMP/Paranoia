@@ -63,16 +63,30 @@ export async function POST(req: Request) {
     const rates: Record<string, number> = BOOSTER_DROP_RATES[currentType];
     const numCards = BOOSTER_CARDS_PER_PACK[currentType];
 
+    // Une carte avec attributes.boosters ({ standard: 10 }) ne sort que dans ces boosters, avec cette chance (%) par carte tirée.
+    const pins = (card: { attributes: string }): Record<string, number> | null => {
+      try {
+        const b = JSON.parse(card.attributes || "{}").boosters;
+        return b && typeof b === "object" && Object.keys(b).length ? b : null;
+      } catch {
+        return null;
+      }
+    };
+    const pinned = cards.filter((c) => Number(pins(c)?.[currentType]) > 0);
+    const open = cards.filter((c) => !pins(c));
+    const pool0 = open.length ? open : cards;
+
     const cardsByRarity: Record<string, typeof cards> = {
-      COMMON: cards.filter(c => c.rarity === "COMMON"),
-      UNCOMMON: cards.filter(c => c.rarity === "UNCOMMON"),
-      RARE: cards.filter(c => c.rarity === "RARE"),
-      EPIC: cards.filter(c => c.rarity === "EPIC"),
-      LEGENDARY: cards.filter(c => c.rarity === "LEGENDARY"),
-      MYTHIC: cards.filter(c => c.rarity === "MYTHIC")
+      COMMON: pool0.filter(c => c.rarity === "COMMON"),
+      UNCOMMON: pool0.filter(c => c.rarity === "UNCOMMON"),
+      RARE: pool0.filter(c => c.rarity === "RARE"),
+      EPIC: pool0.filter(c => c.rarity === "EPIC"),
+      LEGENDARY: pool0.filter(c => c.rarity === "LEGENDARY"),
+      MYTHIC: pool0.filter(c => c.rarity === "MYTHIC")
     };
 
     const drawCard = () => {
+      for (const c of pinned) if (Math.random() * 100 < Number(pins(c)![currentType])) return c;
       let rand = Math.random() * 100;
       let selectedRarity = "COMMON";
       for (const [rarity, prob] of Object.entries(rates)) {
@@ -95,7 +109,7 @@ export async function POST(req: Request) {
             break;
           }
         }
-        if (!pool || pool.length === 0) pool = cards;
+        if (!pool || pool.length === 0) pool = pool0;
       }
 
       return pool[Math.floor(Math.random() * pool.length)];

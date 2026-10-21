@@ -1,6 +1,7 @@
 // Valeurs en Paracoin (voir ECHANGES_TCG.md). Sans dépendance : serveur et navigateur.
 const BASE: Record<string, number> = { COMMON: 15, UNCOMMON: 35, RARE: 70, EPIC: 150, LEGENDARY: 350, MYTHIC: 1200 };
-const FESTIVE = ["Noël", "Halloween", "Pâques", "Saint-Valentin", "Nouvel An"];
+export const FESTIVE = ["Noël", "Halloween", "Pâques", "Saint-Valentin", "Nouvel An"];
+export const GIFT_EFFECTS = ["Holo", "Glitch", "Cosmic", "Saison", ...FESTIVE];
 const EFFECT: Record<string, number> = { Holo: 1.5, Glitch: 2.5, Cosmic: 4, Saison: 1.5 };
 
 export const TCG_DEFAULTS = { evolveCount: 4 };
@@ -16,10 +17,11 @@ function baseOf(rarity: string) {
   return BASE.COMMON;
 }
 
-export function cardValue(rarity: string, effect: string | null | undefined) {
+export function cardValue(rarity: string, effect: string | null | undefined, customBase?: number | null) {
+  const base = typeof customBase === "number" && customBase > 0 ? customBase : baseOf(rarity);
   const name = (effect ?? "").replace(/ \d{4}$/, "");
   const mult = FESTIVE.includes(name) ? 5 : EFFECT[name] ?? 1;
-  return Math.round(baseOf(rarity) * mult);
+  return Math.round(base * mult);
 }
 
 export const sellPrice = cardValue;

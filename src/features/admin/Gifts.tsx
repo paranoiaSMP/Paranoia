@@ -3,6 +3,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { BOOSTER_PACKS } from "@/config/boosters";
+import { GIFT_EFFECTS } from "@/lib/cardValue";
 import { useResource, send } from "./useResource";
 import { PanelHeader, ListState, inputCls } from "./ui";
 import type { BoosterStates } from "@/lib/boosters-types";
@@ -76,12 +77,13 @@ function Reward() {
 function CardGift({ cards }: { cards: Card[] }) {
   const [cardId, setCardId] = useState("");
   const [name, setName] = useState("");
+  const [effect, setEffect] = useState("");
   const [busy, setBusy] = useState(false);
 
   const run = async (action: "GIVE" | "REMOVE") => {
     setBusy(true);
     try {
-      const d = await send("/api/admin/cards/manage", "POST", { action, cardId, minecraftName: name.trim() });
+      const d = await send("/api/admin/cards/manage", "POST", { action, cardId, minecraftName: name.trim(), ...(action === "GIVE" && effect ? { specialEffect: effect } : {}) });
       toast.success(d.message ?? "Fait.");
     } catch (err) {
       toast.error((err as Error).message);
@@ -100,6 +102,17 @@ function CardGift({ cards }: { cards: Card[] }) {
           {cards.map((c) => (
             <option key={c.id} value={c.id}>
               {c.title} · {c.rarity} · {c.edition}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className={label}>
+        Effet (donné uniquement avec « Donner la carte »)
+        <select value={effect} onChange={(e) => setEffect(e.target.value)} className={inputCls}>
+          <option value="">Aucun</option>
+          {GIFT_EFFECTS.map((fx) => (
+            <option key={fx} value={fx}>
+              {fx}
             </option>
           ))}
         </select>
