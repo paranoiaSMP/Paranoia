@@ -27,7 +27,7 @@ export default function CardEditorPage() {
     );
   }
 
-  if (!["ADMIN", "DEV"].includes(session.user?.role as string)) {
+  if (!["OWNER", "ADMIN", "DEV"].includes(session.user?.role as string)) {
     return (
       <div className="mx-auto flex min-h-[60svh] max-w-7xl flex-col justify-center gap-4 px-5 md:px-10">
         <h1 className="text-4xl font-bold tracking-[-0.03em] text-white">Accès réservé</h1>

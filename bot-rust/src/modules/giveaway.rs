@@ -58,7 +58,7 @@ fn button_row(id: i64, disabled: bool) -> Component {
             id: None,
             custom_id: Some(format!("{PREFIX}{id}")),
             disabled,
-            emoji: emoji_parts(PROMOTE).map(|(n, i)| EmojiReactionType::Custom { animated: false, id: Id::new(i), name: Some(n.to_string()) }),
+            emoji: emoji_parts(&PROMOTE).map(|(n, i)| EmojiReactionType::Custom { animated: false, id: Id::new(i), name: Some(n.to_string()) }),
             label: Some("Participer".into()),
             style: ButtonStyle::Primary,
             url: None,

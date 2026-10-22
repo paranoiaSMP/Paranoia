@@ -8,7 +8,7 @@ use twilight_model::{
     },
     channel::{
         message::EmojiReactionType,
-        message::component::{ActionRow, Button, ButtonStyle, Component, TextInput, TextInputStyle},
+        message::component::{ActionRow, Button, ButtonStyle, Component, SelectMenu, SelectMenuType, TextInput, TextInputStyle},
         permission_overwrite::{PermissionOverwrite, PermissionOverwriteType},
         ChannelType,
     },
@@ -38,7 +38,7 @@ pub fn register() -> twilight_model::application::command::Command {
 }
 
 /// (bouton, libellé, description, emoji) : source unique du panneau V2 et du repli en embed.
-const CATEGORIES: [(&str, &str, &str, &str); 4] = [
+const CATEGORIES: [(&str, &str, &str, crate::utils::emoji::E); 4] = [
     ("general", "Aide générale", "Une question sur le site, le launcher ou le Discord", crate::utils::emoji::SUPPORT),
     ("report", "Signaler", "Un joueur qui ne respecte pas le règlement", crate::utils::emoji::TITLE),
     ("videaste", "Devenir créateur", "Rejoindre les créateurs du studio", crate::utils::emoji::TIKTOK),
@@ -390,10 +390,23 @@ pub async fn handle_ticket_modal_submit(
         },
     ];
 
-    let components = vec![Component::ActionRow(ActionRow {
+    let mods_select = Component::SelectMenu(SelectMenu {
         id: None,
-        components: buttons.into_iter().map(Component::Button).collect(),
-    })];
+        channel_types: None,
+        custom_id: MODS_SELECT.to_string(),
+        default_values: None,
+        disabled: false,
+        kind: SelectMenuType::User,
+        max_values: Some(3),
+        min_values: Some(1),
+        options: None,
+        placeholder: Some("Choisir tes modérateurs (facultatif)".to_string()),
+        required: None,
+    });
+    let components = vec![
+        Component::ActionRow(ActionRow { id: None, components: buttons.into_iter().map(Component::Button).collect() }),
+        Component::ActionRow(ActionRow { id: None, components: vec![mods_select] }),
+    ];
 
     let _ = http
         .create_message(created_channel.id)
@@ -416,6 +429,55 @@ pub async fn handle_ticket_modal_submit(
         .await?;
 
     Ok(())
+}
+
+pub const MODS_SELECT: &str = "ticket_mods";
+
+/// Le demandeur choisit ses modérateurs : seuls les membres du rôle staff sont ajoutés au salon.
+pub async fn handle_mods_select(interaction: Interaction, http: Arc<HttpClient>, values: &[String], staff_role_id: u64) -> anyhow::Result<()> {
+    let (Some(guild_id), Some(channel), Some(msg)) = (interaction.guild_id, interaction.channel.as_ref(), interaction.message.as_ref()) else {
+        return Ok(());
+    };
+    let reply = |text: String| {
+        let http = http.clone();
+        let (app, id, token) = (interaction.application_id, interaction.id, interaction.token.clone());
+        async move {
+            let resp = InteractionResponse {
+                kind: InteractionResponseType::ChannelMessageWithSource,
+                data: Some(InteractionResponseData { content: Some(text), flags: Some(twilight_model::channel::message::MessageFlags::EPHEMERAL), ..Default::default() }),
+            };
+            http.interaction(app).create_response(id, &token, &resp).await.map(|_| ())
+        }
+    };
+    // Le message d'ouverture mentionne le demandeur en premier.
+    if msg.mentions.first().map(|m| m.id) != interaction.author_id() {
+        return Ok(reply("Seul le demandeur du ticket peut choisir ses modérateurs.".into()).await?);
+    }
+    let mut added = Vec::new();
+    for v in values {
+        let Ok(uid) = v.parse::<u64>() else { continue };
+        let uid = Id::<UserMarker>::new(uid);
+        let Ok(member) = http.guild_member(guild_id, uid).await else { continue };
+        let Ok(member) = member.model().await else { continue };
+        if !member.roles.iter().any(|r| r.get() == staff_role_id) {
+            continue;
+        }
+        let ow = twilight_model::http::permission_overwrite::PermissionOverwrite {
+            id: uid.cast(),
+            kind: twilight_model::http::permission_overwrite::PermissionOverwriteType::Member,
+            allow: Some(Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES | Permissions::ATTACH_FILES | Permissions::READ_MESSAGE_HISTORY),
+            deny: None,
+        };
+        if http.update_channel_permission(channel.id, &ow).await.is_ok() {
+            added.push(uid);
+        }
+    }
+    if added.is_empty() {
+        return Ok(reply("Aucun des membres choisis ne fait partie du staff.".into()).await?);
+    }
+    let mentions: Vec<String> = added.iter().map(|u| format!("<@{u}>")).collect();
+    let _ = http.create_message(channel.id).content(&format!("{} Modérateur(s) choisi(s) : {}", crate::utils::emoji::STAFF, mentions.join(" "))).await;
+    Ok(reply("Modérateur(s) ajouté(s) au ticket.".into()).await?)
 }
 
 pub async fn handle_claim(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
@@ -522,6 +584,6 @@ mod tests {
     fn button_emoji_is_parsed_and_every_category_has_one() {
         assert_eq!(emoji_parts("<:am_title:123>"), Some(("am_title", 123)));
         assert_eq!(emoji_parts("#️⃣"), None);
-        assert!(CATEGORIES.iter().all(|c| emoji_parts(c.3).is_some()));
+        assert!(CATEGORIES.iter().all(|c| emoji_parts(&c.3).is_some()));
     }
 }

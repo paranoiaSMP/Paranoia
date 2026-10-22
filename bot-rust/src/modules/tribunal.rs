@@ -79,9 +79,9 @@ fn buttons(id: i64, guilty: i64, innocent: i64, disabled: bool) -> Vec<Component
     vec![Component::ActionRow(ActionRow {
         id: None,
         components: vec![
-            btn(format!("{VOTE}{id}:i"), format!("Innocent ({innocent})"), ButtonStyle::Success, OK),
-            btn(format!("{VOTE}{id}:g"), format!("Coupable ({guilty})"), ButtonStyle::Danger, DEMOTE),
-            btn(format!("{EXTEND}{id}"), "Prolonger (+1 min)".into(), ButtonStyle::Secondary, TIME),
+            btn(format!("{VOTE}{id}:i"), format!("Innocent ({innocent})"), ButtonStyle::Success, &OK),
+            btn(format!("{VOTE}{id}:g"), format!("Coupable ({guilty})"), ButtonStyle::Danger, &DEMOTE),
+            btn(format!("{EXTEND}{id}"), "Prolonger (+1 min)".into(), ButtonStyle::Secondary, &TIME),
         ],
     })]
 }

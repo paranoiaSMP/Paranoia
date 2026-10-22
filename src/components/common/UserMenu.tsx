@@ -102,7 +102,7 @@ export default function UserMenu({ className = "" }: { className?: string }) {
           <Link href="/support" role="menuitem" onClick={() => setOpen(false)} className="flex min-h-11 w-full items-center rounded-sm px-3 text-sm text-zinc-200 transition-colors hover:bg-zinc-900 hover:text-white">
             Support
           </Link>
-          {["ADMIN", "DEV", "MODERATOR"].includes(session.user?.role as string) && (
+          {["OWNER", "ADMIN", "DEV", "MODERATOR"].includes(session.user?.role as string) && (
             <>
               <Link
                 href="/admin"

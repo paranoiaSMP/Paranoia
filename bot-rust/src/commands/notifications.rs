@@ -25,7 +25,7 @@ pub fn register() -> twilight_model::application::command::Command {
 }
 
 /// (rôle, description, emoji) : source unique du panneau V2 et de son repli en embed.
-const ROLES: [(&str, &str, &str); 5] = [
+const ROLES: [(&str, &str, crate::utils::emoji::E); 5] = [
     ("Annonces", "Annonces importantes du serveur", crate::utils::emoji::TITLE),
     ("Vidéastes", "Lives et nouvelles vidéos de nos créateurs", crate::utils::emoji::TIKTOK),
     ("Événements", "Tournois, concours et animations", crate::utils::emoji::PROMOTE),
@@ -44,7 +44,7 @@ fn panel_v2() -> serde_json::Value {
     ];
     for (name, desc, emoji) in ROLES {
         let mut button = serde_json::json!({ "type": 2, "style": 2, "label": "Activer / retirer", "custom_id": format!("notif_toggle:{name}") });
-        if let Some((n, id)) = emoji_parts(emoji) {
+        if let Some((n, id)) = emoji_parts(&emoji) {
             button["emoji"] = serde_json::json!({ "name": n, "id": id.to_string() });
         }
         parts.push(serde_json::json!({ "type": 9, "components": [text(format!("### {emoji} {name}\n{desc}"))], "accessory": button }));
@@ -183,7 +183,7 @@ mod tests {
         let panel = panel_v2().to_string();
         for (name, _, emoji) in ROLES {
             assert!(panel.contains(&format!("notif_toggle:{name}")));
-            assert!(emoji_parts(emoji).is_some());
+            assert!(emoji_parts(&emoji).is_some());
         }
     }
 }

@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { isFounderUuid } from "@/lib/roles";
+import { isAdmin, isFounderUuid, isOwner } from "@/lib/roles";
 import { fetchProfileByName, linkUserToProfile, uuidForms } from "@/lib/mojang";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session?.user || !["ADMIN", "DEV", "MODERATOR"].includes(session.user.role as string)) {
+  if (!session?.user || !["OWNER", "ADMIN", "DEV", "MODERATOR"].includes(session.user.role as string)) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -23,6 +23,9 @@ export async function GET() {
         createdAt: true,
         image: true,
         paraCoins: true,
+        staffTitle: true,
+        staffBio: true,
+        staffColor: true,
         boxes: true,
       },
       orderBy: { createdAt: 'desc' }
@@ -37,8 +40,8 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || !["ADMIN", "DEV"].includes(session.user.role as string)) {
-    return new NextResponse("Seul un ADMIN ou DEV peut modifier les rôles", { status: 401 });
+  if (!session?.user || !["OWNER", "ADMIN", "DEV"].includes(session.user.role as string)) {
+    return new NextResponse("Seul un admin peut modifier les rôles", { status: 401 });
   }
 
   try {
@@ -49,20 +52,20 @@ export async function PUT(req: Request) {
       return new NextResponse("Missing data", { status: 400 });
     }
 
-    if (!["MEMBER", "MODERATOR", "ADMIN", "DEV"].includes(role)) {
+    if (!["MEMBER", "MODERATOR", "ADMIN", "DEV", "OWNER"].includes(role)) {
       return new NextResponse("Invalid role", { status: 400 });
     }
 
-    if ((role === "DEV" || role === "ADMIN") && session.user.role !== "DEV") {
-      return new NextResponse("Seul un DEV peut attribuer ce rôle", { status: 403 });
+    if ((role === "DEV" || role === "ADMIN" || role === "OWNER") && !isOwner(session.user.role)) {
+      return new NextResponse("Seul un owner peut attribuer ce rôle", { status: 403 });
     }
 
     const target = await prisma.user.findUnique({ where: { id: userId }, select: { minecraftUuid: true, role: true } });
-    if ((target?.role === "DEV" || target?.role === "ADMIN") && session.user.role !== "DEV") {
-      return new NextResponse("Seul un DEV peut modifier le rôle d'un Admin ou d'un DEV", { status: 403 });
+    if (isAdmin(target?.role) && !isOwner(session.user.role)) {
+      return new NextResponse("Seul un owner peut modifier le rôle d'un Admin ou d'un DEV", { status: 403 });
     }
 
-    if (role !== "ADMIN" && role !== "DEV") {
+    if (!isAdmin(role)) {
       if (isFounderUuid(target?.minecraftUuid)) {
         return new NextResponse("Le fondateur reste Admin.", { status: 400 });
       }
@@ -92,8 +95,8 @@ export async function PUT(req: Request) {
 // Lie un autre compte Minecraft (minecraftName) ou délie le compte actuel (minecraftName absent).
 export async function PATCH(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || !["ADMIN", "DEV"].includes(session.user.role as string)) {
-    return new NextResponse("Seul un ADMIN ou DEV peut modifier le compte Minecraft", { status: 401 });
+  if (!session?.user || !["OWNER", "ADMIN", "DEV"].includes(session.user.role as string)) {
+    return new NextResponse("Seul un admin peut modifier le compte Minecraft", { status: 401 });
   }
   try {
     const { userId, minecraftName } = await req.json();
@@ -101,8 +104,8 @@ export async function PATCH(req: Request) {
 
     const target = await prisma.user.findUnique({ where: { id: userId }, select: { role: true, minecraftUuid: true } });
     if (!target) return new NextResponse("Utilisateur introuvable", { status: 404 });
-    if ((target.role === "DEV" || target.role === "ADMIN") && session.user.role !== "DEV") {
-      return new NextResponse("Seul un DEV peut modifier un Admin ou un DEV", { status: 403 });
+    if (isAdmin(target.role) && !isOwner(session.user.role)) {
+      return new NextResponse("Seul un owner peut modifier un Admin ou un DEV", { status: 403 });
     }
 
     if (minecraftName) {
@@ -131,8 +134,8 @@ export async function PATCH(req: Request) {
 
 export async function DELETE(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || !["ADMIN", "DEV"].includes(session.user.role as string)) {
-    return new NextResponse("Seul un ADMIN ou DEV peut supprimer des comptes", { status: 401 });
+  if (!session?.user || !["OWNER", "ADMIN", "DEV"].includes(session.user.role as string)) {
+    return new NextResponse("Seul un admin peut supprimer des comptes", { status: 401 });
   }
 
   try {
@@ -148,8 +151,8 @@ export async function DELETE(req: Request) {
     }
 
     const targetUser = await prisma.user.findUnique({ where: { id: userId } });
-    if (targetUser?.role === "DEV" && session.user.role !== "DEV") {
-      return new NextResponse("Impossible de supprimer un DEV", { status: 403 });
+    if (isOwner(targetUser?.role) && !isOwner(session.user.role)) {
+      return new NextResponse("Impossible de supprimer un owner", { status: 403 });
     }
 
     await prisma.$transaction([

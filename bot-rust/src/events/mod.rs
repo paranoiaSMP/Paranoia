@@ -126,8 +126,12 @@ pub async fn handle_event(
                         "statsmodo" => crate::modules::staff::run_stats(inter, http, db).await,
                         "absence" => crate::modules::staff::run_absence(inter, http, db).await,
                         "candidature" => crate::modules::applications::run(inter, http, db).await,
+                        "setup_candidatures" => crate::modules::applications::run_setup(inter, http, db).await,
                         "sauvegarde" => crate::modules::backup::run(inter, http, db).await,
                         "verrouillage" => crate::modules::security::run(inter, http, config.ticket_log_channel_id).await,
+                        "config_verification" => crate::modules::gatekeeper::run_config(inter, http, &db).await,
+                        "reglement" => crate::modules::gatekeeper::run_rules(inter, http).await,
+                        "test_captcha" => crate::modules::gatekeeper::run_test(inter, http).await,
                         "test_message" => crate::modules::automod::command::run(inter, http).await,
                         _ => Ok(()),
                     };
@@ -148,6 +152,8 @@ pub async fn handle_event(
 
                     let res = if cid.starts_with(crate::modules::drops::PREFIX) {
                         crate::modules::drops::handle_claim(inter, http, db, &cid).await
+                    } else if cid.starts_with(crate::modules::gatekeeper::PREFIX) {
+                        crate::modules::gatekeeper::handle_component(inter, &http, &cid).await
                     } else if cid.starts_with(crate::modules::tribunal::VOTE) || cid.starts_with(crate::modules::tribunal::EXTEND) {
                         crate::modules::tribunal::handle_button(inter, http, db, &cid).await
                     } else if cid.starts_with(crate::modules::giveaway::PREFIX) {
@@ -162,6 +168,8 @@ pub async fn handle_event(
                         crate::commands::events::handle_button(inter, http, "join").await
                     } else if cid == "event_leave" {
                         crate::commands::events::handle_button(inter, http, "leave").await
+                    } else if cid == crate::modules::applications::OPEN {
+                        crate::modules::applications::run(inter, http, db).await
                     } else if cid.starts_with(crate::modules::applications::ACCEPT) || cid.starts_with(crate::modules::applications::REFUSE) {
                         crate::modules::applications::handle_review(inter, http, db, &cid).await
                     } else if cid.starts_with(crate::modules::backup::CONFIRM) {
@@ -186,6 +194,8 @@ pub async fn handle_event(
                         crate::commands::tickets::handle_open_button(inter, http, "videaste").await
                     } else if cid == "btn_open_appeal_ticket" {
                         crate::commands::tickets::handle_open_button(inter, http, "appeal").await
+                    } else if cid == crate::commands::tickets::MODS_SELECT {
+                        crate::commands::tickets::handle_mods_select(inter, http, &values, config.role_staff_id).await
                     } else if cid == "ticket_claim" || cid == "btn_claim_general_ticket" {
                         crate::commands::tickets::handle_claim(inter, http).await
                     } else if cid == "ticket_close" || cid == "btn_close_general_ticket" {
@@ -212,6 +222,14 @@ pub async fn handle_event(
                         if let Err(e) = crate::modules::conference::handle_modal(inter, http, db, &modal).await {
                             tracing::error!("Conférence : {:?}", e);
                         }
+                    } else if cid.starts_with(crate::modules::gatekeeper::PREFIX) {
+                        let _ = crate::modules::gatekeeper::handle_modal_submit(
+                            inter,
+                            &http,
+                            &modal,
+                            config.ticket_log_channel_id,
+                        )
+                        .await;
                     } else if cid == crate::modules::applications::MODAL {
                         if let Err(e) = crate::modules::applications::handle_modal(inter, http, db, &modal).await {
                             tracing::error!("Candidature : {:?}", e);
@@ -259,6 +277,7 @@ pub async fn handle_event(
             if crate::modules::security::on_member_add(&ev, &http, config.ticket_log_channel_id).await {
                 return;
             }
+            crate::modules::gatekeeper::on_member_add(&ev, &http).await;
             audit::handle_member_add(ev, &http, &db, config.ticket_log_channel_id).await;
         }
         Event::MemberRemove(ev) => {

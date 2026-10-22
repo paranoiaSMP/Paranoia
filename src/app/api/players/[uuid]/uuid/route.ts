@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { isOwner } from "@/lib/roles";
 
 export async function POST(req: NextRequest, context: { params: Promise<{ uuid: string }> }) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "DEV") {
+    if (!session || !isOwner(session.user.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

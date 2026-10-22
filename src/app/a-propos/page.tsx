@@ -8,11 +8,11 @@ import { useSettings } from "@/components/providers/SettingsProvider";
 import { siteConfig } from "@/config/site";
 import { isFounderUuid } from "@/lib/roles";
 
-type Member = { minecraftName: string; minecraftUuid: string | null; role: string };
+type Member = { minecraftName: string; minecraftUuid: string | null; role: string; staffTitle?: string | null; staffBio?: string | null; staffColor?: string | null };
 
-const ROLE: Record<string, string> = { DEV: "Dev", ADMIN: "Admin", MODERATOR: "Modérateur" };
+const ROLE: Record<string, string> = { OWNER: "Owner", DEV: "Dev", ADMIN: "Admin", MODERATOR: "Modérateur" };
 const isFounder = (m: Member) => isFounderUuid(m.minecraftUuid);
-const ORDER: Record<string, number> = { DEV: 0, ADMIN: 1, MODERATOR: 2 };
+const ORDER: Record<string, number> = { OWNER: 0, DEV: 0, ADMIN: 1, MODERATOR: 2 };
 
 const UNIVERS = [
   { name: "TCG", text: "Des cartes à collectionner aux couleurs des joueurs, à tirer dans quatre boosters.", href: "/cards" },
@@ -112,7 +112,10 @@ export default function AboutPage() {
                         style={{ imageRendering: "pixelated" }}
                       />
                       <p className="mt-4 font-semibold text-white">{m.minecraftName}</p>
-                      <p className="text-sm text-violet-400">{isFounder(m) ? "Fondateur" : ROLE[m.role] ?? m.role}</p>
+                      <p className="text-sm text-violet-400" style={m.staffColor ? { color: m.staffColor } : undefined}>
+                        {m.staffTitle || (isFounder(m) ? "Fondateur" : ROLE[m.role] ?? m.role)}
+                      </p>
+                      {m.staffBio && <p className="mt-2 text-center text-sm text-zinc-400">{m.staffBio}</p>}
                     </Link>
                   </Reveal>
                 </li>

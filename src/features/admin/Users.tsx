@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { BOOSTER_PACKS } from "@/config/boosters";
-import { isAdmin } from "@/lib/roles";
+import { isAdmin, isOwner } from "@/lib/roles";
 import { useResource, send } from "./useResource";
 import { ListState, PanelHeader, inputCls, fmt, date } from "./ui";
 
@@ -17,11 +17,14 @@ type User = {
   createdAt: string;
   image: string | null;
   paraCoins: number;
+  staffTitle: string | null;
+  staffBio: string | null;
+  staffColor: string | null;
   boxes: Box[];
 };
 
-const ROLES = ["MEMBER", "MODERATOR", "ADMIN", "DEV"];
-const ROLE_LABEL: Record<string, string> = { MEMBER: "Membre", MODERATOR: "Modérateur", ADMIN: "Admin", DEV: "Dev" };
+const ROLES = ["MEMBER", "MODERATOR", "ADMIN", "DEV", "OWNER"];
+const ROLE_LABEL: Record<string, string> = { MEMBER: "Membre", MODERATOR: "Modérateur", ADMIN: "Admin", DEV: "Dev", OWNER: "Owner" };
 const PACKS = Object.values(BOOSTER_PACKS);
 
 function McLink({ user, onSaved }: { user: User; onSaved: (u: User) => void }) {
@@ -50,6 +53,42 @@ function McLink({ user, onSaved }: { user: User; onSaved: (u: User) => void }) {
       </label>
       <button type="button" disabled={busy || !name.trim() || name.trim() === user.minecraftName} onClick={() => run(name.trim())} className="btn-violet disabled:opacity-60">Lier ce pseudo</button>
       {user.minecraftName && <button type="button" disabled={busy} onClick={() => run(null)} className="btn-line disabled:opacity-60">Délier {user.minecraftName}</button>}
+    </div>
+  );
+}
+
+function StaffProfile({ user, onSaved }: { user: User; onSaved: (u: User) => void }) {
+  const [p, setP] = useState({ staffTitle: user.staffTitle ?? "", staffBio: user.staffBio ?? "", staffColor: user.staffColor ?? "" });
+  const [busy, setBusy] = useState(false);
+
+  const save = async () => {
+    setBusy(true);
+    try {
+      const r = await send("/api/admin/users/profile", "PUT", { userId: user.id, ...p });
+      onSaved({ ...user, staffTitle: r.staffTitle, staffBio: r.staffBio, staffColor: r.staffColor });
+      toast.success("Profil staff enregistré.");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap items-end gap-3 border-t border-zinc-900 bg-[#09090b] p-4">
+      <label className="flex flex-col gap-1 text-sm text-zinc-300">
+        Titre affiché
+        <input value={p.staffTitle} onChange={(e) => setP({ ...p, staffTitle: e.target.value })} maxLength={40} placeholder="Ex. Responsable modération" className={`${inputCls} w-64`} />
+      </label>
+      <label className="flex flex-col gap-1 text-sm text-zinc-300">
+        Couleur
+        <input value={p.staffColor} onChange={(e) => setP({ ...p, staffColor: e.target.value })} maxLength={7} placeholder="#a78bfa" className={`${inputCls} w-28`} />
+      </label>
+      <label className="flex min-w-64 flex-1 flex-col gap-1 text-sm text-zinc-300">
+        Bio
+        <input value={p.staffBio} onChange={(e) => setP({ ...p, staffBio: e.target.value })} maxLength={280} className={inputCls} />
+      </label>
+      <button type="button" disabled={busy} onClick={save} className="btn-violet disabled:opacity-60">Enregistrer</button>
     </div>
   );
 }
@@ -149,6 +188,7 @@ export default function Users() {
   const [role, setRole] = useState<string>("ALL");
   const [open, setOpen] = useState<string | null>(null);
   const [mc, setMc] = useState<string | null>(null);
+  const [prof, setProf] = useState<string | null>(null);
 
   const list = (data ?? []).filter((u) => {
     const q = query.trim().toLowerCase();
@@ -203,7 +243,7 @@ export default function Users() {
         <ul className="mt-6 divide-y divide-zinc-900 rounded-md border border-zinc-900">
           {list.map((u) => {
             const self = u.id === session?.user?.id;
-            const canPromote = myRole === "DEV";
+            const canPromote = isOwner(myRole);
             return (
               <li key={u.id}>
                 <div className="flex flex-wrap items-center gap-4 p-4">
@@ -226,7 +266,7 @@ export default function Users() {
                     className={`${inputCls} w-36 disabled:opacity-50`}
                   >
                     {ROLES.map((r) => (
-                      <option key={r} value={r} disabled={(r === "ADMIN" || r === "DEV") && !canPromote && u.role !== r}>
+                      <option key={r} value={r} disabled={isAdmin(r) && !canPromote && u.role !== r}>
                         {ROLE_LABEL[r]}
                       </option>
                     ))}
@@ -239,6 +279,11 @@ export default function Users() {
                   >
                     {open === u.id ? "Fermer" : "Économie"}
                   </button>
+                  {isAdmin(myRole) && u.role !== "MEMBER" && (
+                    <button type="button" onClick={() => setProf(prof === u.id ? null : u.id)} aria-expanded={prof === u.id} className="btn-line min-h-11 px-4">
+                      {prof === u.id ? "Fermer" : "Profil staff"}
+                    </button>
+                  )}
                   {isAdmin(myRole) && (
                     <button type="button" onClick={() => setMc(mc === u.id ? null : u.id)} aria-expanded={mc === u.id} className="btn-line min-h-11 px-4">
                       {mc === u.id ? "Fermer" : "Pseudo MC"}
@@ -247,6 +292,7 @@ export default function Users() {
                 </div>
                 {open === u.id && <Economy user={u} onSaved={replace} />}
                 {mc === u.id && <McLink user={u} onSaved={replace} />}
+                {prof === u.id && <StaffProfile user={u} onSaved={replace} />}
               </li>
             );
           })}

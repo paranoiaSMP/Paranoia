@@ -5,12 +5,13 @@ use std::sync::Arc;
 use twilight_http::Client as HttpClient;
 use twilight_model::application::command::{Command, CommandType};
 use twilight_model::application::interaction::modal::ModalInteractionData;
-use twilight_model::application::interaction::Interaction;
+use twilight_model::application::interaction::{application_command::CommandOptionValue, Interaction, InteractionData};
+use twilight_model::channel::ChannelType;
 use twilight_model::channel::message::component::{ActionRow, Button, ButtonStyle, Component, TextInput, TextInputStyle};
 use twilight_model::guild::Permissions;
 use twilight_model::http::interaction::{InteractionResponse, InteractionResponseData, InteractionResponseType};
 use twilight_model::id::Id;
-use twilight_util::builder::command::CommandBuilder;
+use twilight_util::builder::command::{ChannelBuilder, CommandBuilder, RoleBuilder};
 use twilight_util::builder::embed::{EmbedBuilder, EmbedFieldBuilder, EmbedFooterBuilder};
 
 use crate::modules::{setting, staff, wallet};
@@ -18,6 +19,54 @@ use crate::modules::{setting, staff, wallet};
 pub const MODAL: &str = "app_modal";
 pub const ACCEPT: &str = "app_accept:";
 pub const REFUSE: &str = "app_refuse:";
+pub const OPEN: &str = "app_open";
+
+pub fn register_setup() -> Command {
+    CommandBuilder::new("setup_candidatures", "Déploie le panneau de candidature staff et configure l'examen", CommandType::ChatInput)
+        .default_member_permissions(Permissions::ADMINISTRATOR)
+        .option(ChannelBuilder::new("panneau", "Salon où poster le panneau de candidature").channel_types([ChannelType::GuildText]).required(true))
+        .option(ChannelBuilder::new("examen", "Salon privé du staff où arrivent les candidatures").channel_types([ChannelType::GuildText]).required(true))
+        .option(RoleBuilder::new("role", "Rôle donné aux candidats acceptés (facultatif)"))
+        .build()
+}
+
+pub async fn run_setup(interaction: Interaction, http: Arc<HttpClient>, db: PgPool) -> anyhow::Result<()> {
+    let (mut panel, mut review, mut role) = (None, None, None);
+    if let Some(InteractionData::ApplicationCommand(data)) = &interaction.data {
+        for o in &data.options {
+            match (&o.value, o.name.as_str()) {
+                (CommandOptionValue::Channel(c), "panneau") => panel = Some(*c),
+                (CommandOptionValue::Channel(c), "examen") => review = Some(*c),
+                (CommandOptionValue::Role(r), "role") => role = Some(*r),
+                _ => {}
+            }
+        }
+    }
+    let (Some(panel), Some(review)) = (panel, review) else { return Ok(()) };
+
+    let mut cfg = serde_json::json!({ "reviewChannelId": review.get().to_string() });
+    if let Some(r) = role {
+        cfg["acceptRoleId"] = r.get().to_string().into();
+    }
+    sqlx::query(r#"UPDATE "BotModule" SET enabled = true, config = COALESCE(config, '{}'::jsonb) || $1 WHERE id = 'applications'"#)
+        .bind(&cfg)
+        .execute(&db)
+        .await?;
+    crate::modules::reload(&db).await?;
+
+    let embed = EmbedBuilder::new()
+        .description(format!(
+            "## {} | Rejoindre le staff\n\nTu veux aider à faire vivre le serveur ? Clique sur le bouton, remplis le formulaire (âge, expérience, motivation, disponibilités) et le staff te répondra en message privé.",
+            crate::utils::emoji::STAFF
+        ))
+        .color(crate::utils::COLOR_PURPLE)
+        .footer(EmbedFooterBuilder::new(crate::utils::FOOTER_TEXT))
+        .build();
+    let button = Component::Button(Button { id: None, custom_id: Some(OPEN.to_string()), disabled: false, emoji: None, label: Some("Postuler".to_string()), style: ButtonStyle::Primary, url: None, sku_id: None });
+    http.create_message(panel).embeds(&[embed]).components(&[Component::ActionRow(ActionRow { id: None, components: vec![button] })]).await?;
+
+    staff::reply_private(&http, &interaction, Some(format!("Candidatures prêtes : panneau dans <#{panel}>, examen dans <#{review}>.")), vec![]).await
+}
 
 pub fn register() -> Command {
     CommandBuilder::new("candidature", "Postuler pour rejoindre le staff", CommandType::ChatInput).build()

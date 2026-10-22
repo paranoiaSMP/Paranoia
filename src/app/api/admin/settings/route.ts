@@ -4,11 +4,12 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { clearMaintenanceCache } from "@/lib/maintenance";
 import { EVENT_MODES } from "@/lib/events";
+import { isOwner } from "@/lib/roles";
 
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== "DEV") {
+    if (!session || !isOwner((session.user as any).role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -31,7 +32,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== "DEV") {
+    if (!session || !isOwner((session.user as any).role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

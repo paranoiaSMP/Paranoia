@@ -28,6 +28,7 @@ pub mod tribunal;
 pub mod invites;
 pub mod welcome_image;
 pub mod security;
+pub mod gatekeeper;
 pub mod staff;
 pub mod wallet;
 
@@ -96,7 +97,7 @@ pub fn registry() -> &'static [ModuleDef] {
                 default_enabled: true,
                 legacy_column: Some("moduleTickets"),
                 commands: || vec![commands::tickets::register()],
-                components: &["ticket_open:", "btn_open_", "ticket_claim", "btn_claim_general_ticket", "ticket_close", "btn_close_general_ticket", "modal_ticket:"],
+                components: &["ticket_open:", "btn_open_", "ticket_claim", "btn_claim_general_ticket", "ticket_close", "btn_close_general_ticket", "modal_ticket:", "ticket_mods"],
                 settings: &[],
             },
             ModuleDef {
@@ -207,6 +208,24 @@ pub fn registry() -> &'static [ModuleDef] {
                             default: Some("yes"),
                             options: &[("yes", "Oui"), ("no", "Non")],
                         },
+                    ];
+                    S
+                },
+            },
+            ModuleDef {
+                id: "gatekeeper",
+                name: "Vérification Anti-Bot",
+                description: "Vérifie automatiquement les nouveaux membres avec une image Captcha classique dans un salon dédié.",
+                category: "Modération",
+                default_enabled: true,
+                legacy_column: None,
+                commands: || vec![gatekeeper::register_config(), gatekeeper::register_test(), gatekeeper::register_rules()],
+                components: &[gatekeeper::PREFIX],
+                settings: {
+                    const S: &[Setting] = &[
+                        field("channelId", "Salon de vérification", SettingKind::Channel, Some("Salon où envoyer le captcha aux nouveaux arrivants."), None),
+                        field("verifiedRoleId", "Rôle membre attribué", SettingKind::Role, Some("Rôle donné au membre une fois le captcha validé."), None),
+                        field("unverifiedRoleId", "Rôle « Pas vérifié »", SettingKind::Role, Some("Créé par /config_verification : donné à l'arrivée, retiré après le captcha."), None),
                     ];
                     S
                 },
@@ -566,8 +585,8 @@ pub fn registry() -> &'static [ModuleDef] {
                 category: "Staff",
                 default_enabled: false,
                 legacy_column: None,
-                commands: || vec![applications::register()],
-                components: &[applications::MODAL, applications::ACCEPT, applications::REFUSE],
+                commands: || vec![applications::register(), applications::register_setup()],
+                components: &[applications::OPEN, applications::MODAL, applications::ACCEPT, applications::REFUSE],
                 settings: {
                     const S: &[Setting] = &[
                         field("reviewChannelId", "Salon d'examen", SettingKind::Channel, Some("Salon privé du staff où arrivent les candidatures."), None),
@@ -663,6 +682,12 @@ pub fn setting_value(id: &str, key: &str) -> Option<Value> {
         let raw = def(id)?.settings.iter().find(|s| s.key == key)?.default?;
         serde_json::from_str(raw).ok()
     })
+}
+
+pub fn update_module_config(id: &str, config: Value) {
+    if let Ok(mut st) = state().write() {
+        st.config.insert(id.to_string(), config);
+    }
 }
 
 pub fn command_owner(name: &str) -> Option<&'static str> {

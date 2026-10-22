@@ -64,6 +64,9 @@ async fn main() -> Result<()> {
 
     let application = http.current_user_application().await?.model().await?;
 
+    if let Err(e) = utils::emoji::sync(&http, application.id).await {
+        tracing::warn!("Emojis non synchronisés ({:?}), anciens emojis utilisés.", e);
+    }
     if let Err(e) = modules::declare(&pool).await {
         tracing::warn!("Modules : déclaration impossible ({:?}). Valeurs par défaut utilisées.", e);
     }

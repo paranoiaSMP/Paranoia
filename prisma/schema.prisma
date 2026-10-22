@@ -59,6 +59,9 @@ model User {
   level              Int       @default(1)
   lastDaily          DateTime?
   createdAt          DateTime  @default(now())
+  staffTitle         String?
+  staffBio           String?
+  staffColor         String?
 
   accounts        Account[]
   sessions        Session[]

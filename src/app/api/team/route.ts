@@ -11,11 +11,11 @@ export async function GET() {
       where: {
         minecraftName: { not: null },
         OR: [
-          { role: { in: ["DEV", "ADMIN", "MODERATOR"] } },
+          { role: { in: ["OWNER", "DEV", "ADMIN", "MODERATOR"] } },
           { minecraftUuid: { in: uuidForms(siteConfig.founderUuid) } },
         ],
       },
-      select: { minecraftName: true, minecraftUuid: true, role: true, createdAt: true },
+      select: { minecraftName: true, minecraftUuid: true, role: true, createdAt: true, staffTitle: true, staffBio: true, staffColor: true },
       orderBy: { createdAt: "asc" },
     });
     return NextResponse.json(staff);

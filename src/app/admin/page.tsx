@@ -14,7 +14,7 @@ import Gifts from "@/features/admin/Gifts";
 import Shop from "@/features/admin/Shop";
 import Tcg from "@/features/admin/Tcg";
 import Settings from "@/features/admin/Settings";
-import { isAdmin, isStaff } from "@/lib/roles";
+import { isAdmin, isOwner, isStaff } from "@/lib/roles";
 import { EASE_OUT } from "@/lib/motion";
 
 type Level = "staff" | "admin" | "dev";
@@ -32,7 +32,7 @@ const TABS = [
 type TabKey = (typeof TABS)[number]["key"];
 
 const allowed = (role: string | undefined, min: Level) =>
-  min === "dev" ? role === "DEV" : min === "admin" ? isAdmin(role) : isStaff(role);
+  min === "dev" ? isOwner(role) : min === "admin" ? isAdmin(role) : isStaff(role);
 
 function Admin() {
   const { data: session, status } = useSession();
