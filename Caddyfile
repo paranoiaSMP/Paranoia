@@ -1,3 +1,15 @@
-:80 {
+# SITE_DOMAIN=paranoiastudio.fr en production (HTTPS automatique), vide en local (HTTP sur :80).
+{$SITE_DOMAIN::80}, www.{$SITE_DOMAIN:localhost.invalid} {
+    @www host www.{$SITE_DOMAIN:localhost.invalid}
+    redir @www https://{$SITE_DOMAIN:localhost.invalid}{uri} permanent
+
+    encode zstd gzip
+    reverse_proxy web:3000
+}
+
+# api.<domaine> → routes /api du site (ex. api.paranoiastudio.fr/news/… → /api/news/…).
+api.{$SITE_DOMAIN:localhost.invalid} {
+    encode zstd gzip
+    rewrite * /api{uri}
     reverse_proxy web:3000
 }
