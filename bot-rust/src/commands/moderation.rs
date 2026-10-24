@@ -14,7 +14,7 @@ use twilight_model::{
     },
     http::interaction::{InteractionResponse, InteractionResponseType, InteractionResponseData},
     id::{
-        marker::{RoleMarker, UserMarker},
+        marker::{GuildMarker, RoleMarker, UserMarker},
         Id,
     },
     util::Timestamp,
@@ -86,6 +86,38 @@ async fn reply_text(http: &HttpClient, i: &Interaction, content: String) -> anyh
     reply_with(http, i, InteractionResponseData { content: Some(content), flags: Some(MessageFlags::EPHEMERAL), ..Default::default() }).await
 }
 
+/// Refuse de sanctionner le bot, le propriétaire ou un membre dont le rôle est égal ou supérieur à celui du modérateur.
+/// En cas d'échec de lecture Discord on refuse (mieux vaut bloquer qu'ouvrir).
+async fn check_hierarchy(
+    http: &HttpClient,
+    guild: Id<GuildMarker>,
+    author: Id<UserMarker>,
+    target: Id<UserMarker>,
+) -> Result<(), &'static str> {
+    const FAIL: &str = "Impossible de vérifier la hiérarchie des rôles, sanction annulée.";
+    let g = http.guild(guild).await.map_err(|_| FAIL)?.model().await.map_err(|_| FAIL)?;
+    if target == g.owner_id {
+        return Err("Le propriétaire du serveur ne peut pas être sanctionné.");
+    }
+    let me = http.current_user().await.map_err(|_| FAIL)?.model().await.map_err(|_| FAIL)?;
+    if target == me.id {
+        return Err("Je ne peux pas me sanctionner moi-même.");
+    }
+    if author == g.owner_id {
+        return Ok(());
+    }
+    let pos: std::collections::HashMap<_, _> = g.roles.iter().map(|r| (r.id, r.position)).collect();
+    let top = |roles: &[Id<RoleMarker>]| roles.iter().filter_map(|r| pos.get(r).copied()).max().unwrap_or(-1);
+    let a = http.guild_member(guild, author).await.map_err(|_| FAIL)?.model().await.map_err(|_| FAIL)?;
+    // Cible hors du serveur (ban d'un ex-membre) : rien à comparer.
+    let Ok(t) = http.guild_member(guild, target).await else { return Ok(()) };
+    let t = t.model().await.map_err(|_| FAIL)?;
+    if top(&t.roles) >= top(&a.roles) {
+        return Err("Ce membre a un rôle égal ou supérieur au tien.");
+    }
+    Ok(())
+}
+
 pub async fn run_sanction(
     interaction: Interaction,
     http: Arc<HttpClient>,
@@ -139,6 +171,11 @@ pub async fn run_sanction(
             .description("Vous ne pouvez pas vous sanctionner vous-même !")
             .color(COLOR_ERROR)
             .build();
+        return reply_embed(&http, &interaction, embed, true).await;
+    }
+
+    if let Err(why) = check_hierarchy(&http, guild_id, author_id, target_id).await {
+        let embed = EmbedBuilder::new().description(format!("❌ {why}")).color(COLOR_ERROR).build();
         return reply_embed(&http, &interaction, embed, true).await;
     }
 
@@ -716,6 +753,27 @@ pub async fn run_cases(interaction: Interaction, http: Arc<HttpClient>, db: PgPo
     }
     let e = EmbedBuilder::new().description(format!("{}\n\n{}", format!("## {} | Historique de <@{target}>", crate::utils::emoji::SANCTION), desc)).color(COLOR_PURPLE).build();
     reply_embed(&http, &interaction, e, true).await
+}
+
+pub fn register_slowmode() -> twilight_model::application::command::Command {
+    CommandBuilder::new("slowmode", "Définir le mode lent du salon (0 pour le retirer)", twilight_model::application::command::CommandType::ChatInput)
+        .default_member_permissions(twilight_model::guild::Permissions::MANAGE_CHANNELS)
+        .option(twilight_util::builder::command::IntegerBuilder::new("secondes", "Délai entre deux messages (0 à 21600)").required(true).min_value(0).max_value(21600))
+        .build()
+}
+
+pub async fn run_slowmode(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
+    let secs = match &interaction.data {
+        Some(InteractionData::ApplicationCommand(d)) => d.options.iter().find_map(|o| match (&*o.name, &o.value) {
+            ("secondes", CommandOptionValue::Integer(n)) => Some(*n),
+            _ => None,
+        }),
+        _ => None,
+    };
+    let (Some(secs), Some(ch)) = (secs.filter(|n| (0..=21600).contains(n)), interaction.channel_id) else { return Ok(()) };
+    http.update_channel(ch).rate_limit_per_user(secs as u16).await?;
+    let text = if secs == 0 { "Mode lent désactivé.".to_string() } else { format!("Mode lent réglé sur {secs} s.") };
+    reply_embed(&http, &interaction, EmbedBuilder::new().description(text).color(COLOR_SUCCESS).build(), true).await
 }
 
 #[cfg(test)]

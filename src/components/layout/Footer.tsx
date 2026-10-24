@@ -60,7 +60,6 @@ const NAV_GROUPS = [
       { name: "Ma Collection", href: "/collection" },
       { name: "Joueurs", href: "/joueurs" },
       { name: "Mini-Jeux", href: "/jeux" },
-      { name: "Boutique & VIP", href: "/shop" },
       { name: "Launcher SMP", href: "/launcher" },
     ],
   },

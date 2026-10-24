@@ -10,7 +10,6 @@ export interface NavItem {
 
 export const mainNavLinks: NavItem[] = [
   { title: "Accueil", href: "/" },
-  { title: "Boutique", href: "/shop" },
   { title: "Jeux", href: "/jeux", badge: "New" },
   { title: "Launcher", href: "/launcher" },
 ];
@@ -22,7 +21,6 @@ export const communityDropdownLinks: NavItem[] = [
 ];
 
 export const footerNavLinks: NavItem[] = [
-  { title: "Boutique", href: "/shop" },
   { title: "Launcher", href: "/launcher" },
   { title: "Jeux & TCG", href: "/jeux" },
   { title: "Discord", href: siteConfig.discordUrl, external: true },
@@ -36,7 +34,6 @@ export const footerLegalLinks: NavItem[] = [
 
 export const dockNavLinks: NavItem[] = [
   { title: "Accueil", href: "/", iconName: "Home" },
-  { title: "Boutique", href: "/shop", iconName: "ShoppingCart" },
   { title: "Jeux", href: "/jeux", iconName: "Dice" },
   { title: "Launcher", href: "/launcher", iconName: "DeviceGamepad2" },
   { title: "Communauté", href: "/videastes", iconName: "Users" },

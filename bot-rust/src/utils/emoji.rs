@@ -64,7 +64,7 @@ pub async fn sync(http: &HttpClient, app: Id<ApplicationMarker>) -> anyhow::Resu
         .await?
         .items
         .into_iter()
-        .map(|e| (e.name.clone(), format!("<:{}:{}>", e.name, e.id)))
+        .map(|e| (e.name.clone(), format!("<{}:{}:{}>", if e.animated { "a" } else { "" }, e.name, e.id)))
         .collect();
 
     for (name, png) in FILES {
@@ -80,6 +80,44 @@ pub async fn sync(http: &HttpClient, app: Id<ApplicationMarker>) -> anyhow::Resu
             Err(err) => tracing::warn!("Emoji {name} non importé : {err}"),
         }
     }
+    let _ = REMAP.set(import_foreign(http, app, &mut live).await);
     let _ = LIVE.set(live);
     Ok(())
+}
+
+static REMAP: OnceLock<HashMap<String, String>> = OnceLock::new();
+
+/// Remplace les emojis d'un autre serveur par ceux de l'application (si importés).
+pub fn localize(text: &str) -> String {
+    REMAP.get().map_or_else(|| text.to_string(), |m| m.iter().fold(text.to_string(), |t, (a, b)| t.replace(a, b)))
+}
+
+/// Importe sur l'application les emojis du règlement (embarqués à la compilation).
+/// Renvoie ancien jeton -> nouveau jeton ; un échec laisse l'ancien jeton.
+async fn import_foreign(
+    http: &HttpClient,
+    app: Id<ApplicationMarker>,
+    live: &mut HashMap<String, String>,
+) -> HashMap<String, String> {
+    let mut map = HashMap::new();
+    for (token, name, anim, img) in super::emoji_rules::RULE_EMOJIS {
+        let key = format!("r_{name}");
+        if let Some(t) = live.get(&key) {
+            map.insert(token.to_string(), t.clone());
+            continue;
+        }
+        let mime = if *anim { "image/gif" } else { "image/png" };
+        let data = format!("data:{mime};base64,{}", STANDARD.encode(img));
+        match http.add_application_emoji(app, &key, &data).await {
+            Ok(res) => {
+                if let Ok(e) = res.model().await {
+                    let new = format!("<{}:{}:{}>", if *anim { "a" } else { "" }, e.name, e.id);
+                    live.insert(key, new.clone());
+                    map.insert(token.to_string(), new);
+                }
+            }
+            Err(err) => tracing::warn!("Emoji {name} non importé : {err}"),
+        }
+    }
+    map
 }

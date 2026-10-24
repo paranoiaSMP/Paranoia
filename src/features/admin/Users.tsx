@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { BOOSTER_PACKS } from "@/config/boosters";
 import { isAdmin, isOwner } from "@/lib/roles";
 import { useResource, send } from "./useResource";
+import { isVip } from "@/lib/vip";
 import { ListState, PanelHeader, inputCls, fmt, date } from "./ui";
 
 type Box = { boxType: string; amount: number };
@@ -17,6 +18,7 @@ type User = {
   createdAt: string;
   image: string | null;
   paraCoins: number;
+  vipUntil: string | null;
   staffTitle: string | null;
   staffBio: string | null;
   staffColor: string | null;
@@ -93,6 +95,55 @@ function StaffProfile({ user, onSaved }: { user: User; onSaved: (u: User) => voi
   );
 }
 
+type DRole = { id: string; name: string; color: number };
+
+function Promote({ user }: { user: User }) {
+  const { data: roles, error } = useResource<DRole[]>("/api/admin/users/promote");
+  const [roleId, setRoleId] = useState("");
+  const [otherId, setOtherId] = useState("");
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const run = async (promote: boolean) => {
+    setBusy(true);
+    try {
+      await send("/api/admin/users/promote", "POST", { userId: user.id, promote, roleId, otherRoleId: otherId || undefined, reason: reason || undefined });
+      toast.success(promote ? "Promotion appliquée sur Discord." : "Rétrogradation appliquée sur Discord.");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const options = (
+    <>
+      <option value="">Choisir…</option>
+      {roles?.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+    </>
+  );
+
+  if (error) return <p className="border-t border-zinc-900 bg-[#09090b] p-4 text-sm text-red-400">{error}</p>;
+  return (
+    <div className="flex flex-wrap items-end gap-3 border-t border-zinc-900 bg-[#09090b] p-4">
+      <label className="flex flex-col gap-1 text-sm text-zinc-300">
+        Rôle Discord
+        <select value={roleId} onChange={(e) => setRoleId(e.target.value)} className={`${inputCls} w-48`}>{options}</select>
+      </label>
+      <label className="flex flex-col gap-1 text-sm text-zinc-300">
+        Ancien rôle (optionnel)
+        <select value={otherId} onChange={(e) => setOtherId(e.target.value)} className={`${inputCls} w-48`}>{options}</select>
+      </label>
+      <label className="flex min-w-56 flex-1 flex-col gap-1 text-sm text-zinc-300">
+        Message
+        <input value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} className={inputCls} />
+      </label>
+      <button type="button" disabled={busy || !roleId} onClick={() => run(true)} className="btn-violet disabled:opacity-60">Promouvoir</button>
+      <button type="button" disabled={busy || !roleId} onClick={() => run(false)} className="btn-line disabled:opacity-60">Rétrograder</button>
+    </div>
+  );
+}
+
 function Economy({ user, onSaved }: { user: User; onSaved: (u: User) => void }) {
   const [coins, setCoins] = useState(user.paraCoins);
   const [boxes, setBoxes] = useState<Record<string, number>>(
@@ -127,8 +178,38 @@ function Economy({ user, onSaved }: { user: User; onSaved: (u: User) => void }) 
     }
   };
 
+  const [days, setDays] = useState(30);
+  const vipActive = isVip(user.vipUntil);
+  const setVip = async (d: number) => {
+    setBusy("vip");
+    try {
+      const r = await send("/api/admin/users/economy", "POST", { userId: user.id, action: "grant_vip", amount: d });
+      onSaved({ ...user, vipUntil: r?.vipUntil ?? null });
+      toast.success(d === 0 ? "VIP retiré." : `VIP prolongé de ${d} jours.`);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 gap-6 border-t border-zinc-900 bg-[#0b0b0d] p-4 md:grid-cols-2">
+      <div className="flex flex-col gap-2 md:col-span-2">
+        <span className="text-sm text-zinc-300">
+          VIP : {vipActive ? `actif jusqu'au ${new Date(user.vipUntil!).toLocaleDateString("fr-FR")}` : "inactif"}
+        </span>
+        <div className="flex flex-wrap gap-2">
+          <label htmlFor={`vip-${user.id}`} className="sr-only">Jours de VIP</label>
+          <input id={`vip-${user.id}`} type="number" min={1} max={3650} value={days} onChange={(e) => setDays(Math.max(1, Number(e.target.value)))} className={`${inputCls} w-24 tabular-nums`} />
+          <button type="button" onClick={() => setVip(days)} disabled={busy !== null} className="btn-violet min-h-11 px-4 disabled:opacity-40">
+            {busy === "vip" ? "…" : `Ajouter ${days} jours`}
+          </button>
+          {vipActive && (
+            <button type="button" onClick={() => setVip(0)} disabled={busy !== null} className="btn-line min-h-11 px-4 disabled:opacity-40">Retirer</button>
+          )}
+        </div>
+      </div>
       <div className="flex flex-col gap-2">
         <label htmlFor={`coins-${user.id}`} className="text-sm text-zinc-300">
           ParaCoins
@@ -189,6 +270,7 @@ export default function Users() {
   const [open, setOpen] = useState<string | null>(null);
   const [mc, setMc] = useState<string | null>(null);
   const [prof, setProf] = useState<string | null>(null);
+  const [promo, setPromo] = useState<string | null>(null);
 
   const list = (data ?? []).filter((u) => {
     const q = query.trim().toLowerCase();
@@ -285,6 +367,11 @@ export default function Users() {
                     </button>
                   )}
                   {isAdmin(myRole) && (
+                    <button type="button" onClick={() => setPromo(promo === u.id ? null : u.id)} aria-expanded={promo === u.id} className="btn-line min-h-11 px-4">
+                      {promo === u.id ? "Fermer" : "Promouvoir"}
+                    </button>
+                  )}
+                  {isAdmin(myRole) && (
                     <button type="button" onClick={() => setMc(mc === u.id ? null : u.id)} aria-expanded={mc === u.id} className="btn-line min-h-11 px-4">
                       {mc === u.id ? "Fermer" : "Pseudo MC"}
                     </button>
@@ -293,6 +380,7 @@ export default function Users() {
                 {open === u.id && <Economy user={u} onSaved={replace} />}
                 {mc === u.id && <McLink user={u} onSaved={replace} />}
                 {prof === u.id && <StaffProfile user={u} onSaved={replace} />}
+                {promo === u.id && <Promote user={u} />}
               </li>
             );
           })}

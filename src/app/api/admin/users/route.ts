@@ -23,6 +23,7 @@ export async function GET() {
         createdAt: true,
         image: true,
         paraCoins: true,
+        vipUntil: true,
         staffTitle: true,
         staffBio: true,
         staffColor: true,

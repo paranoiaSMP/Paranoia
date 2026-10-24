@@ -3,9 +3,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { notifyWallet } from "@/lib/realtime/emit";
+import { SHOP_OPEN } from "@/lib/shop";
 import { grantCosmeticToPlayer } from "@/lib/syncCosmetics";
 
 export async function POST(req: Request) {
+  if (!SHOP_OPEN) return NextResponse.json({ error: "La boutique est fermée." }, { status: 403 });
   try {
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id;

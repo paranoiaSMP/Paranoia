@@ -21,4 +21,5 @@ export interface UserShopProfile {
   minecraftName: string | null;
   minecraftUuid: string | null;
   ownedItemIds: string[];
+  vipUntil: string | null;
 }

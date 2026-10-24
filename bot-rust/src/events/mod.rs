@@ -25,6 +25,9 @@ pub async fn handle_event(
             if msg.author.bot {
                 return;
             }
+            if crate::modules::honeypot::on_message(&msg, &http, config.role_staff_id, config.ticket_log_channel_id).await {
+                return;
+            }
             crate::modules::message_log::on_create(&msg);
 
             if crate::modules::enabled("xp") {
@@ -114,6 +117,7 @@ pub async fn handle_event(
                         "unban" => crate::commands::moderation::run_lift(inter, http, db, "unban").await,
                         "unmute" => crate::commands::moderation::run_lift(inter, http, db, "unmute").await,
                         "cases" => crate::commands::moderation::run_cases(inter, http, db).await,
+                        "slowmode" => crate::commands::moderation::run_slowmode(inter, http).await,
                         "setup_tickets" => crate::commands::tickets::run(inter, http).await,
                         "tiktok" => crate::commands::tiktok::run(inter, http, db).await,
                         "tribunal" => crate::modules::tribunal::run(inter, http, db).await,

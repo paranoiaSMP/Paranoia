@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { isVip } from "@/lib/vip";
 
 const RANK: Record<string, number> = { MYTHIC: 6, LEGENDARY: 5, EPIC: 4, RARE: 3, UNCOMMON: 2, COMMON: 1 };
 
@@ -17,6 +18,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ name: s
         createdAt: true,
         xp: true,
         showcase: true,
+        profileAccent: true,
+        vipUntil: true,
+        profileBio: true,
+        profileBanner: true,
+        profileHidden: true,
+        profileTagline: true,
+        profileLinks: true,
+        cosmetics: { select: { itemId: true } },
         inventory: {
           select: {
             id: true,
@@ -39,10 +48,20 @@ export async function GET(_req: Request, { params }: { params: Promise<{ name: s
       .slice(0, 5);
     const total = await prisma.tradingCard.count({ where: { isPublished: true } });
 
+    const cosmetics = await prisma.launcherShopItem.findMany({
+      where: { itemId: { in: user.cosmetics.map((c) => c.itemId) } },
+      select: { itemId: true, name: true, category: true, imageUrl: true },
+      orderBy: { name: "asc" },
+    });
+
     return NextResponse.json({
+      cosmetics,
+      tagline: user.profileTagline,
+      links: user.profileLinks,
       minecraftName: user.minecraftName,
       uuid: user.minecraftUuid,
       role: user.role,
+      vip: isVip(user.vipUntil),
       createdAt: user.createdAt,
       xp: user.xp,
       cards: cards.length,
@@ -51,6 +70,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ name: s
       byRarity,
       best,
       custom: picked.length > 0,
+      accent: user.profileAccent,
+      bio: user.profileBio,
+      banner: user.profileBanner,
+      hidden: user.profileHidden,
     });
   } catch (error) {
     console.error("[PROFILE_GET]", error);

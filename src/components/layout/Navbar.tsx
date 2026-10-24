@@ -11,7 +11,6 @@ const NAV_LINKS = [
   { name: "Cartes", href: "/cards" },
   { name: "Joueurs", href: "/joueurs" },
   { name: "Jeux", href: "/jeux" },
-  { name: "Boutique", href: "/shop" },
   { name: "Launcher", href: "/launcher" },
 ];
 

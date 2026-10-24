@@ -146,12 +146,27 @@ pub async fn run_config(
     Ok(())
 }
 
-/// /reglement : ouvre un formulaire (texte multiligne) puis poste le règlement dans le salon choisi.
+pub const RULES: &str = include_str!("../../assets/reglement.md");
+
+/// /reglement : poste le règlement (assets/reglement.md), une section `## ` par embed.
 pub fn register_rules() -> Command {
     CommandBuilder::new("reglement", "Poste le règlement du serveur dans un salon", twilight_model::application::command::CommandType::ChatInput)
         .default_member_permissions(Permissions::ADMINISTRATOR)
         .option(ChannelBuilder::new("salon", "Salon du règlement (par défaut : ici)").channel_types([ChannelType::GuildText]))
         .build()
+}
+
+fn rules_embeds() -> Vec<twilight_model::channel::message::Embed> {
+    let mut parts: Vec<String> = Vec::new();
+    for line in crate::utils::emoji::localize(RULES).lines() {
+        if line.starts_with("## ") || parts.is_empty() {
+            parts.push(String::new());
+        }
+        let cur = parts.last_mut().unwrap();
+        cur.push_str(line);
+        cur.push('\n');
+    }
+    parts.iter().map(|p| EmbedBuilder::new().description(p.trim()).color(COLOR_PURPLE).build()).collect()
 }
 
 pub async fn run_rules(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
@@ -165,41 +180,7 @@ pub async fn run_rules(interaction: Interaction, http: Arc<HttpClient>) -> anyho
     .or(interaction.channel.as_ref().map(|c| c.id));
     let Some(channel) = channel else { return Ok(()) };
 
-    let input = Component::ActionRow(ActionRow {
-        id: None,
-        components: vec![Component::TextInput(TextInput {
-            id: None,
-            custom_id: "rules_text".into(),
-            label: Some("Règlement".into()),
-            max_length: Some(3500),
-            min_length: Some(10),
-            placeholder: Some("1. Respect de tous\n2. Pas de pub…".into()),
-            required: Some(true),
-            style: TextInputStyle::Paragraph,
-            value: None,
-        })],
-    });
-    let resp = InteractionResponse {
-        kind: InteractionResponseType::Modal,
-        data: Some(InteractionResponseData {
-            custom_id: Some(format!("gatekeeper_rules:{channel}")),
-            title: Some("Règlement du serveur".into()),
-            components: Some(vec![input]),
-            ..Default::default()
-        }),
-    };
-    http.interaction(interaction.application_id).create_response(interaction.id, &interaction.token, &resp).await?;
-    Ok(())
-}
-
-async fn post_rules(interaction: Interaction, http: &Arc<HttpClient>, modal: &ModalInteractionData, channel: u64) -> anyhow::Result<()> {
-    let text = crate::utils::extract_modal_inputs(&modal.components).into_iter().find(|(k, _)| k == "rules_text").map(|(_, v)| v).unwrap_or_default();
-    let embed = EmbedBuilder::new()
-        .description(format!("## {} | Règlement\n\n{text}", crate::utils::emoji::TITLE))
-        .color(COLOR_PURPLE)
-        .footer(EmbedFooterBuilder::new(FOOTER_TEXT))
-        .build();
-    let msg = match http.create_message(Id::<ChannelMarker>::new(channel)).embeds(&[embed]).await {
+    let msg = match http.create_message(channel).embeds(&rules_embeds()).await {
         Ok(_) => format!("{} Règlement posté dans <#{channel}>.", crate::utils::emoji::OK),
         Err(e) => format!("Impossible de poster dans <#{channel}> : {e}"),
     };
@@ -209,6 +190,16 @@ async fn post_rules(interaction: Interaction, http: &Arc<HttpClient>, modal: &Mo
     };
     http.interaction(interaction.application_id).create_response(interaction.id, &interaction.token, &resp).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod rules_tests {
+    #[test]
+    fn rules_fit_discord_limits() {
+        let e = super::rules_embeds();
+        assert!(e.len() <= 10 && e.len() >= 5);
+        assert!(e.iter().all(|x| x.description.as_deref().unwrap_or("").chars().count() <= 4096));
+    }
 }
 
 pub async fn run_test(interaction: Interaction, http: Arc<HttpClient>) -> anyhow::Result<()> {
@@ -429,9 +420,6 @@ pub async fn handle_modal_submit(
     modal: &ModalInteractionData,
     log_channel_id: u64,
 ) -> anyhow::Result<()> {
-    if let Some(ch) = modal.custom_id.strip_prefix("gatekeeper_rules:") {
-        return post_rules(interaction, http, modal, ch.parse().unwrap_or(0)).await;
-    }
     if let Some(args) = modal.custom_id.strip_prefix("gatekeeper_submit:") {
         let parts: Vec<&str> = args.split(':').collect();
         if parts.len() < 3 {

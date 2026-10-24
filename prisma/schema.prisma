@@ -62,6 +62,13 @@ model User {
   staffTitle         String?
   staffBio           String?
   staffColor         String?
+  profileAccent      String?
+  vipUntil           DateTime?
+  profileBio         String?
+  profileBanner      String?
+  profileHidden      String[]  @default([])
+  profileTagline     String?
+  profileLinks       String[]  @default([])
 
   accounts        Account[]
   sessions        Session[]

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import ShowcaseEditor from "@/features/profile/ShowcaseEditor";
+import ProfileEditor from "@/features/profile/ProfileEditor";
+import { DEFAULT_ACCENT, cleanLink, linkLabel, validAccent } from "@/lib/profile";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import CardZoom from "@/components/tcg/CardZoom";
 import CardDisplay from "@/features/binder/components/CardDisplay";
@@ -18,6 +20,10 @@ type Profile = {
   minecraftName: string;
   uuid: string | null;
   role: string;
+  vip: boolean;
+  tagline: string | null;
+  links: string[];
+  cosmetics: { itemId: string; name: string; category: string; imageUrl: string | null }[];
   createdAt: string;
   xp: number;
   cards: number;
@@ -25,6 +31,10 @@ type Profile = {
   total: number;
   byRarity: Record<string, number>;
   custom?: boolean;
+  accent: string | null;
+  bio: string | null;
+  banner: string | null;
+  hidden: string[];
   best: { id: string; specialEffect: string | null; tradingCard: TradingCard }[];
 };
 
@@ -45,6 +55,9 @@ export default function PlayerProfile() {
   const [state, setState] = useState<"loading" | "ready" | "missing" | "error">("loading");
   const { data: session } = useSession();
   const [editing, setEditing] = useState(false);
+  const [customizing, setCustomizing] = useState(false);
+  // Brouillon de l'éditeur : le profil se met à jour en direct avant l'enregistrement.
+  const [draft, setDraft] = useState<{ accent: string; bio: string; hidden: string[]; tagline: string; links: string[] } | null>(null);
   const [reload, setReload] = useState(0);
   const [zoom, setZoom] = useState<Profile["best"][number] | null>(null);
 
@@ -99,30 +112,57 @@ export default function PlayerProfile() {
     animate: { transform: `scaleX(${n})` },
     transition: { duration: 0.8, ease: EASE_OUT, delay: 0.3 },
   });
+  const live = customizing ? draft : null;
+  const accent = live && validAccent(live.accent) ? live.accent : (profile.accent ?? DEFAULT_ACCENT);
+  const bio = live ? live.bio : profile.bio;
+  const tagline = live ? live.tagline : profile.tagline;
+  const links = live ? live.links.map(cleanLink).filter((l): l is string => !!l) : profile.links;
+  const hidden = live?.hidden ?? profile.hidden;
+  const show = (k: string) => !hidden.includes(k);
   const since = new Date(profile.createdAt).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 
   return (
-    <div className="mx-auto max-w-7xl px-5 pb-24 pt-12 md:px-10 md:pt-16">
+    <div className="mx-auto max-w-7xl px-5 pb-24 pt-12 md:px-10 md:pt-16" style={{ "--accent": accent } as React.CSSProperties}>
+      {profile.banner && <img src={profile.banner} alt="" className="mb-8 h-36 w-full rounded-xl object-cover md:h-56" />}
       <Link href="/joueurs" className="mb-6 inline-flex min-h-11 items-center text-sm text-zinc-400 transition-colors hover:text-white">
         ← Tous les joueurs
       </Link>
       <div className="grid grid-cols-1 items-end gap-10 lg:grid-cols-12">
         <div className="lg:col-span-8">
+          {profile.vip && <p className="text-sm font-medium text-[var(--accent)]">VIP</p>}
           {(founder || ROLE[profile.role]) && (
-            <p className="text-sm font-medium text-violet-400">Équipe · {founder ? "Fondateur" : ROLE[profile.role]}</p>
+            <p className="text-sm font-medium text-[var(--accent)]">Équipe · {founder ? "Fondateur" : ROLE[profile.role]}</p>
           )}
           <SplitReveal
             lines={[profile.minecraftName]}
             className="mt-3 break-all text-[clamp(3rem,10vw,8rem)] font-extrabold leading-[0.9] tracking-[-0.045em] text-white"
           />
-          <p className="mt-6 text-zinc-300">Membre depuis {since}</p>
+          {tagline && <p className="mt-4 text-xl font-medium text-[var(--accent)]">{tagline}</p>}
+          <p className="mt-4 text-zinc-300">Membre depuis {since}</p>
+          {bio && <p className="mt-3 max-w-xl whitespace-pre-line break-words text-zinc-200">{bio}</p>}
+          {links.length > 0 && (
+            <ul className="mt-4 flex flex-wrap gap-x-5">
+              {links.map((l) => (
+                <li key={l}>
+                  <a href={l} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex min-h-11 items-center text-sm text-zinc-300 underline underline-offset-4 hover:text-white">
+                    {linkLabel(l)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+          {isMe && (
+            <button type="button" onClick={() => setCustomizing((v) => !v)} aria-expanded={customizing} className="btn-line mt-6 mr-3">
+              Personnaliser le profil
+            </button>
+          )}
           {!isMe && (
             <Link href={`/jeux/echanges?joueur=${encodeURIComponent(profile.minecraftName)}`} className="btn-violet mt-6 inline-flex">
               Proposer un échange
             </Link>
           )}
 
-          <div className="mt-8 max-w-md">
+          {show("level") && <div className="mt-8 max-w-md">
             <p className="flex items-baseline justify-between gap-4">
               <span className="text-2xl font-bold text-white">Niveau {lvl.level}</span>
               <span className="text-sm tabular-nums text-zinc-400">
@@ -137,12 +177,12 @@ export default function PlayerProfile() {
               aria-valuemax={lvl.need}
               aria-valuenow={lvl.into}
             >
-              <motion.div className="h-full origin-left rounded-full bg-violet-400" {...grow(lvl.into / lvl.need)} />
+              <motion.div className="h-full origin-left rounded-full bg-[var(--accent)]" {...grow(lvl.into / lvl.need)} />
             </div>
             <p className="mt-2 text-xs text-zinc-400">XP gagnée en discutant sur le Discord.</p>
-          </div>
+          </div>}
 
-          <dl className="mt-10 grid max-w-xl grid-cols-3 gap-6">
+          {show("stats") && <dl className="mt-10 grid max-w-xl grid-cols-3 gap-6">
             <div>
               <dt className="text-sm text-zinc-400">Cartes</dt>
               <dd className="mt-1 text-3xl font-bold tabular-nums text-white">{profile.cards}</dd>
@@ -157,7 +197,7 @@ export default function PlayerProfile() {
                 {profile.total > 0 ? Math.round((profile.distinct / profile.total) * 100) : 0} %
               </dd>
             </div>
-          </dl>
+          </dl>}
         </div>
         <motion.div
           className="flex justify-center lg:col-span-4"
@@ -166,7 +206,7 @@ export default function PlayerProfile() {
           transition={{ duration: reduce ? 0.2 : 0.7, ease: EASE_OUT, delay: reduce ? 0 : 0.2 }}
         >
           <div className="relative">
-          <div aria-hidden className="absolute inset-x-0 bottom-0 top-1/4 -z-10 rounded-full bg-violet-500/25 blur-3xl" />
+          <div aria-hidden className="absolute inset-x-0 bottom-0 top-1/4 -z-10 rounded-full blur-3xl" style={{ background: "color-mix(in srgb, var(--accent) 25%, transparent)" }} />
           <img
             src={`https://vzge.me/full/512/${encodeURIComponent(skinId)}.png`}
             alt={`Skin de ${profile.minecraftName}`}
@@ -177,8 +217,12 @@ export default function PlayerProfile() {
         </motion.div>
       </div>
 
+      {customizing && (
+        <ProfileEditor accent={profile.accent} bio={profile.bio} tagline={profile.tagline} links={profile.links} banner={profile.banner} hidden={profile.hidden} onDraft={setDraft} onSaved={() => setReload((n) => n + 1)} onClose={() => setCustomizing(false)} />
+      )}
+
       <section className="mt-20 grid grid-cols-1 gap-12 lg:grid-cols-12">
-        <div className="lg:col-span-4">
+        {show("rarity") && <div className="lg:col-span-4">
           <h2 className="text-2xl font-bold tracking-[-0.03em] text-white">Par rareté</h2>
           <ul className="mt-6 flex flex-col gap-3">
             {RARITIES.map((r) => {
@@ -194,13 +238,13 @@ export default function PlayerProfile() {
               );
             })}
           </ul>
-        </div>
-        <div className="lg:col-span-8">
+        </div>}
+        {show("cards") && <div className="lg:col-span-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-2xl font-bold tracking-[-0.03em] text-white">Ses meilleures cartes</h2>
             {isMe && !editing && (
               <button type="button" onClick={() => setEditing(true)} className="btn-line">
-                Personnaliser
+                Choisir les cartes
               </button>
             )}
           </div>
@@ -218,8 +262,24 @@ export default function PlayerProfile() {
               ))}
             </ul>
           )}
-        </div>
+        </div>}
       </section>
+      {show("cosmetics") && profile.cosmetics.length > 0 && (
+        <section className="mt-20">
+          <h2 className="text-2xl font-bold tracking-[-0.03em] text-white">Cosmétiques du launcher</h2>
+          <ul className="mt-6 grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+            {profile.cosmetics.map((c) => (
+              <li key={c.itemId}>
+                <div className="aspect-square overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950">
+                  {c.imageUrl && <img src={c.imageUrl} alt="" loading="lazy" className="size-full object-cover" />}
+                </div>
+                <p className="mt-2 text-sm text-white">{c.name}</p>
+                <p className="text-xs capitalize text-zinc-400">{c.category}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <AnimatePresence>{zoom && <CardZoom card={zoom.tradingCard} effect={zoom.specialEffect} onClose={() => setZoom(null)} />}</AnimatePresence>
     </div>
   );

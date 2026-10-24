@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { isStaff } from "@/lib/roles";
 import { prisma } from "@/lib/db";
+import { extendVip } from "@/lib/vip";
 import { notifyWallet } from "@/lib/realtime/emit";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +53,12 @@ export async function POST(req: Request) {
           }
         });
       }
+    } else if (action === "grant_vip") {
+      // amount = jours ajoutés ; 0 retire le VIP.
+      if (!Number.isInteger(amount) || amount > 3650) return new NextResponse("Invalid days", { status: 400 });
+      const vipUntil = amount === 0 ? null : extendVip(user.vipUntil, amount);
+      await prisma.user.update({ where: { id: userId }, data: { vipUntil } });
+      return NextResponse.json({ success: true, vipUntil });
     } else {
       return new NextResponse("Invalid action", { status: 400 });
     }

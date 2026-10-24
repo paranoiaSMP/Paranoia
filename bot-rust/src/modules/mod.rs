@@ -28,6 +28,7 @@ pub mod tribunal;
 pub mod invites;
 pub mod welcome_image;
 pub mod security;
+pub mod honeypot;
 pub mod gatekeeper;
 pub mod staff;
 pub mod wallet;
@@ -120,6 +121,7 @@ pub fn registry() -> &'static [ModuleDef] {
                         commands::moderation::register_unban(),
                         commands::moderation::register_unmute(),
                         commands::moderation::register_cases(),
+                        commands::moderation::register_slowmode(),
                     ]
                 },
                 components: &["appeal_open:", "appeal_staff_accept:", "appeal_staff_reject:", "modal_appeal:"],
@@ -164,6 +166,31 @@ pub fn registry() -> &'static [ModuleDef] {
                     const S: &[Setting] = &[
                         field("logChannelId", "Salon des logs", SettingKind::Channel, Some("Vide : le salon de logs par défaut du bot."), None),
                         field("bypassRoleIds", "Rôles ignorés", SettingKind::Roles, Some("Les messages des membres qui ont un de ces rôles ne sont pas journalisés. Identifiants séparés par une virgule."), None),
+                    ];
+                    S
+                },
+            },
+            ModuleDef {
+                id: "honeypot",
+                name: "Honeypot",
+                description: "Salon piège : tout membre non-staff qui y écrit est supprimé puis banni ou expulsé (comptes piratés, bots de spam).",
+                category: "Modération",
+                default_enabled: false,
+                legacy_column: None,
+                commands: none,
+                components: &[],
+                settings: {
+                    const S: &[Setting] = &[
+                        field("channelId", "Salon piège", SettingKind::Channel, Some("Un salon visible de tous où personne ne doit écrire, avec un message qui le dit."), None),
+                        Setting {
+                            key: "action",
+                            label: "Sanction",
+                            kind: SettingKind::Choice,
+                            help: None,
+                            default: Some("ban"),
+                            options: &[("ban", "Bannir (efface 1 h de messages)"), ("kick", "Expulser")],
+                        },
+                        field("logChannelId", "Salon des alertes", SettingKind::Channel, Some("Vide : salon de logs du bot."), None),
                     ];
                     S
                 },

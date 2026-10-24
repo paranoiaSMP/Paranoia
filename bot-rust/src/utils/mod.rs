@@ -10,6 +10,7 @@ pub const COLOR_GOLD: u32 = 0xfbbf24;
 pub const FOOTER_TEXT: &str = "Paranoia Studio";
 
 pub mod emoji;
+mod emoji_rules;
 
 pub fn rarity_weight(rarity: &str) -> i32 {
     match rarity.to_uppercase().as_str() {

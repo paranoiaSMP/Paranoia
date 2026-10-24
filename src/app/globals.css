@@ -871,3 +871,179 @@ html[data-event='halloween'] .page-sweep {
 @keyframes mythic-ember { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), calc(var(--rise) * -1)); } }
 @keyframes mythic-title { 0% { opacity: 0; transform: translateX(-50%) scale(1.4); } 12% { opacity: 1; transform: translateX(-50%) scale(1); } 70% { opacity: 1; transform: translateX(-50%) scale(1); } 100% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(1); } }
 @keyframes mythic-shake { 0%, 100% { transform: translate(0, 0); } 15% { transform: translate(-7px, 4px); } 30% { transform: translate(6px, -5px); } 45% { transform: translate(-5px, -3px); } 60% { transform: translate(4px, 3px); } 80% { transform: translate(-2px, 1px); } }
+
+/* Grue de la boutique (cycle de 20 s) : elle prend chaque élément au sol, le porte jusqu'à la devanture et le pose ; la boutique reste complète un instant puis le cycle repart. */
+.crane-part { transform-box: fill-box; animation-duration: 20s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.crane-trolley { animation-name: crane-trolley; }
+.crane-cable { transform-origin: top; animation-name: crane-cable; }
+.crane-hook { animation-name: crane-hook; }
+.crane-load-0 { animation-name: crane-load-0; }
+.crane-load-1 { animation-name: crane-load-1; }
+.crane-load-2 { animation-name: crane-load-2; }
+.crane-load-3 { animation-name: crane-load-3; }
+@keyframes crane-trolley {
+  0.000% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  0.000% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  3.000% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  3.500% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  6.000% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  10.000% { transform: translateX(385px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  13.500% { transform: translateX(385px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  14.250% { transform: translateX(385px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  16.250% { transform: translateX(385px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  20.250% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  20.250% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  23.250% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  23.750% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  26.250% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  30.250% { transform: translateX(495px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  33.750% { transform: translateX(495px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  34.500% { transform: translateX(495px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  36.500% { transform: translateX(495px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  40.500% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  40.500% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  43.500% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  44.000% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  46.500% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  50.500% { transform: translateX(445px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  54.000% { transform: translateX(445px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  54.750% { transform: translateX(445px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  56.750% { transform: translateX(445px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  60.750% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  60.750% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  63.750% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  64.250% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  66.750% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  70.750% { transform: translateX(445px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  74.250% { transform: translateX(445px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  75.000% { transform: translateX(445px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  77.000% { transform: translateX(445px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  81.000% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  100.000% { transform: translateX(200px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+}
+@keyframes crane-cable {
+  0.000% { transform: translateX(200px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  0.000% { transform: translateX(200px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  3.000% { transform: translateX(200px) scaleY(0.7655); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  3.500% { transform: translateX(200px) scaleY(0.7655); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  6.000% { transform: translateX(200px) scaleY(0.2069); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  10.000% { transform: translateX(385px) scaleY(0.2069); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  13.500% { transform: translateX(385px) scaleY(0.6138); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  14.250% { transform: translateX(385px) scaleY(0.6138); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  16.250% { transform: translateX(385px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  20.250% { transform: translateX(200px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  20.250% { transform: translateX(200px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  23.250% { transform: translateX(200px) scaleY(0.6621); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  23.750% { transform: translateX(200px) scaleY(0.6621); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  26.250% { transform: translateX(200px) scaleY(0.1034); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  30.250% { transform: translateX(495px) scaleY(0.1034); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  33.750% { transform: translateX(495px) scaleY(0.6621); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  34.500% { transform: translateX(495px) scaleY(0.6621); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  36.500% { transform: translateX(495px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  40.500% { transform: translateX(200px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  40.500% { transform: translateX(200px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  43.500% { transform: translateX(200px) scaleY(0.8690); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  44.000% { transform: translateX(200px) scaleY(0.8690); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  46.500% { transform: translateX(200px) scaleY(0.3103); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  50.500% { transform: translateX(445px) scaleY(0.3103); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  54.000% { transform: translateX(445px) scaleY(0.4897); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  54.750% { transform: translateX(445px) scaleY(0.4897); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  56.750% { transform: translateX(445px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  60.750% { transform: translateX(200px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  60.750% { transform: translateX(200px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  63.750% { transform: translateX(200px) scaleY(0.8483); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  64.250% { transform: translateX(200px) scaleY(0.8483); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  66.750% { transform: translateX(200px) scaleY(0.2897); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  70.750% { transform: translateX(445px) scaleY(0.2897); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  74.250% { transform: translateX(445px) scaleY(0.3379); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  75.000% { transform: translateX(445px) scaleY(0.3379); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  77.000% { transform: translateX(445px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  81.000% { transform: translateX(200px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  100.000% { transform: translateX(200px) scaleY(0.0828); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+}
+@keyframes crane-hook {
+  0.000% { transform: translate(200px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  0.000% { transform: translate(200px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  3.000% { transform: translate(200px,268px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  3.500% { transform: translate(200px,268px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  6.000% { transform: translate(200px,106px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  10.000% { transform: translate(385px,106px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  13.500% { transform: translate(385px,224px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  14.250% { transform: translate(385px,224px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  16.250% { transform: translate(385px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  20.250% { transform: translate(200px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  20.250% { transform: translate(200px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  23.250% { transform: translate(200px,238px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  23.750% { transform: translate(200px,238px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  26.250% { transform: translate(200px,76px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  30.250% { transform: translate(495px,76px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  33.750% { transform: translate(495px,238px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  34.500% { transform: translate(495px,238px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  36.500% { transform: translate(495px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  40.500% { transform: translate(200px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  40.500% { transform: translate(200px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  43.500% { transform: translate(200px,298px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  44.000% { transform: translate(200px,298px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  46.500% { transform: translate(200px,136px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  50.500% { transform: translate(445px,136px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  54.000% { transform: translate(445px,188px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  54.750% { transform: translate(445px,188px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  56.750% { transform: translate(445px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  60.750% { transform: translate(200px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  60.750% { transform: translate(200px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  63.750% { transform: translate(200px,292px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  64.250% { transform: translate(200px,292px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  66.750% { transform: translate(200px,130px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  70.750% { transform: translate(445px,130px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  74.250% { transform: translate(445px,144px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  75.000% { transform: translate(445px,144px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  77.000% { transform: translate(445px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  81.000% { transform: translate(200px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  100.000% { transform: translate(200px,70px); animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+}
+@keyframes crane-load-0 {
+  0.000% { transform: translate(200px,268px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  3.500% { transform: translate(200px,268px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  6.000% { transform: translate(200px,106px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  10.000% { transform: translate(385px,106px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  13.500% { transform: translate(385px,224px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  96.000% { transform: translate(385px,224px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  100.000% { transform: translate(385px,224px); opacity: 0; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+}
+@keyframes crane-load-1 {
+  0.000% { transform: translate(200px,238px); opacity: 0; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  20.200% { transform: translate(200px,238px); opacity: 0; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  20.250% { transform: translate(200px,238px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  23.750% { transform: translate(200px,238px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  26.250% { transform: translate(200px,76px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  30.250% { transform: translate(495px,76px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  33.750% { transform: translate(495px,238px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  96.000% { transform: translate(495px,238px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  100.000% { transform: translate(495px,238px); opacity: 0; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+}
+@keyframes crane-load-2 {
+  0.000% { transform: translate(200px,298px); opacity: 0; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  40.450% { transform: translate(200px,298px); opacity: 0; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  40.500% { transform: translate(200px,298px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  44.000% { transform: translate(200px,298px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  46.500% { transform: translate(200px,136px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  50.500% { transform: translate(445px,136px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  54.000% { transform: translate(445px,188px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  96.000% { transform: translate(445px,188px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  100.000% { transform: translate(445px,188px); opacity: 0; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+}
+@keyframes crane-load-3 {
+  0.000% { transform: translate(200px,292px); opacity: 0; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  60.700% { transform: translate(200px,292px); opacity: 0; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  60.750% { transform: translate(200px,292px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  64.250% { transform: translate(200px,292px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  66.750% { transform: translate(200px,130px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  70.750% { transform: translate(445px,130px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  74.250% { transform: translate(445px,144px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  96.000% { transform: translate(445px,144px); opacity: 1; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+  100.000% { transform: translate(445px,144px); opacity: 0; animation-timing-function: cubic-bezier(0.77,0,0.175,1); }
+}
+/* Le reset global coupe toutes les animations en mouvement réduit : la grue est le contenu de la page, on la laisse tourner. */
+@media (prefers-reduced-motion: reduce) {
+  .crane-part { animation-duration: 20s !important; animation-iteration-count: infinite !important; }
+}
