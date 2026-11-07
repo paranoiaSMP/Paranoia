@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
 import { notifyWallet } from "@/lib/realtime/emit";
 
-import { BOOSTER_PRICES, type BoosterPackId } from "@/config/boosters";
+import { BOOSTER_PACKS, BOOSTER_PRICES, type BoosterPackId } from "@/config/boosters";
 import { boosterStates, takeStock } from "@/lib/boosters";
 
 const PRICES: Record<string, number> = BOOSTER_PRICES;
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
     const state = (await boosterStates())[boxType as BoosterPackId];
     const price = state.price ?? PRICES[boxType];
-    if (!state.visible) {
+    if (!state.visible || (BOOSTER_PACKS[boxType as BoosterPackId].seasonal && state.stock === null)) {
       return NextResponse.json({ error: "Ce booster n'est pas disponible." }, { status: 400 });
     }
 

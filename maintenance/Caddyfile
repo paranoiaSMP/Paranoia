@@ -1,0 +1,10 @@
+# Mode "on revient bientôt" : toutes les URLs (site, www, api) renvoient la même page en 503.
+{$SITE_DOMAIN::80}, www.{$SITE_DOMAIN:localhost.invalid}, api.{$SITE_DOMAIN:localhost.invalid} {
+    root * /srv
+    rewrite * /index.html
+    header Cache-Control "no-store"
+    header Retry-After "3600"
+    file_server {
+        status 503
+    }
+}

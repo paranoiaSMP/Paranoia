@@ -69,6 +69,8 @@ model User {
   profileHidden      String[]  @default([])
   profileTagline     String?
   profileLinks       String[]  @default([])
+  profileViews       Int       @default(0)
+  profilePose        String?
 
   accounts        Account[]
   sessions        Session[]
@@ -221,6 +223,8 @@ model Ban {
   bannedBy   String
   bannedAt   DateTime  @default(now())
   isActive   Boolean   @default(true)
+  // true: le launcher se desinstalle chez le joueur (ban definitif coche par l'admin).
+  permanent  Boolean   @default(false)
   unbannedAt DateTime?
   unbannedBy String?
 }

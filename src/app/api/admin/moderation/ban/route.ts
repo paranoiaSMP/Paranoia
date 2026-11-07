@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { playerId, reason } = await req.json();
+    const { playerId, reason, permanent } = await req.json();
 
     if (!playerId || !reason) {
       return new NextResponse("Missing data", { status: 400 });
@@ -23,8 +23,9 @@ export async function POST(req: Request) {
     const ban = await prisma.ban.create({
       data: {
         playerId: player.id,
-        hwid: player.hwid, 
+        hwid: player.hwid,
         reason: reason,
+        permanent: permanent === true,
         bannedBy: session.user.name || "Staff Inconnu"
       }
     });

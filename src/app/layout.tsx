@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import NavigationManager from "@/components/layout/NavigationManager";
 import SmoothScroll from "@/components/layout/SmoothScroll";
@@ -12,7 +12,8 @@ import { Providers } from "@/components/providers";
 
 import { Toaster } from 'react-hot-toast';
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter-var", display: "swap" });
+const inter = DM_Sans({ subsets: ["latin"], variable: "--font-inter-var", display: "swap" });
+const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display-var", display: "swap" });
 
 export const viewport: Viewport = {
   themeColor: "#000000",
@@ -83,7 +84,7 @@ export default async function RootLayout({
   const discordUrl = discordUrlSetting?.value || siteConfig.discordUrl;
 
   return (
-    <html lang="fr" className={`dark ${inter.variable}`} suppressHydrationWarning>
+    <html lang="fr" className={`dark ${inter.variable} ${display.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: eventScript(eventMode) }} />

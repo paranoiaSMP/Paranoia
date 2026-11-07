@@ -13,23 +13,41 @@ type Saved = { token: string; bet: number; mines: number; revealed: number[]; cu
 
 const KEY = "ps-mines-game";
 
-function Gem() {
+// Pixel art 8x8 (shape-rendering crispEdges) : chaque rect = 1 pixel.
+const px = (rows: string[], pal: Record<string, string>) =>
+  rows.flatMap((r, y) => [...r].map((c, x) => (pal[c] ? <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill={pal[c]} /> : null)));
+
+function Sprite({ children }: { children: React.ReactNode }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-1/2 w-1/2" aria-hidden>
-      <path d="M12 2 21 9 12 22 3 9Z" fill="var(--color-accent-purple-soft)" />
-      <path d="M12 2 16 9 12 22 8 9Z" fill="var(--color-violet-300)" />
-      <path d="M3 9h18" stroke="var(--color-accent-purple)" strokeWidth="1" />
+    <svg viewBox="0 0 8 8" className="h-3/5 w-3/5" shapeRendering="crispEdges" aria-hidden>
+      {children}
     </svg>
   );
 }
 
+function Gem() {
+  // Citrouille pendant Halloween, diamant le reste de l'année.
+  const [halloween, setHalloween] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setHalloween(document.documentElement.dataset.event === "halloween"), 0);
+    return () => clearTimeout(t);
+  }, []);
+  return halloween ? (
+    <Sprite>
+      {px(["...gg...", "..oggo..", ".oooooo.", "oo.oo.oo", "oooooooo", "oo.oo.oo", ".o.oo.o.", "..oooo.."], { o: "#f97316", g: "#166534" })}
+    </Sprite>
+  ) : (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src="/Diamond.png" alt="" draggable={false} className="h-3/5 w-3/5 object-contain [image-rendering:pixelated]" />
+  );
+}
+
 function Mine() {
+  // TNT : bandeau blanc "TNT" sur fond rouge.
   return (
-    <svg viewBox="0 0 24 24" className="h-1/2 w-1/2" aria-hidden>
-      <circle cx="12" cy="13" r="7" fill="#fafafa" />
-      <path d="M12 2v4M4 13H2M22 13h-2M5.6 6.6 7 8M18.4 6.6 17 8" stroke="#fafafa" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="9.5" cy="10.5" r="1.6" fill="#000" opacity=".5" />
-    </svg>
+    <Sprite>
+      {px(["...yy...", "..y..y..", "rrrrrrrr", "wwwwwwww", "wrwwrwrw", "wwwwwwww", "rrrrrrrr", "rrrrrrrr"], { r: "#dc2626", w: "#f5f5f4", y: "#a16207" })}
+    </Sprite>
   );
 }
 

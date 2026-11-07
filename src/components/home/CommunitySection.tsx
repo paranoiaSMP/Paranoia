@@ -13,7 +13,7 @@ export default function CommunitySection() {
   const transform = useMotionTemplate`translateX(${x}%)`;
 
   return (
-    <section ref={ref} className="overflow-hidden bg-[var(--color-accent-purple)] [&_:focus-visible]:outline-white">
+    <section id="discord" ref={ref} className="overflow-hidden bg-[var(--color-accent-purple)] [&_:focus-visible]:outline-white">
       <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
         <motion.h2
           style={reduce ? undefined : { transform }}

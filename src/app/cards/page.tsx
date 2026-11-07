@@ -91,8 +91,6 @@ async function openReal(pack: BoosterPackConfig): Promise<OpenedCard[]> {
   }));
 }
 
-const MAX_RATE = Math.max(...Object.values(BOOSTER_DROP_RATES).flatMap((r) => Object.values(r)));
-
 export default function CardsPageRoute() {
   return (
     <Suspense>
@@ -109,6 +107,8 @@ function CardsPage() {
   const [pickedId, setActiveId] = useState<BoosterPackId>(
     fromUrl && fromUrl in BOOSTER_PACKS ? (fromUrl as BoosterPackId) : "standard"
   );
+  // Les packs aux taux identiques (Premium et packs festifs) partagent une colonne.
+  const RATE_GROUPS = Object.values(Object.groupBy(PACKS, (p) => JSON.stringify(BOOSTER_DROP_RATES[p.id]))) as (typeof PACKS)[];
   const activeId = PACKS.some((p) => p.id === pickedId) ? pickedId : PACKS[0].id;
   const [opening, setOpening] = useState<Opening | null>(null);
   const { status } = useSession();
@@ -334,56 +334,56 @@ function CardsPage() {
             <h2 className="text-4xl font-bold tracking-[-0.03em] md:text-5xl">Probabilités</h2>
           </Reveal>
           <p className="mt-4 max-w-lg text-zinc-300">
-            La colonne de l&apos;édition sélectionnée est mise en avant.
+            Les packs aux taux identiques sont regroupés. Les barres comparent les éditions pour une même rareté.
           </p>
 
           <div className="mt-10 overflow-x-auto">
-            <table className="w-full min-w-[34rem] text-left">
+            <table className="w-full min-w-[32rem] border-separate border-spacing-0 text-left">
               <caption className="sr-only">Probabilité de tirage par rareté et par édition</caption>
               <thead>
-                <tr className="border-b border-zinc-800 text-sm text-zinc-400">
-                  <th scope="col" className="py-4 pr-4 font-medium">Rareté</th>
-                  {PACKS.map((p) => (
-                    <th
-                      key={p.id}
-                      scope="col"
-                      className={`px-4 py-4 font-medium ${p.id === activeId ? "text-violet-400" : ""}`}
-                    >
-                      {p.name}
-                    </th>
-                  ))}
+                <tr className="text-sm text-zinc-400">
+                  <th scope="col" className="sticky left-0 bg-black py-4 pr-4 font-medium">Rareté</th>
+                  {RATE_GROUPS.map((g) => {
+                    const on = g.some((p) => p.id === activeId);
+                    return (
+                      <th key={g[0].id} scope="col" className={`px-4 py-4 align-bottom font-medium ${on ? "text-white" : ""}`}>
+                        {g[0].name}
+                        {g.length > 1 && <span className="mt-1 block text-xs font-normal text-zinc-500">et {g.slice(1).map((p) => p.name).join(", ")}</span>}
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-900">
-                {CARD_RARITIES.map((rarity) => (
-                  <tr key={rarity.key}>
-                    <th scope="row" className="py-4 pr-4 font-semibold text-white">
-                      {rarity.label}
-                    </th>
-                    {PACKS.map((p) => (
-                      <td
-                        key={p.id}
-                        className={`px-4 py-4 tabular-nums ${
-                          p.id === activeId ? "bg-zinc-900 font-semibold text-white" : "text-zinc-400"
-                        }`}
-                      >
-                        <span className="flex flex-col gap-2">
-                          {BOOSTER_DROP_RATES[p.id][rarity.key]}%
-                          <span aria-hidden className="block h-1 w-full overflow-hidden rounded-full bg-zinc-800/60">
-                            <span
-                              className="block h-full origin-left rounded-full transition-transform duration-500"
-                              style={{
-                                transform: `scaleX(${BOOSTER_DROP_RATES[p.id][rarity.key] / MAX_RATE})`,
-                                transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
-                                backgroundColor: p.id === activeId ? "var(--color-accent-purple-soft)" : "#52525b",
-                              }}
-                            />
-                          </span>
-                        </span>
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+              <tbody>
+                {CARD_RARITIES.map((rarity) => {
+                  const rowMax = Math.max(...RATE_GROUPS.map((g) => BOOSTER_DROP_RATES[g[0].id][rarity.key]));
+                  return (
+                    <tr key={rarity.key}>
+                      <th scope="row" className={`sticky left-0 border-t border-zinc-900 bg-black py-4 pr-4 font-semibold ${rarity.colorClass}`}>{rarity.label}</th>
+                      {RATE_GROUPS.map((g) => {
+                        const rate = BOOSTER_DROP_RATES[g[0].id][rarity.key];
+                        const on = g.some((p) => p.id === activeId);
+                        return (
+                          <td key={g[0].id} className={`border-t border-zinc-900 px-4 py-4 tabular-nums ${on ? "bg-zinc-900" : ""} ${rarity.colorClass}`}>
+                            {rate === 0 ? (
+                              <span className="text-zinc-600">0 %</span>
+                            ) : (
+                              <>
+                                <span className={`text-lg font-bold ${on ? "text-white" : "text-zinc-300"}`}>{rate} %</span>
+                                <span aria-hidden className="mt-2 block h-1 overflow-hidden rounded-sm bg-zinc-800">
+                                  <span
+                                    className="block h-full origin-left bg-current transition-transform duration-500"
+                                    style={{ transform: `scaleX(${rate / rowMax})`, transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
+                                  />
+                                </span>
+                              </>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

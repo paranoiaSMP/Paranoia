@@ -33,9 +33,9 @@ export default function HeroSection() {
               <Link href="/cards" className="btn-violet">
                 Ouvrir un booster
               </Link>
-              <a href={discordUrl} target="_blank" rel="noopener noreferrer" className="btn-line">
+              <Link href="/#discord" className="btn-line">
                 Rejoindre le Discord
-              </a>
+              </Link>
             </div>
           </motion.div>
         </div>

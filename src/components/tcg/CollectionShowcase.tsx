@@ -58,7 +58,17 @@ export default function CollectionShowcase() {
       {state.status === "ready" && state.cards.length > 0 && (
         <ul
           data-lenis-prevent
-          className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 py-12 [scrollbar-width:none] md:px-10"
+          className="flex cursor-grab snap-x snap-mandatory gap-6 overflow-x-auto px-5 py-12 [scrollbar-width:none] active:cursor-grabbing active:snap-none md:px-10"
+          onPointerDown={(e) => {
+            if (e.pointerType !== "mouse") return; // tactile : le défilement natif suffit
+            const el = e.currentTarget;
+            const x0 = e.clientX, s0 = el.scrollLeft;
+            const move = (m: PointerEvent) => (el.scrollLeft = s0 - (m.clientX - x0));
+            const up = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); };
+            window.addEventListener("pointermove", move);
+            window.addEventListener("pointerup", up);
+          }}
+          onDragStart={(e) => e.preventDefault()}
         >
           {state.cards.map((card, i) => (
             <motion.li

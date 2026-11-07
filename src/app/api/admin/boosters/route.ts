@@ -28,6 +28,9 @@ export async function PUT(req: Request) {
   const parsed = body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Valeurs invalides." }, { status: 400 });
   const { id, visible, stock, price } = parsed.data;
+  // Packs festifs = exclusivité limitée : jamais affichés sans stock fini.
+  if (BOOSTER_PACKS[id as BoosterPackId].seasonal && visible && stock === null)
+    return NextResponse.json({ error: "Un pack festif est exclusif : définis un stock pour l'afficher." }, { status: 400 });
   await saveBooster(id as BoosterPackId, { visible, stock, price });
   return NextResponse.json({ success: true, message: "Booster mis à jour." });
 }

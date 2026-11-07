@@ -1,3 +1,4 @@
+import { scrapeGuard } from "@/lib/rateLimit";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -83,6 +84,8 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  const blocked = scrapeGuard(req, "cards");
+  if (blocked) return blocked;
   try {
     const { searchParams } = new URL(req.url);
     const edition = searchParams.get("edition");

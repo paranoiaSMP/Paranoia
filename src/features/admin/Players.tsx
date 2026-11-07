@@ -16,6 +16,7 @@ type Player = {
 
 function BanForm({ player, onDone, onCancel }: { player: Player; onDone: () => void; onCancel: () => void }) {
   const [reason, setReason] = useState("");
+  const [permanent, setPermanent] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
@@ -23,7 +24,7 @@ function BanForm({ player, onDone, onCancel }: { player: Player; onDone: () => v
     if (!reason.trim()) return;
     setBusy(true);
     try {
-      await send("/api/admin/moderation/ban", "POST", { playerId: player.id, reason: reason.trim() });
+      await send("/api/admin/moderation/ban", "POST", { playerId: player.id, reason: reason.trim(), permanent });
       toast.success(`${player.minecraftName} banni.`);
       onDone();
     } catch (err) {
@@ -46,6 +47,10 @@ function BanForm({ player, onDone, onCancel }: { player: Player; onDone: () => v
         required
         className={`${inputCls} py-2`}
       />
+      <label className="flex items-center gap-2 text-sm text-zinc-300">
+        <input type="checkbox" checked={permanent} onChange={(e) => setPermanent(e.target.checked)} />
+        Ban définitif (désinstalle le launcher chez le joueur)
+      </label>
       <div className="flex gap-3">
         <button type="submit" disabled={busy || !reason.trim()} className="press min-h-11 rounded-md bg-red-600 px-4 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">
           {busy ? "…" : "Confirmer le bannissement"}

@@ -4,18 +4,18 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { uploadBufferToR2 } from "@/lib/r2";
 
-const ALLOWED: Record<string, string> = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" };
-const MAX_BYTES = 2 * 1024 * 1024;
+const ALLOWED: Record<string, string> = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif" };
+const MAX_BYTES = 4 * 1024 * 1024;
 
-/** Envoie sa bannière de profil (image fixe, 2 Mo max). */
+/** Envoie sa bannière de profil (image ou GIF animé, 4 Mo max). */
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: "Non connecté" }, { status: 401 });
 
   const file = (await req.formData().catch(() => null))?.get("file");
   if (!file || typeof file === "string") return NextResponse.json({ error: "Aucun fichier" }, { status: 400 });
-  if (!ALLOWED[file.type]) return NextResponse.json({ error: "PNG, JPEG ou WebP uniquement" }, { status: 415 });
-  if (file.size > MAX_BYTES) return NextResponse.json({ error: "Image trop lourde (2 Mo maximum)" }, { status: 413 });
+  if (!ALLOWED[file.type]) return NextResponse.json({ error: "PNG, JPEG, WebP ou GIF uniquement" }, { status: 415 });
+  if (file.size > MAX_BYTES) return NextResponse.json({ error: "Image trop lourde (4 Mo maximum)" }, { status: 413 });
 
   try {
     const url = await uploadBufferToR2(Buffer.from(await file.arrayBuffer()), `banner.${ALLOWED[file.type]}`, file.type, `banner-${session.user.id}`);

@@ -244,7 +244,26 @@ export default function CollectionPage() {
               {shown.length === 0 ? (
                 <p className="mt-10 text-zinc-400">Aucune carte avec ces filtres.</p>
               ) : (
-                <ul className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
+                <ul
+                  className="mt-8 grid cursor-grab auto-cols-[10rem] grid-flow-col grid-rows-2 gap-5 overflow-x-auto pb-4 active:cursor-grabbing sm:auto-cols-[12rem]"
+                  onPointerDown={(e) => {
+                    if (e.pointerType !== "mouse") return; // le tactile défile déjà seul
+                    const el = e.currentTarget;
+                    const x0 = e.clientX, s0 = el.scrollLeft;
+                    let moved = false;
+                    const move = (m: PointerEvent) => {
+                      if (Math.abs(m.clientX - x0) > 5) moved = true;
+                      el.scrollLeft = s0 - (m.clientX - x0);
+                    };
+                    const up = () => {
+                      window.removeEventListener("pointermove", move);
+                      // après un glissé, on avale le clic pour ne pas ouvrir la carte
+                      if (moved) window.addEventListener("click", (c) => c.stopPropagation(), { capture: true, once: true });
+                    };
+                    window.addEventListener("pointermove", move);
+                    window.addEventListener("pointerup", up, { once: true });
+                  }}
+                >
                   {shown.map((g, i) => (
                     <motion.li
                       key={`${g.card.id}:${g.effect ?? ""}`}

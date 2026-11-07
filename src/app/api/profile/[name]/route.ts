@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { scrapeGuard } from "@/lib/rateLimit";
 import { prisma } from "@/lib/db";
 import { isVip } from "@/lib/vip";
 
 const RANK: Record<string, number> = { MYTHIC: 6, LEGENDARY: 5, EPIC: 4, RARE: 3, UNCOMMON: 2, COMMON: 1 };
 
-export async function GET(_req: Request, { params }: { params: Promise<{ name: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ name: string }> }) {
+  const blocked = scrapeGuard(req, "profile", 30);
+  if (blocked) return blocked;
   const { name } = await params;
   if (!/^[A-Za-z0-9_]{3,16}$/.test(name)) return NextResponse.json({ error: "Pseudo invalide" }, { status: 400 });
 
@@ -12,6 +18,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ name: s
     const user = await prisma.user.findFirst({
       where: { minecraftName: { equals: name, mode: "insensitive" } },
       select: {
+        id: true,
         minecraftName: true,
         minecraftUuid: true,
         role: true,
@@ -25,6 +32,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ name: s
         profileHidden: true,
         profileTagline: true,
         profileLinks: true,
+        profileViews: true,
         cosmetics: { select: { itemId: true } },
         inventory: {
           select: {
@@ -36,6 +44,16 @@ export async function GET(_req: Request, { params }: { params: Promise<{ name: s
       },
     });
     if (!user) return NextResponse.json({ error: "Joueur introuvable" }, { status: 404 });
+
+    // Une vue par visiteur et par heure (cookie), pour ne pas gonfler le compteur au rechargement.
+    const jar = await cookies();
+    const key = `pv_${name.toLowerCase()}`;
+    let views = user.profileViews;
+    const self = (await getServerSession(authOptions))?.user?.id === user.id;
+    if (!self && !jar.get(key)) {
+      views = (await prisma.user.update({ where: { id: user.id }, data: { profileViews: { increment: 1 } }, select: { profileViews: true } })).profileViews;
+      jar.set(key, "1", { maxAge: 3600, httpOnly: true, sameSite: "lax" });
+    }
 
     const cards = user.inventory;
     const distinct = new Set(cards.map((c) => c.tradingCard.id)).size;
@@ -58,6 +76,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ name: s
       cosmetics,
       tagline: user.profileTagline,
       links: user.profileLinks,
+      views,
       minecraftName: user.minecraftName,
       uuid: user.minecraftUuid,
       role: user.role,

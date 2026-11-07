@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { scrapeGuard } from "@/lib/rateLimit";
 import { prisma } from "@/lib/db";
 import { levelOf } from "@/lib/levels";
 
@@ -11,6 +12,8 @@ const SORTS = {
 
 /** Annuaire public des joueurs (pseudo, niveau, nombre de cartes uniquement). */
 export async function GET(req: Request) {
+  const blocked = scrapeGuard(req, "joueurs");
+  if (blocked) return blocked;
   const url = new URL(req.url);
   const q = (url.searchParams.get("q") ?? "").trim().slice(0, 16);
   const sortKey = (url.searchParams.get("tri") ?? "xp") as keyof typeof SORTS;

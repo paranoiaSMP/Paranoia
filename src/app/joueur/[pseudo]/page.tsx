@@ -23,6 +23,7 @@ type Profile = {
   vip: boolean;
   tagline: string | null;
   links: string[];
+  views: number;
   cosmetics: { itemId: string; name: string; category: string; imageUrl: string | null }[];
   createdAt: string;
   xp: number;
@@ -122,8 +123,16 @@ export default function PlayerProfile() {
   const since = new Date(profile.createdAt).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 
   return (
-    <div className="mx-auto max-w-7xl px-5 pb-24 pt-12 md:px-10 md:pt-16" style={{ "--accent": accent } as React.CSSProperties}>
-      {profile.banner && <img src={profile.banner} alt="" className="mb-8 h-36 w-full rounded-xl object-cover md:h-56" />}
+    <div style={{ "--accent": accent } as React.CSSProperties}>
+      <div className={profile.banner ? "relative isolate overflow-hidden" : ""}>
+      <div className="mx-auto max-w-7xl px-5 pb-10 pt-12 md:px-10 md:pb-14 md:pt-16">
+        {profile.banner && (
+          <>
+            <img src={profile.banner} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" />
+            <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
+            <p className="absolute right-5 top-5 z-10 rounded-full bg-black/50 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-white backdrop-blur">{profile.views.toLocaleString("fr-FR")} vues</p>
+          </>
+        )}
       <Link href="/joueurs" className="mb-6 inline-flex min-h-11 items-center text-sm text-zinc-400 transition-colors hover:text-white">
         ← Tous les joueurs
       </Link>
@@ -138,7 +147,7 @@ export default function PlayerProfile() {
             className="mt-3 break-all text-[clamp(3rem,10vw,8rem)] font-extrabold leading-[0.9] tracking-[-0.045em] text-white"
           />
           {tagline && <p className="mt-4 text-xl font-medium text-[var(--accent)]">{tagline}</p>}
-          <p className="mt-4 text-zinc-300">Membre depuis {since}</p>
+          <p className="mt-4 text-zinc-300">Membre depuis {since}{!profile.banner && ` · ${profile.views.toLocaleString("fr-FR")} vues`}</p>
           {bio && <p className="mt-3 max-w-xl whitespace-pre-line break-words text-zinc-200">{bio}</p>}
           {links.length > 0 && (
             <ul className="mt-4 flex flex-wrap gap-x-5">
@@ -207,16 +216,15 @@ export default function PlayerProfile() {
         >
           <div className="relative">
           <div aria-hidden className="absolute inset-x-0 bottom-0 top-1/4 -z-10 rounded-full blur-3xl" style={{ background: "color-mix(in srgb, var(--accent) 25%, transparent)" }} />
-          <img
-            src={`https://vzge.me/full/512/${encodeURIComponent(skinId)}.png`}
-            alt={`Skin de ${profile.minecraftName}`}
-            className="h-[42svh] max-h-96 w-auto"
-            style={{ imageRendering: "pixelated" }}
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`https://vzge.me/full/512/${encodeURIComponent(skinId)}.png?h=${Math.floor(Date.now() / 3600000)}`} alt={`Skin de ${profile.minecraftName}`} className="h-[42svh] max-h-96 w-auto" style={{ imageRendering: "pixelated" }} />
           </div>
         </motion.div>
       </div>
+      </div>
+      </div>
 
+      <div className="mx-auto max-w-7xl px-5 pb-24 md:px-10">
       {customizing && (
         <ProfileEditor accent={profile.accent} bio={profile.bio} tagline={profile.tagline} links={profile.links} banner={profile.banner} hidden={profile.hidden} onDraft={setDraft} onSaved={() => setReload((n) => n + 1)} onClose={() => setCustomizing(false)} />
       )}
@@ -281,6 +289,7 @@ export default function PlayerProfile() {
         </section>
       )}
       <AnimatePresence>{zoom && <CardZoom card={zoom.tradingCard} effect={zoom.specialEffect} onClose={() => setZoom(null)} />}</AnimatePresence>
+      </div>
     </div>
   );
 }

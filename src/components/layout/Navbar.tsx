@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import UserMenu from "@/components/common/UserMenu";
-import { useSettings } from "@/components/providers/SettingsProvider";
 
 const NAV_LINKS = [
   { name: "Accueil", href: "/" },
@@ -16,7 +15,6 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { discordUrl } = useSettings();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -37,7 +35,7 @@ export default function Navbar() {
       >
         <Link
           href="/"
-          className="flex min-h-11 items-center text-lg font-bold tracking-tight text-white"
+          className="flex min-h-11 items-center font-outfit text-xl font-bold tracking-tight text-white"
         >
           Paranoia Studio
         </Link>
@@ -61,9 +59,7 @@ export default function Navbar() {
           })}
           <li>
             <a
-              href={discordUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/#discord"
               className="flex min-h-11 items-center px-4 text-sm font-medium text-zinc-400 transition-colors hover:text-white"
             >
               Discord
@@ -122,9 +118,7 @@ export default function Navbar() {
             ))}
             <li>
               <a
-                href={discordUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/#discord"
                 onClick={() => setOpen(false)}
                 className="flex min-h-14 items-center text-2xl font-semibold text-white"
               >

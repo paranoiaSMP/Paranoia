@@ -39,7 +39,7 @@ use twilight_model::{
     },
 };
 use twilight_util::builder::{
-    command::{ChannelBuilder, CommandBuilder, RoleBuilder, UserBuilder},
+    command::{ChannelBuilder, CommandBuilder, RoleBuilder, StringBuilder, UserBuilder},
     embed::{EmbedBuilder, EmbedFooterBuilder, ImageSource},
 };
 
@@ -146,19 +146,21 @@ pub async fn run_config(
     Ok(())
 }
 
-pub const RULES: &str = include_str!("../../assets/reglement.md");
+pub const RULES_SMP: &str = include_str!("../../assets/reglement_smp.md");
+pub const RULES_DISCORD: &str = include_str!("../../assets/reglement_discord.md");
 
-/// /reglement : poste le règlement (assets/reglement.md), une section `## ` par embed.
+/// /reglement : poste le règlement SMP ou Discord (assets/reglement_*.md), une section `## ` par embed.
 pub fn register_rules() -> Command {
     CommandBuilder::new("reglement", "Poste le règlement du serveur dans un salon", twilight_model::application::command::CommandType::ChatInput)
         .default_member_permissions(Permissions::ADMINISTRATOR)
+        .option(StringBuilder::new("type", "Quel règlement poster").required(true).choices([("SMP", "smp"), ("Discord", "discord")]))
         .option(ChannelBuilder::new("salon", "Salon du règlement (par défaut : ici)").channel_types([ChannelType::GuildText]))
         .build()
 }
 
-fn rules_embeds() -> Vec<twilight_model::channel::message::Embed> {
+fn rules_embeds(text: &str) -> Vec<twilight_model::channel::message::Embed> {
     let mut parts: Vec<String> = Vec::new();
-    for line in crate::utils::emoji::localize(RULES).lines() {
+    for line in crate::utils::emoji::localize(text).lines() {
         if line.starts_with("## ") || parts.is_empty() {
             parts.push(String::new());
         }
@@ -179,8 +181,11 @@ pub async fn run_rules(interaction: Interaction, http: Arc<HttpClient>) -> anyho
     }
     .or(interaction.channel.as_ref().map(|c| c.id));
     let Some(channel) = channel else { return Ok(()) };
+    let discord = matches!(&interaction.data, Some(InteractionData::ApplicationCommand(d))
+        if d.options.iter().any(|o| o.name == "type" && matches!(&o.value, CommandOptionValue::String(v) if v == "discord")));
+    let text = if discord { RULES_DISCORD } else { RULES_SMP };
 
-    let msg = match http.create_message(channel).embeds(&rules_embeds()).await {
+    let msg = match http.create_message(channel).embeds(&rules_embeds(text)).await {
         Ok(_) => format!("{} Règlement posté dans <#{channel}>.", crate::utils::emoji::OK),
         Err(e) => format!("Impossible de poster dans <#{channel}> : {e}"),
     };
@@ -196,9 +201,11 @@ pub async fn run_rules(interaction: Interaction, http: Arc<HttpClient>) -> anyho
 mod rules_tests {
     #[test]
     fn rules_fit_discord_limits() {
-        let e = super::rules_embeds();
-        assert!(e.len() <= 10 && e.len() >= 5);
-        assert!(e.iter().all(|x| x.description.as_deref().unwrap_or("").chars().count() <= 4096));
+        for text in [super::RULES_SMP, super::RULES_DISCORD] {
+            let e = super::rules_embeds(text);
+            assert!(e.len() <= 10 && e.len() >= 5);
+            assert!(e.iter().all(|x| x.description.as_deref().unwrap_or("").chars().count() <= 4096));
+        }
     }
 }
 

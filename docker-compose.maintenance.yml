@@ -1,0 +1,23 @@
+# Seul Caddy tourne, il sert maintenance/index.html. Aucun autre service, rien d'exposé.
+# Usage : voir maintenance/README.md
+name: paranoia_maintenance
+
+volumes:
+  caddy_data:
+    external: true
+    name: paranoianew_caddy_data # réutilise les certificats HTTPS existants
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: paranoia_caddy_maintenance
+    restart: unless-stopped
+    environment:
+      - SITE_DOMAIN
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./maintenance/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./maintenance/index.html:/srv/index.html:ro
+      - caddy_data:/data

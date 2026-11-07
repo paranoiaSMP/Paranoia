@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#000000">
+<title>Paranoia Studio — On revient bientôt</title>
+<style>
+  :root {
+    --bg: #000;
+    --text: #fafafa;
+    --muted: #a1a1aa;
+    --border: #27272a;
+    --violet: #7c3aed;
+    --violet-soft: #a78bfa;
+  }
+  * { box-sizing: border-box; }
+  html, body { min-height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 48px 16px; min-height: 100vh; text-align: center;
+  }
+  .logo {
+    width: min(260px, 60vw); height: auto;
+    filter: drop-shadow(0 0 28px rgba(124, 58, 237, .7));
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float { 50% { transform: translateY(-8px); } }
+  .name { margin-top: 16px; font-size: .95rem; font-weight: 700; letter-spacing: .5em; text-indent: .5em; text-transform: uppercase; }
+  h1 {
+    margin: 40px 0 20px; max-width: 14ch;
+    font-size: clamp(2.2rem, 8vw, 4.2rem); line-height: 1.02; letter-spacing: -.035em; font-weight: 600;
+  }
+  h1 span { color: var(--violet-soft); }
+  p { margin: 0 auto 16px; max-width: 46ch; color: var(--muted); font-size: 1.05rem; line-height: 1.6; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 48px; margin-top: 16px; padding: 0 24px; border-radius: 10px;
+    background: var(--text); color: #09090b; font-weight: 500; font-size: 1rem; text-decoration: none;
+    transition: background-color .15s ease;
+  }
+  .btn:hover { background: #d4d4d8; }
+  .btn:focus-visible { outline: 2px solid var(--violet-soft); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) { .logo { animation: none; } }
+</style>
+</head>
+<body>
+  <svg class="logo" role="img" aria-label="Paranoia Studio" xmlns="http://www.w3.org/2000/svg" viewBox="303 414 394 169"><path fill="#fafafa" d="M312.994 499.375 C331.018 483.916 348.861 468.637 370.092 457.658 C416.015 433.909 504.745 404.386 548.371 443.44 C560.179 454.01 567.473 469.661 568.709 485.405 C573.459 545.961 473.376 576.183 440.826 515.517 C438.135 510.501 436.121 503.338 434.774 497.841 C431.627 484.998 432.607 487.06 446.471 486.759 C448.841 486.707 456.882 485.843 457.923 487.773 C460.814 493.133 458.223 523.239 497.782 526.821 C530.961 529.825 558.46 493.31 535.226 464.452 C531.335 459.619 525.24 453.398 519.5 450.955 C491.456 439.021 423.937 457.458 396.436 469.628 C383.376 475.407 372.456 482.524 360.801 490.646 C358.749 492.076 349.569 497.319 351.467 499.986 C354.289 503.951 375.063 516.531 380.848 520.066 C450.284 562.509 557.093 560.683 625.664 517.112 C629.442 514.712 648.243 502.682 649.626 499.58 C650.86 496.813 632.596 485.77 629.644 483.887 C621.353 478.599 585.641 462.967 583.706 461.203 C580.084 457.9 575.206 446.817 570.334 441.291 C569.394 440.225 561.72 432.249 562.755 432.375 C564.574 432.598 569.775 433.834 570.98 434.196 C579.087 436.634 587.098 439.135 595.073 441.984 C628.245 453.838 650.725 467.906 677.661 490.334 C679.582 491.934 686.829 497.333 687.001 498.928 C687.106 499.904 685.479 501.248 684.829 501.78 C676.397 508.681 667.454 516.488 658.861 522.986 C593.02 572.776 489.613 587.121 412.021 559.79 C374.989 546.746 342.477 524.934 312.994 499.375 Z"/></svg>
+  <div class="name">Paranoia Studio</div>
+  <h1>On revient <span>bientôt</span></h1>
+  <p>La phase de test est terminée. Merci à tous ceux qui sont passés, qui ont joué et qui nous ont signalé des bugs.</p>
+  <p>On refait le site depuis le début. Ça va prendre du temps, on préfère le faire proprement.</p>
+  <p>On annoncera la réouverture sur le Discord.</p>
+  <a class="btn" href="https://discord.gg/FP8rYZYRe7">Rejoindre le Discord</a>
+</body>
+</html>

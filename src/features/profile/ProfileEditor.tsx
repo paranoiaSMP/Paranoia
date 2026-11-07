@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import BannerCrop from "./BannerCrop";
 import { BIO_MAX, DEFAULT_ACCENT, MAX_LINKS, SECTIONS, TAGLINE_MAX, cleanLink, validAccent } from "@/lib/profile";
 
 const PRESETS = ["#a78bfa", "#f472b6", "#fb923c", "#facc15", "#4ade80", "#38bdf8"];
@@ -24,6 +25,7 @@ export default function ProfileEditor(p: Props) {
   const [tagline, setTagline] = useState(p.tagline ?? "");
   const [links, setLinks] = useState<string[]>(p.links);
   const [hidden, setHidden] = useState<string[]>(p.hidden);
+  const [crop, setCrop] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const file = useRef<HTMLInputElement>(null);
@@ -55,9 +57,9 @@ export default function ProfileEditor(p: Props) {
     }
   };
 
-  const upload = async (f: File) => {
+  const upload = async (f: File | Blob) => {
     const body = new FormData();
-    body.set("file", f);
+    body.set("file", f, f instanceof File ? f.name : "banner.webp");
     if (await call("/api/user/profile/banner", { method: "POST", body })) p.onSaved();
   };
 
@@ -134,8 +136,14 @@ export default function ProfileEditor(p: Props) {
 
           <div>
             <p className="text-sm font-semibold text-white">Bannière</p>
-            <p className="mt-1 text-xs text-zinc-400">PNG, JPEG ou WebP, 2 Mo maximum. Affichée en bandeau large.</p>
-            <input ref={file} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+            <p className="mt-1 text-xs text-zinc-400">PNG, JPEG, WebP ou GIF animé, 4 Mo maximum. Recadrage automatique 3:1 (sauf GIF).</p>
+            <input ref={file} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={(e) => {
+              const f = e.target.files?.[0];
+              e.target.value = "";
+              // Un GIF animé ne passe pas par le canvas (il perdrait son animation) : envoyé tel quel.
+              if (f) f.type === "image/gif" ? upload(f) : setCrop(f);
+            }} />
+            {crop && <BannerCrop file={crop} onCancel={() => setCrop(null)} onDone={(b) => { setCrop(null); upload(b); }} />}
             <div className="mt-3 flex flex-wrap gap-3">
               <button type="button" disabled={busy} onClick={() => file.current?.click()} className="btn-line disabled:opacity-40">
                 {p.banner ? "Changer la bannière" : "Ajouter une bannière"}
