@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jeux · Paranoia Studio</title>
+<meta name="description" content="Découvre les jeux de Paranoia Studio : Crash, Roulette, Mines et Blackjack.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="sub">
+<nav>
+  <a class="logo" href="index.html" aria-label="Paranoia Studio, accueil"><img src="assets/logo-blanc.svg" alt=""></a>
+  <ul>
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="cartes.html">Cartes</a></li>
+    <li><a href="jeux.html" aria-current="page">Jeux</a></li>
+    <li><a href="launcher.html">Launcher</a></li>
+  </ul>
+  <a class="avatar" href="#" aria-label="Mon compte"></a>
+</nav>
+<main class="jx">
+  <h1 class="sr">Jeux</h1>
+  <section class="casino" id="casino" aria-label="Casino">
+    <div class="stage">
+      <div class="caps">
+        <div class="cap"><h2 class="display">Crash</h2><p>Encaisse pendant que le multiplicateur monte, avant le crash.</p><span class="mode">En direct</span><a class="btn" href="#">Jouer</a></div>
+        <div class="cap"><h2 class="display">Roulette</h2><p>Choisis ta couleur. Un tirage gagnant sur le vert paie ×14.</p><span class="mode">En direct</span><a class="btn" href="#">Jouer</a></div>
+        <div class="cap"><h2 class="display">Mines</h2><p>Explore une grille de 25 cases sans tomber sur une mine.</p><span class="mode">Solo</span><a class="btn" href="#">Jouer</a></div>
+        <div class="cap"><h2 class="display">Blackjack</h2><p>Joue contre le croupier. Un blackjack paie 3 pour 2.</p><span class="mode">Solo</span><a class="btn" href="#">Jouer</a></div>
+      </div>
+      <div class="arena" aria-hidden="true">
+        <div class="vis"><div class="chart"><span class="mnum" id="mnum">×1.00</span><svg viewBox="0 0 640 400" id="csvg"><g class="g"><line x1="44" x2="620" y1="324" y2="324"/><text x="36" y="328" text-anchor="end">×2</text><line x1="44" x2="620" y1="252" y2="252"/><text x="36" y="256" text-anchor="end">×4</text><line x1="44" x2="620" y1="180" y2="180"/><text x="36" y="184" text-anchor="end">×6</text><line x1="44" x2="620" y1="107" y2="107"/><text x="36" y="111" text-anchor="end">×8</text><line x1="44" x2="620" y1="360" y2="360" class="ax"/><line x1="44" x2="44" y1="30" y2="360" class="ax"/></g><path id="carea" class="area"/><path id="cpath" class="curve"/><circle id="cdot" r="7"/></svg></div></div>
+        <div class="vis"><div class="rwrap"><span class="ptr"></span><div class="strip" id="strip"></div></div></div>
+        <div class="vis"><span class="mgrid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+        <div class="vis"><div class="bj"><p class="who"><b>21</b></p><div class="hand you"><span class="c"><b class="r">A<i>♠</i></b><i class="s">♠</i><b class="r f">A<i>♠</i></b></span><span class="c red"><b class="r">K<i>♥</i></b><i class="s">♥</i><b class="r f">K<i>♥</i></b></span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="trade" id="trade" aria-label="Trade">
+    <div class="stage">
+      <div class="caps">
+        <div class="cap cap-1"><h2 class="display">Échanges</h2><p>Propose tes cartes à l’échange pour compléter ta collection.</p><a class="btn" href="#">Échanger</a></div>
+        <div class="cap cap-2"><h2 class="display">Fusion</h2><p>Fusionne tes cartes pour renforcer leur effet.</p><a class="btn" href="#">Fusionner</a></div>
+      </div>
+      <div class="arena" aria-hidden="true"><img class="b1" src="assets/standard.png" alt=""><img class="b2" src="assets/premium.png" alt=""><img class="b3" src="assets/mythique.png" alt=""></div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="foot">
+    <a class="foot-logo" href="index.html" aria-label="Paranoia Studio, accueil"><img src="assets/logo-blanc.svg" alt=""></a>
+    <div class="cols" role="navigation" aria-label="Pied de page">
+      <div><h3>Serveur</h3><ul><li><a href="cartes.html">Cartes</a></li><li><a href="jeux.html">Jeux</a></li><li><a href="launcher.html">Launcher</a></li></ul></div>
+      <div><h3>Communauté</h3><ul><li><a href="#discord">Discord</a></li><li><a href="#">Support</a></li></ul></div>
+      <div><h3>Légal</h3><ul><li><a href="#">Mentions légales</a></li><li><a href="#">Confidentialité</a></li></ul></div>
+    </div>
+  </div>
+  <span class="big" id="big" aria-hidden="true">PARANOIA</span>
+</footer>
+<script src="site.js"></script>
+<script>
+(() => {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const clamp = v => Math.min(1, Math.max(0, v));
+  const casino = document.getElementById("casino"), trade = document.getElementById("trade"), mnum = document.getElementById("mnum"), csvg = document.getElementById("csvg"), cpath = document.getElementById("cpath"), carea = document.getElementById("carea"), cdot = document.getElementById("cdot"), strip = document.getElementById("strip");
+  for (let k = 0; k < 40; k++) strip.insertAdjacentHTML("beforeend", `<span class="rc ${k % 15 ? (k % 2 ? "r" : "b") : "z"}">${k % 15}</span>`);
+  const cells = [...strip.children];
+  const caps = [...casino.querySelectorAll(".cap")], vis = [...casino.querySelectorAll(".vis")], tiles = [...casino.querySelectorAll(".mgrid i")];
+  const ORDER = [12, 6, 18, 8, 16, 2, 22, 10, 14];
+  let queued = false;
+  const update = () => {
+    queued = false;
+    const h = innerHeight;
+    const c = casino.getBoundingClientRect(), g = clamp(-c.top / (c.height - h)) * 4;
+    for (let i = 0; i < 4; i++) {
+      let d = Math.abs(g - (i + .5));
+      if ((i === 0 && g < .5) || (i === 3 && g > 3.5)) d = 0;
+      const o = clamp((.5 - d) * 4);
+      caps[i].style.setProperty("--o", o); caps[i].style.visibility = o > .02 ? "visible" : "hidden"; caps[i].style.pointerEvents = o > .5 ? "auto" : "none";
+      vis[i].style.setProperty("--o", o); vis[i].style.setProperty("--p", clamp(g - i));
+    }
+    const p0 = clamp(g / .55), crashed = p0 > .97;
+    mnum.textContent = "×" + (crashed ? "9.87" : (1 + 8.87 * p0 * p0).toFixed(2));
+    mnum.classList.toggle("crashed", crashed); csvg.classList.toggle("crashed", crashed);
+    let d = "M44 360"; for (let k = 1; k <= 48; k++) { const t = p0 * k / 48; d += ` L${(44 + t * 560).toFixed(1)} ${(360 - 8.87 * t * t * 36.08).toFixed(1)}`; }
+    cpath.setAttribute("d", d); carea.setAttribute("d", d + ` L${(44 + p0 * 560).toFixed(1)} 360 Z`);
+    cdot.setAttribute("cx", 44 + p0 * 560); cdot.setAttribute("cy", 360 - 8.87 * p0 * p0 * 36.08);
+    const pr = clamp((g - 1.2) / .6), e = 1 - (1 - pr) ** 3;
+    strip.style.translate = (strip.parentNode.clientWidth / 2 - 47 - e * 30 * 94) + "px";
+    cells[30].classList.toggle("win", pr > .98);
+    vis[3].style.setProperty("--p", clamp((g - 3.1) / .5));
+    const n = Math.floor(clamp((g - 2.1) / .5) * ORDER.length), lit = ORDER.slice(0, n);
+    tiles.forEach((t, k) => t.classList.toggle("lit", lit.includes(k)));
+    tiles[4].classList.toggle("m", g > 2.85);
+    const t = trade.getBoundingClientRect(), q = clamp(-t.top / (t.height - h));
+    trade.style.setProperty("--a", clamp(q / .45));
+    trade.style.setProperty("--b", clamp((q - .55) / .2));
+    trade.dataset.phase = q > .65 ? "2" : "1";
+  };
+  const queue = () => { if (!queued) { queued = true; requestAnimationFrame(update); } };
+  addEventListener("scroll", queue, { passive: true }); addEventListener("resize", queue);
+  update();
+})();
+</script>
+</body>
+</html>

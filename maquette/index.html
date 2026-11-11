@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paranoia Studio</title>
+<meta name="description" content="Découvre les boosters et les jeux de Paranoia Studio, et retrouve le launcher de Paranoia Client.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav>
+  <a class="logo" href="index.html" aria-label="Paranoia Studio, accueil"><img src="assets/logo-blanc.svg" alt=""></a>
+  <ul>
+    <li><a href="index.html" aria-current="page">Accueil</a></li>
+    <li><a href="cartes.html">Cartes</a></li>
+    <li><a href="jeux.html">Jeux</a></li>
+    <li><a href="launcher.html">Launcher</a></li>
+  </ul>
+  <a class="avatar" href="#" aria-label="Mon compte"></a>
+</nav>
+
+<main>
+  <section class="hero">
+    <div>
+      <h1 class="display">Paranoia Studio</h1>
+      <p>Ouvre des boosters, collectionne des cartes et découvre les jeux de Paranoia.</p>
+      <a class="btn btn-hero" href="#discord">Rejoindre le Discord</a>
+    </div>
+    <div class="slot sb-hero" id="sb-hero"></div>
+    <div class="slot sl-hero" id="sl-hero"></div>
+  </section>
+
+  <section class="deck" id="cartes" aria-label="Cartes">
+    <div class="deck-stage">
+      <div class="stack" id="stack">
+        <img src="assets/premium.png" alt="Booster Premium">
+        <img src="assets/standard.png" alt="Booster Standard">
+        <img src="assets/legendaire.png" alt="Booster Légendaire">
+        <img src="assets/mythique.png" alt="Booster Mythique">
+      </div>
+      <div>
+        <h2 class="display">Cartes</h2>
+        <p>Découvre les quatre boosters et retourne les cartes une à une pour voir ce que tu as tiré.</p>
+        <div class="count" aria-live="polite">Booster <b id="cur">Premium</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="launcher" id="launcher">
+    <div>
+      <div>
+        <h2 class="display">Launcher</h2>
+        <p>Télécharge le launcher pour lancer Paranoia Client.</p>
+        <a class="btn" href="#">Télécharger le launcher</a>
+      </div>
+      <div class="sl-land" id="sl-land"></div>
+    </div>
+  </section>
+
+  <section class="discord" id="discord">
+    <div>
+      <h2 class="display">La communauté Paranoia</h2>
+      <p>Retrouve les autres joueurs sur Discord pour discuter du jeu et partager tes tirages.</p>
+      <a class="btn" href="#">Rejoindre le Discord</a>
+    </div>
+  </section>
+
+  <div class="chars" aria-hidden="true">
+    <div class="char"></div><div class="char"></div><img class="seated" src="assets/seated.png" alt=""><div class="char"></div><div class="char"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="foot">
+    <a class="foot-logo" href="index.html" aria-label="Paranoia Studio, accueil"><img src="assets/logo-blanc.svg" alt=""></a>
+    <div class="cols" role="navigation" aria-label="Pied de page">
+      <div><h3>Serveur</h3><ul><li><a href="cartes.html">Cartes</a></li><li><a href="jeux.html">Jeux</a></li><li><a href="launcher.html">Launcher</a></li></ul></div>
+      <div><h3>Communauté</h3><ul><li><a href="#discord">Discord</a></li><li><a href="#">Support</a></li></ul></div>
+      <div><h3>Légal</h3><ul><li><a href="#">Mentions légales</a></li><li><a href="#">Confidentialité</a></li></ul></div>
+    </div>
+  </div>
+  <span class="big" id="big" aria-hidden="true">PARANOIA</span>
+</footer>
+
+<img class="fly" id="fly-b" src="assets/premium.png" alt="Booster Paranoia SMP">
+<img class="fly" id="fly-l" src="assets/launcher.png" alt="Le launcher Paranoia Client">
+
+<script>
+(() => {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const deck = document.getElementById("cartes");
+  const stack = document.getElementById("stack");
+  const cards = [...stack.querySelectorAll("img")];
+  const names = ["Premium", "Standard", "Légendaire", "Mythique"];
+  const cur = document.getElementById("cur");
+  const $ = id => document.getElementById(id);
+  const ease = t => t * t * (3 - 2 * t), clamp = (v, a = 0, b = 1) => Math.min(Math.max(v, a), b);
+  let c0 = { y: 0, rot: 0, o: 1 }; // état du 1er booster, repris par le calque volant
+
+  const render = () => {
+    const total = deck.offsetHeight - innerHeight;
+    const p = clamp(-deck.getBoundingClientRect().top / total) * (cards.length - 1);
+    cards.forEach((c, i) => {
+      const d = i - p;
+      c.style.zIndex = cards.length - i;
+      if (d < 0) { // booster passé : il descend et s'efface
+        const t = Math.min(-d, 1), rot = reduce ? 0 : t * 10;
+        c.style.transform = `translate3d(0, ${t * 70}vh, 0) rotate(${rot}deg)`;
+        c.style.opacity = 1 - t;
+        if (i === 0) c0 = { y: t * .7 * innerHeight, rot, o: 1 - t };
+      } else { // boosters en attente : décalés derrière
+        const k = Math.min(d, 3);
+        c.style.transform = `translate3d(0, ${-k * 20}px, 0) scale(${1 - k * .06})`;
+        c.style.opacity = 1;
+        if (i === 0) c0 = { y: 0, rot: 0, o: 1 };
+      }
+    });
+    cur.textContent = names[Math.min(Math.round(p), cards.length - 1)];
+  };
+
+  // Calques volants : le booster 1 glisse du hero vers le paquet, la capture arrive sur le launcher
+  const fb = $("fly-b"), fl = $("fly-l");
+  const R = e => { const r = e.getBoundingClientRect(); return { l: r.left, t: r.top, w: r.width, h: r.height }; };
+  const mix = (a, b, k) => ({ l: a.l + (b.l - a.l) * k, t: a.t + (b.t - a.t) * k, w: a.w + (b.w - a.w) * k, h: a.h + (b.h - a.h) * k });
+  const put = (el, r, rot, o) => {
+    const W = el.offsetWidth, H = el.offsetHeight;
+    if (!W || !H || r.w < 1) { el.style.opacity = 0; return; }
+    const x = r.l + r.w / 2 - W / 2, y = r.t + r.h / 2 - H / 2;
+    el.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${reduce ? 0 : rot}deg) scale(${r.w / W})`;
+    el.style.opacity = o;
+  };
+  const fly = () => {
+    const vh = innerHeight;
+    const u = clamp(1 - deck.getBoundingClientRect().top / document.querySelector(".hero").offsetHeight), e = ease(u);
+    // booster : arrive à la place du 1er booster du paquet, puis en suit la descente
+    const s = R(stack), dest = { ...s, t: s.t + c0.y };
+    put(fb, mix(R($("sb-hero")), dest, e), -22 * (1 - e) + c0.rot * e, e < 1 ? 1 : c0.o);
+    // capture : visible dans le hero, invisible entre les deux, glisse depuis la droite vers le launcher
+    const land = R($("sl-land")), g = ease(clamp((vh - land.t) / (vh * .6)));
+    if (g > 0) put(fl, mix({ ...land, l: land.l + innerWidth * .4 }, land, g), 8 * (1 - g), g);
+    else put(fl, R($("sl-hero")), 8, 1 - clamp(u * 2));
+  };
+
+  let ticking = false;
+  const frame = () => { ticking = false; render(); fly(); };
+  const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } };
+  addEventListener("scroll", onScroll, { passive: true });
+  addEventListener("resize", onScroll);
+  [fb, fl].forEach(i => i.addEventListener("load", onScroll));
+  frame();
+
+})();
+</script>
+<script src="site.js"></script>
+</body>
+</html>

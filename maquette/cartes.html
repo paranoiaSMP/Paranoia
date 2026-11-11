@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartes · Paranoia Studio</title>
+<meta name="description" content="Découvre les boosters de Paranoia Studio, les chances de tirage et les cartes qu’ils contiennent.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.open{max-width:1440px;margin:0 auto;padding:clamp(32px,4vw,64px) 32px clamp(64px,8vw,128px);text-align:center}
+.open h1{font-size:clamp(40px,7vw,112px);text-transform:uppercase}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.tabs button{font:inherit;font-weight:600;color:var(--black);background:none;border:1px solid var(--hair);border-radius:999px;padding:12px 20px;min-height:44px;cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--purple);border-color:var(--purple);color:#fafafa}
+[hidden]{display:none !important}
+.stage{position:relative;height:min(52vh,480px);margin-top:32px;perspective:1200px}
+.item{--s:.72;position:absolute;left:50%;top:0;height:100%;aspect-ratio:432/577;border:0;background:none;padding:0;cursor:pointer;opacity:.5;transform:translateX(calc(-50% + var(--o) * min(30vw,380px))) scale(var(--s));transition:transform .7s var(--ease-out),opacity .5s}
+.item:hover{opacity:.85}
+.item.on{--s:1;opacity:1;z-index:2;cursor:pointer}
+.item[data-o="2"],.item[data-o="-2"]{opacity:0;pointer-events:none}
+.arr{position:absolute;z-index:3;top:50%;margin-top:-24px;width:48px;height:48px;border-radius:50%;border:1px solid var(--hair);background:var(--white);color:var(--black);font-size:18px;cursor:pointer}
+.arr.l{left:clamp(0px,4vw,60px)}.arr.r{right:clamp(0px,4vw,60px)}
+.arr:hover{background:var(--purple);border-color:var(--purple)}
+.stage.dealing{display:grid;place-items:center}
+.stage.opening .item:not(.on),.stage.opening .arr{opacity:0;pointer-events:none}
+.seasons{margin-top:12px}.seasons button{min-height:40px;padding:8px 16px;font-size:14px}
+.pname{margin-top:8px;font-stretch:125%;font-weight:900;font-size:clamp(20px,2vw,28px);text-transform:uppercase}
+.empty{position:absolute;inset:0;display:grid;place-items:center;opacity:.7}
+#go:disabled{opacity:.4;cursor:not-allowed}
+#go{margin:32px auto 0;display:flex;background:var(--purple);color:#fafafa;min-width:min(100%,280px);justify-content:center}
+.rates{max-width:800px;margin:clamp(32px,4vw,64px) auto 0;border:1px solid var(--hair);border-radius:16px;padding:24px;text-align:left}
+.rates h2{font-stretch:125%;font-weight:900;font-size:18px;text-transform:uppercase;letter-spacing:-.01em}
+.rates ul{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:10px}
+.rates li{display:grid;grid-template-columns:120px 1fr 48px;gap:12px;align-items:center;font-size:15px}
+.rates i{display:block;height:8px;border-radius:99px;background:var(--c);width:var(--w)}
+.rates b{color:var(--c);font-weight:600}.rates span{text-align:right;opacity:.7}
+.pack{position:relative;display:block;height:100%;width:100%;filter:drop-shadow(0 24px 40px rgba(0,0,0,.5));transition:transform .3s var(--ease-out)}
+.item.on:hover .pack{transform:translateY(-6px) rotate(-1.5deg)}
+.pack img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:transform .6s var(--ease-out),opacity .6s}
+.pack .top{clip-path:inset(0 0 80% 0)}.pack .bot{clip-path:inset(20% 0 0 0)}
+.pack.shake{animation:shake .6s linear}
+.pack.torn{pointer-events:none}.pack.torn .top{transform:translateY(-70%) rotate(-14deg);opacity:0}.pack.torn .bot{transform:translateY(30%);opacity:0}
+@keyframes shake{15%{transform:translateX(-3px) rotate(-1deg)}30%{transform:translateX(4px) rotate(1.2deg)}45%{transform:translateX(-6px) rotate(-2deg)}60%{transform:translateX(7px) rotate(2.4deg)}75%{transform:translateX(-9px) rotate(-3deg)}90%{transform:translateX(9px) rotate(3deg)}}
+.pack::after{content:"";position:absolute;left:10%;right:10%;top:20%;height:3px;border-radius:2px;background:var(--fx,#7c3aed);box-shadow:0 0 24px 6px var(--fx,#7c3aed);opacity:0;pointer-events:none}
+.pack.torn::after{animation:seam .6s ease-out}
+@keyframes seam{0%{opacity:1;transform:scaleX(.15)}50%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1)}}
+.card{position:absolute;height:100%;aspect-ratio:5/7;cursor:pointer;transform-style:preserve-3d;transition:transform .6s var(--ease-out),opacity .35s;border:0;background:none;padding:0;font:inherit;color:#fafafa}
+.card.flip{transform:rotateY(180deg)}
+.card.out{transform:translateX(120%) rotate(12deg) !important;opacity:0}
+.face{position:absolute;inset:0;border-radius:16px;backface-visibility:hidden;display:grid;place-items:center;align-content:center;gap:8px;box-shadow:0 0 0 2px var(--c,#57534e),0 0 var(--g,0px) -8px var(--c,transparent)}
+.face.back{background:linear-gradient(160deg,#4c1d95,#1e1b4b);--c:#7c3aed}
+.face.back img{width:55%}
+.face.front{background:#57534e;transform:rotateY(180deg)}
+.face.front b{font-stretch:125%;font-weight:900;font-size:clamp(22px,2.4vw,36px);text-transform:uppercase;color:var(--c)}
+.stage[hidden]{display:none}
+.hint{margin-top:16px;min-height:1.5em;opacity:.7}
+.sum{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:32px}
+.sum .face{position:static;aspect-ratio:5/7;width:clamp(120px,14vw,200px);transform:none;backface-visibility:visible}
+.sum .face b{font-size:clamp(13px,1.3vw,18px);text-align:center;padding-inline:8px}
+#sum .btn{margin:32px auto 0}
+@media (prefers-reduced-motion:reduce){.item,.arr{transition:none}.pack.shake,.pack.torn::after{animation:none}.card,.pack img{transition:opacity .2s}.card.flip{transform:none}.card.flip .back{display:none}.card.flip .front{transform:none}}
+.open{padding:0 0 clamp(64px,8vw,128px);text-align:left}
+.cs{height:240vh}
+.cstage{position:sticky;top:0;height:100svh;max-width:1440px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:32px}
+.ccap .tabs{justify-content:flex-start;margin-top:0}.ccap .seasons{margin-top:8px}
+.ccap .pname{margin-top:24px;font-size:clamp(40px,6.5vw,96px);line-height:.92}
+.ccap .rates{max-width:420px;margin:24px 0 0;border:0;padding:0}
+.ccap #go{margin:24px 0 0;border:0;border-radius:12px;padding:20px 48px;font:inherit;font-weight:700;font-size:16px;cursor:pointer}.ccap #go:hover{background:#6d28d9;color:#fafafa}
+.right{text-align:center}.right .stage{height:min(60svh,540px);margin-top:0}
+.stage .item:not(.on){opacity:0 !important;pointer-events:none}
+.arr{top:auto;bottom:-8px;margin:0}.arr.l{left:calc(50% - 64px)}.arr.r{right:auto;left:calc(50% + 16px)}
+#sum{padding:clamp(48px,6vw,96px) 32px;text-align:center}
+@media (max-width:760px){.cstage{grid-template-columns:1fr;grid-template-rows:auto 1fr;align-content:center;padding:0 16px;gap:8px}.right .stage{height:34svh}.ccap .pname{margin-top:12px;font-size:36px}.ccap .rates{margin-top:12px}.ccap #go{margin-top:12px}.rates li{font-size:13px;gap:8px}.rates ul{gap:4px;margin-top:8px}#sum{padding-inline:16px}.arr{display:none}}
+@media (prefers-reduced-motion:reduce){.cs{height:auto}.cstage{position:static;height:auto;padding-block:48px}}
+</style>
+</head>
+<body class="sub">
+<nav>
+  <a class="logo" href="index.html" aria-label="Paranoia Studio, accueil"><img src="assets/logo-blanc.svg" alt=""></a>
+  <ul>
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="cartes.html" aria-current="page">Cartes</a></li>
+    <li><a href="jeux.html">Jeux</a></li>
+    <li><a href="launcher.html">Launcher</a></li>
+  </ul>
+  <a class="avatar" href="#" aria-label="Mon compte"></a>
+</nav>
+<main class="open">
+  <h1 class="sr">Cartes</h1>
+  <section class="cs" id="cs" aria-label="Boosters">
+    <div class="cstage">
+      <div class="ccap">
+  <div class="tabs" id="tabs" role="group" aria-label="Type de booster">
+    <button data-c="saison" aria-pressed="false">Saisonnier</button><button data-c="normal" aria-pressed="false">Normal</button><button data-c="limite" aria-pressed="false">Limité</button>
+  </div>
+  <div class="tabs seasons" id="seasons" role="group" aria-label="Saison"><button data-s="halloween">Halloween</button><button data-s="noel">Noël</button><button data-s="paques">Pâques</button><button data-s="valentin">Saint-Valentin</button><button data-s="nouvelan">Nouvel An</button></div>
+        <p class="pname display" id="pname" aria-live="polite"></p>
+        <div class="rates" id="rates"></div>
+        <button class="btn" id="go">Ouvrir</button>
+      </div>
+      <div class="right">
+        <div class="stage" id="stage"></div>
+        <p class="hint" id="hint" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+  <div id="sum" hidden></div>
+</main>
+<footer>
+  <div class="foot">
+    <a class="foot-logo" href="index.html" aria-label="Paranoia Studio, accueil"><img src="assets/logo-blanc.svg" alt=""></a>
+    <div class="cols" role="navigation" aria-label="Pied de page">
+      <div><h3>Serveur</h3><ul><li><a href="cartes.html">Cartes</a></li><li><a href="jeux.html">Jeux</a></li><li><a href="launcher.html">Launcher</a></li></ul></div>
+      <div><h3>Communauté</h3><ul><li><a href="#discord">Discord</a></li><li><a href="#">Support</a></li></ul></div>
+      <div><h3>Légal</h3><ul><li><a href="#">Mentions légales</a></li><li><a href="#">Confidentialité</a></li></ul></div>
+    </div>
+  </div>
+  <span class="big" id="big" aria-hidden="true">PARANOIA</span>
+</footer>
+<script>
+(() => {
+  // Tirage SIMULÉ (démo de style) : les vraies cartes/taux viendront du serveur.
+  const R = { COMMON:["Commune","#cbd5e1"], UNCOMMON:["Peu commune","#34d399"], RARE:["Rare","#60a5fa"], EPIC:["Épique","#a855f7"], LEGENDARY:["Légendaire","#f59e0b"], MYTHIC:["Mythique","#ef4444"] };
+  // Niveaux (comme Normal) ; chaque saison les reprend.
+  const LV = { standard:["Standard",3,[50,30,15,4,1,0]], premium:["Premium",4,[30,30,25,12,3,0]], legendaire:["Légendaire",4,[10,25,30,22,12,1]], mythique:["Mythique",5,[0,10,30,30,22,8]] };
+  const SE = { halloween:"Halloween", noel:"Noël", paques:"Pâques", valentin:"Saint-Valentin", nouvelan:"Nouvel An" };
+  const PACKS = {};
+  for (const [k, [n, c, w]] of Object.entries(LV)) PACKS[k] = [n, c, k, w];
+  // shortcut: une seule image par saison pour les 4 niveaux, en attendant les visuels par niveau
+  for (const [t, tn] of Object.entries(SE)) for (const [k, [n, c, w]] of Object.entries(LV)) PACKS[t + ":" + k] = [tn + " " + n, c, t, w];
+  let season = "halloween";
+  const CATS = { get saison() { return Object.keys(LV).map(k => season + ":" + k); }, normal: Object.keys(LV), limite: [] }; // limité = collabs, aucune pour l'instant
+  const KEYS = Object.keys(R), $ = id => document.getElementById(id);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let id = new URLSearchParams(location.search).get("b"); if (!PACKS[id]) id = "premium"; if (id.includes(":")) season = id.split(":")[0];
+  let cards, i, busy;
+
+  const stage = $("stage"), hint = $("hint"), sum = $("sum"), go = $("go"), rates = $("rates");
+  const catOf = k => Object.keys(CATS).find(c => CATS[c].includes(k));
+  let cat = catOf(id), ids = CATS[cat], cur = ids.indexOf(id);
+  const tabs = $("tabs"), seasons = $("seasons");
+  const sync = () => {
+    tabs.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.c === cat));
+    seasons.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.s === season));
+    seasons.hidden = cat !== "saison";
+  };
+  seasons.onclick = e => { const b = e.target.closest("button"); if (b && !busy) { season = b.dataset.s; ids = CATS.saison; cur = 0; id = ids[0]; sync(); build(); } };
+  function setCat(c) {
+    cat = c; ids = CATS[c]; cur = 0; if (ids.length) id = ids[0];
+    sync(); build();
+  }
+  tabs.onclick = e => { const b = e.target.closest("button"); if (b && !busy && b.dataset.c !== cat) setCat(b.dataset.c); };
+  const img = k => "assets/" + PACKS[k][2] + ".png";
+
+  // Les 4 boosters existent en permanence : seul --o (décalage) change, donc le défilement s'anime en CSS.
+  function build() {
+    if (!ids.length) { stage.innerHTML = '<p class="empty">Aucun booster de collaboration disponible.</p>'; place(); return; }
+    stage.innerHTML = ids.map((k, j) => `<button class="item" data-j="${j}" aria-label="Booster ${PACKS[k][0]}"><span class="pack"><img class="bot" src="${img(k)}" alt=""><img class="top" src="${img(k)}" alt=""></span></button>`).join("")
+      + (ids.length > 1 ? `<button class="arr l" data-a="-1" aria-label="Booster précédent">&#9664;</button><button class="arr r" data-a="1" aria-label="Booster suivant">&#9654;</button>` : "");
+    place(); seek();
+  }
+  function place() {
+    const n = ids.length;
+    stage.querySelectorAll(".item").forEach(el => {
+      let o = (((+el.dataset.j - cur) % n) + n) % n; if (o > n / 2) o -= n;
+      el.style.setProperty("--o", o); el.dataset.o = o; el.classList.toggle("on", o === 0);
+      el.tabIndex = Math.abs(o) > 1 ? -1 : 0; el.setAttribute("aria-hidden", Math.abs(o) > 1);
+    });
+    go.disabled = !ids.length; $("pname").textContent = ids.length ? PACKS[id][0] : "";
+    if (!ids.length) { rates.innerHTML = "<h2>Bientôt</h2><p>Aucun booster de collaboration disponible.</p>"; return; }
+    const w = PACKS[id][3];
+    rates.innerHTML = `<h2>${PACKS[id][0]} · ${PACKS[id][1]} cartes</h2><ul>${KEYS.map((k, j) => w[j] ? `<li style="--c:${R[k][1]};--w:${w[j] * 2}%"><b>${R[k][0]}</b><i></i><span>${w[j]}%</span></li>` : "").join("")}</ul>`;
+  }
+  function move(o) { if (!ids.length) return; cur = (cur + o + ids.length) % ids.length; id = ids[cur]; try { history.replaceState(0, "", "?b=" + id); } catch {} place(); seek(); }
+  stage.addEventListener("click", e => {
+    if (busy) return;
+    const a = e.target.closest("[data-a]"), it = e.target.closest(".item");
+    if (a) move(+a.dataset.a);
+    else if (it) { const o = +it.dataset.o; if (o === 0) openPack(); else if (Math.abs(o) === 1) move(o); }
+  });
+  addEventListener("keydown", e => { if (busy || !stage.querySelector(".item")) return; if (e.key === "ArrowLeft") move(-1); if (e.key === "ArrowRight") move(1); });
+  go.onclick = () => openPack();
+
+  const draw = w => { let r = Math.random() * 100; for (let k = 0; k < w.length; k++) if ((r -= w[k]) < 0) return KEYS[k]; return KEYS[0]; };
+  function intro() {
+    sum.hidden = true; cs.hidden = false; stage.hidden = false; go.hidden = false; rates.hidden = false; tabs.hidden = false; busy = false; sync();
+    stage.onclick = null; stage.classList.remove("opening", "dealing"); hint.textContent = ""; build();
+  }
+  function openPack() {
+    if (busy || !ids.length) return; busy = true; tabs.hidden = true; seasons.hidden = true; $("pname").textContent = ""; go.hidden = true; rates.hidden = true; stage.classList.add("opening");
+    const p = stage.querySelector(".on .pack"), n = PACKS[id][1];
+    cards = Array.from({ length: n }, () => draw(PACKS[id][3])).sort((a, b) => KEYS.indexOf(a) - KEYS.indexOf(b)); // la plus rare en dernier
+    const best = cards[n - 1], fx = R[best][1];
+    p.classList.add("shake");
+    setTimeout(() => {
+      p.style.setProperty("--fx", KEYS.indexOf(best) >= 3 ? fx : "#7c3aed"); // la lumière de la déchirure annonce la meilleure carte
+      p.classList.add("torn"); setTimeout(deal, reduce ? 0 : 450);
+    }, reduce ? 0 : 600);
+  }
+  function deal() {
+    i = 0;
+    stage.innerHTML = cards.map((k, j) => `<button class="card" style="z-index:${cards.length - j};--c:${R[k][1]};--g:${KEYS.indexOf(k) >= 3 ? 48 : 0}px" aria-label="Carte ${j + 1}"><span class="face back"><img src="assets/logo-blanc.svg" alt=""></span><span class="face front"><b>${R[k][0]}</b><span>Carte ${j + 1}</span></span></button>`).join("");
+    const cc = stage.querySelectorAll(".card"); busy = true; // les cartes sortent du booster une à une
+    cc.forEach(c => { c.style.opacity = 0; c.style.transform = "translateY(35%) scale(.8)"; });
+    void stage.offsetWidth;
+    cc.forEach((c, j) => { c.style.transitionDelay = reduce ? "0s" : j * 70 + "ms"; c.style.opacity = ""; c.style.transform = `translateY(${j * -6}px) scale(${1 - j * .03})`; });
+    stage.classList.add("dealing"); stage.onclick = step; hint.textContent = "Retourne la carte";
+    setTimeout(() => { cc.forEach(c => c.style.transitionDelay = ""); busy = false; }, reduce ? 0 : 700 + cc.length * 70);
+  }
+  function step() {
+    if (busy) return; const c = stage.querySelectorAll(".card")[i]; if (!c) return;
+    if (!c.classList.contains("flip")) { c.style.transform = ""; c.classList.add("flip"); hint.textContent = i < cards.length - 1 ? "Passe à la carte suivante" : "Voir le récapitulatif du tirage"; if (KEYS.indexOf(cards[i]) >= 4) navigator.vibrate?.([30, 50, 90]); return; }
+    c.classList.add("out"); i++;
+    if (i >= cards.length) { busy = true; setTimeout(summary, 350); return; }
+    stage.querySelectorAll(".card").forEach((x, j) => { if (j >= i) x.style.transform = `translateY(${(j - i) * -6}px) scale(${1 - (j - i) * .03})`; });
+    hint.textContent = "Retourne la carte";
+  }
+  function summary() {
+    stage.hidden = true; cs.hidden = true; stage.onclick = null; hint.textContent = "";
+    sum.hidden = false; scrollTo(0, 0);
+    sum.innerHTML = `<div class="sum">${cards.map((k, j) => `<div class="face front" style="--c:${R[k][1]};--g:${KEYS.indexOf(k) >= 3 ? 48 : 0}px"><b>${R[k][0]}</b><span>Carte ${j + 1}</span></div>`).join("")}</div><button class="btn" id="again">Rouvrir un booster</button>`;
+    $("again").onclick = intro;
+  }
+  const cs = $("cs"), span = () => cs.offsetHeight - innerHeight;
+  function seek() { // le scroll choisit le booster ; on recale le scroll quand on change de booster autrement (flèches, onglets)
+    const sp = span(); if (sp <= 0 || !ids.length) return; const t = cs.getBoundingClientRect().top;
+    if (!cur && t >= 0) return; scrollTo({ top: t + scrollY + (cur + .5) / ids.length * sp, behavior: "instant" });
+  }
+  let q = false;
+  addEventListener("scroll", () => {
+    if (q || busy || cs.hidden || ids.length < 2) return; q = true;
+    requestAnimationFrame(() => {
+      q = false; const sp = span(); if (sp <= 0) return;
+      const j = Math.floor(Math.min(.9999, Math.max(0, -cs.getBoundingClientRect().top / sp)) * ids.length);
+      if (j !== cur) { cur = j; id = ids[j]; try { history.replaceState(0, "", "?b=" + id); } catch {} place(); }
+    });
+  }, { passive: true });
+  intro();
+})();
+</script>
+<script src="site.js"></script>
+</body>
+</html>
